@@ -1,0 +1,13 @@
+{
+  "name": "claude-powermode",
+  "owner": {
+    "name": "Patrick Gerrits"
+  },
+  "plugins": [
+    {
+      "name": "powermode",
+      "source": ".",
+      "description": "Disciplined engineering workflow with hooks, agents, skills, and commands"
+    }
+  ]
+}

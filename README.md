@@ -4,30 +4,15 @@ Disciplined engineering workflow for Claude Code: consistent exploration, planni
 
 ## Installation
 
-### Via GitHub Marketplace (Recommended)
-
-Add this repository as a plugin marketplace, then install:
-
 ```bash
 # Add the marketplace
-claude plugin marketplace add https://github.com/shintaii/claude-powermode
+claude plugin marketplace add shintaii/claude-powermode
 
 # Install the plugin
-claude plugin install powermode
+claude plugin install powermode@claude-powermode
 
 # Verify
 claude plugin list | grep powermode
-```
-
-### Manual Installation
-
-Clone and copy to your local plugins:
-
-```bash
-git clone https://github.com/shintaii/claude-powermode.git
-mkdir -p ~/.claude/plugins/cache/local-plugins/powermode/
-cp -r claude-powermode/* ~/.claude/plugins/cache/local-plugins/powermode/
-cp -r claude-powermode/.claude-plugin ~/.claude/plugins/cache/local-plugins/powermode/
 ```
 
 ## Goals
@@ -88,10 +73,8 @@ cp -r claude-powermode/.claude-plugin ~/.claude/plugins/cache/local-plugins/powe
 ## Updating
 
 ```bash
-claude plugin update powermode
+claude plugin update powermode@claude-powermode
 ```
-
-Or pull the latest and reinstall manually.
 
 ### Important: hooks.json auto-load
 

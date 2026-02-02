@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **powermode** Claude Code plugin - a disciplined engineering workflow with hooks, commands, agents, and skills. Current version: 2.6.8.
+This is the **powermode** Claude Code plugin - a disciplined engineering workflow with hooks, commands, agents, and skills. Current version: 2.6.9.
 
 ## Plugin Structure
 
