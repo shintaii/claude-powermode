@@ -130,6 +130,10 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 - **2.5.3**: PostToolUse output schema fix
 - **2.5.2**: stop hook improvements + escape hatch
 
+## Credits
+
+Heavily inspired by [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) - thank you for the foundational ideas.
+
 ## License
 
 MIT - see [LICENSE](LICENSE)
