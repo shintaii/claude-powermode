@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "powermode",
-      "source": ".",
+      "source": "./",
       "description": "Disciplined engineering workflow with hooks, agents, skills, and commands"
     }
   ]
