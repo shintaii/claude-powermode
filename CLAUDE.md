@@ -97,3 +97,19 @@ Use these skills when modifying this plugin:
 3. Test hooks manually: `echo '{"cwd":"/tmp"}' | python3 hooks/<hook>.py`
 4. Bump version in plugin.json
 5. Deploy: `cp -r ./* ~/.claude/plugins/cache/local-plugins/powermode/<version>/`
+
+### Release Workflow
+
+On every version bump:
+1. Update version in `.claude-plugin/plugin.json`
+2. Commit changes
+3. **Tag the release**: `git tag v<version> && git push origin v<version>`
+4. Update remote: `git push origin main`
+
+Example:
+```bash
+# After bumping to 2.6.9
+git add -A && git commit -m "Release v2.6.9: <description>"
+git tag v2.6.9
+git push origin main v2.6.9
+```
