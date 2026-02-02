@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **powermode** Claude Code plugin - a disciplined engineering workflow with hooks, commands, agents, and skills. Current version: 2.6.9.
+This is the **powermode** Claude Code plugin - a disciplined engineering workflow with hooks, commands, agents, and skills.
+
+**Distribution:** GitHub Marketplace at `shintaii/claude-powermode`
 
 ## Plugin Structure
 
@@ -22,15 +24,11 @@ powermode/
 ## Development Commands
 
 ```bash
-# Bump version in plugin.json, then copy to cache:
-cp -r ./* ~/.claude/plugins/cache/local-plugins/powermode/<version>/
-cp -r ./.claude-plugin ~/.claude/plugins/cache/local-plugins/powermode/<version>/
+# Test a hook manually:
+echo '{"cwd":"/tmp","transcript_path":"..."}' | python3 hooks/stop-validator.py
 
 # Verify installation:
 claude plugin list | grep -A3 powermode
-
-# Test a hook manually:
-echo '{"cwd":"/tmp","transcript_path":"..."}' | python3 hooks/stop-validator.py
 ```
 
 ## Hook Development Rules
@@ -95,21 +93,17 @@ Use these skills when modifying this plugin:
 1. Make changes
 2. Run `plugin-dev:plugin-validator` to validate
 3. Test hooks manually: `echo '{"cwd":"/tmp"}' | python3 hooks/<hook>.py`
-4. Bump version in plugin.json
-5. Deploy: `cp -r ./* ~/.claude/plugins/cache/local-plugins/powermode/<version>/`
+4. Bump version in `.claude-plugin/plugin.json`
+5. Commit, tag, and push (see Release Workflow)
 
 ### Release Workflow
 
-On every version bump:
-1. Update version in `.claude-plugin/plugin.json`
-2. Commit changes
-3. **Tag the release**: `git tag v<version> && git push origin v<version>`
-4. Update remote: `git push origin main`
-
-Example:
 ```bash
-# After bumping to 2.6.9
-git add -A && git commit -m "Release v2.6.9: <description>"
-git tag v2.6.9
-git push origin main v2.6.9
+# 1. Bump version in plugin.json
+# 2. Commit and tag
+git add -A && git commit -m "Release vX.Y.Z: <description>"
+git tag vX.Y.Z
+git push origin main vX.Y.Z
 ```
+
+Users update via: `claude plugin update powermode@claude-powermode`

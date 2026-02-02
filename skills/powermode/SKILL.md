@@ -146,7 +146,7 @@ Before ANY action, classify the request:
 |------|--------|--------|
 | **Trivial** | Single file, known location | Execute directly |
 | **Explicit** | Specific file/line, clear command | Execute directly |
-| **Exploratory** | "How does X work?" | Explore first |
+| **Exploratory** | "How does X work?" (pure question) | Explore, explain, STOP |
 | **Open-ended** | "Improve", "Add feature" | Full methodology (explore → plan → implement → verify) |
 | **Ambiguous** | Unclear scope | Ask ONE clarifying question |
 
@@ -154,6 +154,12 @@ Before ANY action, classify the request:
 - External library mentioned → fire `pm-librarian` background
 - 2+ modules involved → fire `pm-explorer` background
 - "Look into" + "create PR" → Full implementation cycle expected
+
+**After exploration completes:**
+- Pure question → STOP (don't ask "what next?")
+- Implementation request → proceed to implement
+- Plan mode active → proceed to planning
+- **NEVER ask "Would you like me to build/plan?"** - just do it
 
 ---
 

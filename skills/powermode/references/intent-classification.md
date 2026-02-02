@@ -47,10 +47,10 @@ Classify EVERY request before taking action. This prevents wasted effort and ens
 - "Find all usages of the deprecated API"
 - "What's the data flow from form submission to database?"
 
-**Action:** 
+**Action:**
 1. Search codebase systematically
 2. Explain findings
-3. Wait for follow-up before implementing
+3. **STOP** - user asked for understanding, not implementation
 
 ---
 
@@ -132,10 +132,22 @@ Should I proceed with [recommendation], or would you prefer differently?
 ```
 Is the request trivial/explicit?
 ├── YES → Execute directly
-└── NO → Is it exploratory?
-    ├── YES → Search and explain, wait for follow-up
+└── NO → Is it purely exploratory? ("How does X work?", "Find Y")
+    ├── YES → Search, explain, STOP (don't ask what next)
     └── NO → Is it ambiguous?
         ├── YES → Ask ONE clarifying question
-        └── NO → It's open-ended
-            └── Full methodology: Explore → Plan → Todos → Implement → Verify
+        └── NO → It's open-ended (implementation expected)
+            └── Explore → (if plan mode: Plan) → Todos → Implement → Verify
+               DO NOT ask permission between phases - just proceed
 ```
+
+## After Exploration - What Next?
+
+| Original Request Type | After Exploration |
+|-----------------------|-------------------|
+| Pure question ("How does X work?") | Explain and STOP |
+| Implementation ("Add feature X") | Proceed to implement |
+| Plan mode active | Proceed to planning |
+| Vague ("Improve X") | Create todos, then implement |
+
+**NEVER ask "Would you like me to build/plan/implement?"** - the original request already told you what to do.

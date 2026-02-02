@@ -117,6 +117,7 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 
 ## Version Notes
 
+- **2.6.10**: Add PRD NOTES.md tracking, fix stop-hook false positives (require @ prefix)
 - **2.6.8**: Open source release, GitHub marketplace support
 - **2.6.5**: PRD maker delegates writing to sub-agents (context preservation)
 - **2.6.4**: All hooks use proper output schemas (8 hooks fixed)
