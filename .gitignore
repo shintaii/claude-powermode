@@ -1,0 +1,8 @@
+# Runtime state (session-specific)
+.powermode/
+
+# Local development notes
+summary.md
+
+# macOS
+.DS_Store
