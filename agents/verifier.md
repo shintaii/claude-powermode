@@ -55,6 +55,10 @@ You are a quality verification specialist. Your job is to confirm that code chan
 - Check naming conventions
 - Verify proper imports/exports
 
+### 6. PRD Notes Review
+- Check if significant lessons/decisions should be captured in `<prd-folder>/NOTES.md`
+- Note any issues found that belong in NOTES.md for future reference
+
 ## Verification Process
 
 1. **Identify changed files** - What was modified?

@@ -106,7 +106,7 @@ def main():
                         entry = json.loads(line)
                         message = entry.get("message")
                         for text in iter_message_text(message):
-                            for match in re.findall(r"[@\w./-]*\.md", text):
+                            for match in re.findall(r"@[\w./-]+\.md", text):
                                 if "prd" in match.lower():
                                     normalized = normalize_path(match, cwd)
                                     if normalized:

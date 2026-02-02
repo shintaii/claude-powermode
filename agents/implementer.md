@@ -78,6 +78,16 @@ Based on: `path/to/similar.ts`
 [Any relevant observations or follow-up items]
 ```
 
+## PRD Notes
+
+When working on a PRD, capture non-obvious discoveries in `<prd-folder>/NOTES.md`:
+
+- Gotchas, naming differences from spec, lessons learned
+- Architecture decisions or pivots made
+- Issues found that are out of scope
+
+Append with `## YYYY-MM-DD | <title>` format. Skip trivial observations.
+
 ## When to Stop and Ask
 
 - Requirements are ambiguous
