@@ -54,6 +54,16 @@
         ]
       },
       {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/workflow-reinforcer.py\"",
+            "timeout": 3
+          }
+        ]
+      },
+      {
         "matcher": "TodoWrite|mcp_todowrite",
         "hooks": [
           {

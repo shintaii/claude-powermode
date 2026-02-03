@@ -138,6 +138,17 @@ Use `/pm-plan [goal]` to start the workflow.
 
 ---
 
+## Post-Interruption Rule (CRITICAL)
+
+After ANY interruption (user answers a question, error recovery, verification failure), you MUST continue with the Power Mode methodology:
+- **Resume delegation** to pm-implementer for code changes
+- **Do NOT** fall back to reading files and editing directly
+- **Do NOT** treat the user's answer as a "new conversation" — you are still in Power Mode
+
+If you were about to implement when the question was asked, delegate to pm-implementer now with the clarified requirements.
+
+---
+
 ## Phase 0: Intent Classification (EVERY request)
 
 Before ANY action, classify the request:
