@@ -38,7 +38,7 @@ def main():
         print(json.dumps({"continue": True}))
         return
 
-    state_file = Path(cwd) / ".powermode" / "context-state.json"
+    state_file = Path(cwd) / ".powermode" / "active-mode.json"
 
     # Only reinforce if powermode session is active
     if state_file.exists():
