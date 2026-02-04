@@ -13,14 +13,14 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 | Agent | Model | Purpose | WHEN TO SPAWN |
 |-------|-------|---------|---------------|
 | **pm-explorer** | Haiku | Fast codebase search | ALWAYS before implementing. Spawn 2-3 in parallel. |
-| **pm-librarian** | Sonnet | External docs/OSS research | When using unfamiliar libraries, APIs, frameworks |
+| **pm-researcher** | Sonnet | External docs/OSS research | When using unfamiliar libraries, APIs, frameworks |
 
 ### Planning System
 | Agent | Model | Purpose | WHEN TO SPAWN |
 |-------|-------|---------|---------------|
-| **pm-metis** | Opus | Pre-planning gap analysis | Before creating plans - identifies hidden requirements |
-| **pm-prometheus** | Opus | Strategic planner | Complex features - creates comprehensive work plans |
-| **pm-momus** | Sonnet | Plan reviewer | After plan creation - validates and iterates until quality bar met |
+| **pm-analyser** | Opus | Pre-planning gap analysis | Before creating plans - identifies hidden requirements |
+| **pm-powerplanner** | Opus | Strategic planner | Complex features - creates comprehensive work plans |
+| **pm-planreviewer** | Sonnet | Plan reviewer | After plan creation - validates and iterates until quality bar met |
 
 ### Implementation & Verification
 | Agent | Model | Purpose | WHEN TO SPAWN |
@@ -36,7 +36,7 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 | Command | Purpose |
 |---------|---------|
 | `/powermode` | Activate Power Mode (loads this skill) |
-| `/pm-plan [goal]` | Start planning workflow: Metis → Prometheus → Momus loop |
+| `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer loop |
 | `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
 
 ---
@@ -52,7 +52,7 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 
 ### For Complex Tasks (3+ steps)
 ```
-1. PLAN with /plan command (or manually: Metis → Prometheus → Momus)
+1. PLAN with /plan command (or manually: Analyser → Powerplanner → Planreviewer)
 2. CREATE TODOS from the plan
 3. For each task:
    a. EXPLORE with pm-explorer
@@ -94,12 +94,12 @@ Task(session_id="ses_abc123", prompt="Fix: the type error on line 42")
 ## Background Task Management
 
 ### Parallel Execution
-Fire multiple explorers/librarians in background:
+Fire multiple explorers/researchers in background:
 ```
 # Launch parallel exploration
 Task(subagent_type="pm-explorer", run_in_background=true, prompt="Find auth patterns")
 Task(subagent_type="pm-explorer", run_in_background=true, prompt="Find test patterns")
-Task(subagent_type="pm-librarian", run_in_background=true, prompt="Research JWT best practices")
+Task(subagent_type="pm-researcher", run_in_background=true, prompt="Research JWT best practices")
 
 # Continue working, then collect results when needed
 background_output(task_id="bg_abc123")
@@ -115,14 +115,14 @@ background_cancel(all=true)
 
 ## Planning Workflow Detail
 
-### The Momus Review Loop
+### The Planreviewer Review Loop
 
-After Prometheus creates a plan, Momus reviews it:
+After Powerplanner creates a plan, Planreviewer reviews it:
 
 ```
-Iteration 1: Momus reviews → NEEDS REVISION (missing file paths)
-Iteration 2: Fix issues → Momus reviews → NEEDS REVISION (unclear task)
-Iteration 3: Fix issues → Momus reviews → OKAY ✓
+Iteration 1: Planreviewer reviews → NEEDS REVISION (missing file paths)
+Iteration 2: Fix issues → Planreviewer reviews → NEEDS REVISION (unclear task)
+Iteration 3: Fix issues → Planreviewer reviews → OKAY ✓
 ```
 
 **Max 3 iterations** - if still not OKAY, present best version to user.
@@ -162,7 +162,7 @@ Before ANY action, classify the request:
 | **Ambiguous** | Unclear scope | Ask ONE clarifying question |
 
 **Key Triggers (check BEFORE classification):**
-- External library mentioned → fire `pm-librarian` background
+- External library mentioned → fire `pm-researcher` background
 - 2+ modules involved → fire `pm-explorer` background
 - "Look into" + "create PR" → Full implementation cycle expected
 
@@ -186,10 +186,10 @@ Exploration hygiene:
 - Use Grep/Read tools and Read offsets for large files
 - Avoid Bash find/grep for code search
 
-### External Research (pm-librarian)
+### External Research (pm-researcher)
 ```
-Task(subagent_type="pm-librarian", prompt="Research best practices for [library/framework]")
-Task(subagent_type="pm-librarian", prompt="Find production examples of [pattern]")
+Task(subagent_type="pm-researcher", prompt="Research best practices for [library/framework]")
+Task(subagent_type="pm-researcher", prompt="Find production examples of [pattern]")
 ```
 
 **Stop exploring when:**

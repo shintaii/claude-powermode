@@ -1,19 +1,19 @@
 {
   "name": "powermode",
   "version": "2.6.13",
-  "description": "Disciplined engineering methodology with proper hook output schemas for all hook types, context monitoring, session recovery, stop-hook todo + PRD enforcement (actionable + escape hatch), PRD maker/splitter, PRD index auto-inject (prompt + read), checkpoint command, plan drift detection, CLAUDE.md enforcement, parallel agents, planning system (Metis->Prometheus->Momus), ralph-loop, and verification discipline.",
+  "description": "Disciplined engineering methodology with proper hook output schemas for all hook types, context monitoring, session recovery, stop-hook todo + PRD enforcement (actionable + escape hatch), PRD maker/splitter, PRD index auto-inject (prompt + read), checkpoint command, plan drift detection, CLAUDE.md enforcement, parallel agents, planning system (Analyser->Powerplanner->Planreviewer), ralph-loop, and verification discipline.",
   "author": {
     "name": "Patrick Gerrits"
   },
   "agents": [
     "./agents/explorer.md",
-    "./agents/librarian.md",
+    "./agents/researcher.md",
     "./agents/oracle.md",
     "./agents/implementer.md",
     "./agents/verifier.md",
-    "./agents/metis.md",
-    "./agents/prometheus.md",
-    "./agents/momus.md"
+    "./agents/analyser.md",
+    "./agents/powerplanner.md",
+    "./agents/planreviewer.md"
   ],
   "skills": [
     "./skills/powermode",

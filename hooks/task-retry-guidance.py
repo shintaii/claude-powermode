@@ -21,13 +21,13 @@ TASK FAILED - Unknown agent type
 
 Available agents in Power Mode:
 - pm-explorer: Fast codebase search (Haiku)
-- pm-librarian: External docs/OSS research (Sonnet)
+- pm-researcher: External docs/OSS research (Sonnet)
 - pm-oracle: Architecture/debugging advisor (Opus)
 - pm-implementer: Code implementation (Opus)
 - pm-verifier: Quality verification (Sonnet)
-- pm-metis: Pre-planning analysis (Opus)
-- pm-prometheus: Strategic planning (Opus)
-- pm-momus: Plan review (Sonnet)
+- pm-analyser: Pre-planning analysis (Opus)
+- pm-powerplanner: Strategic planning (Opus)
+- pm-planreviewer: Plan review (Sonnet)
 
 Example: Task(subagent_type="pm-explorer", prompt="...")
 """,

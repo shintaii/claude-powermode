@@ -48,7 +48,7 @@ claude plugin list | grep powermode
 ### Commands
 
 - `/powermode`: activate methodology
-- `/pm-plan`: structured planning loop (Metis → Prometheus → Momus)
+- `/pm-plan`: structured planning loop (Analyser → Powerplanner → Planreviewer)
 - `/pm-ralph-loop`: self-referential dev loop
 - `/pm-checkpoint`: manual drift check
 - `/pm-prdmaker`: create or split PRDs (adds index README when multiple)
@@ -56,8 +56,8 @@ claude plugin list | grep powermode
 ### Agents
 
 - **pm-explorer** (Haiku): fast codebase search
-- **pm-librarian** (Sonnet): external docs / library research
-- **pm-metis / pm-prometheus / pm-momus**: plan creation and review
+- **pm-researcher** (Sonnet): external docs / library research
+- **pm-analyser / pm-powerplanner / pm-planreviewer**: plan creation and review
 - **pm-oracle** (Opus): architecture & deep reasoning
 - **pm-implementer** (Opus): code changes
 - **pm-verifier** (Sonnet): verification with evidence

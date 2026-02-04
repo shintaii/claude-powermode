@@ -14,14 +14,14 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 | Agent | Model | Use For |
 |-------|-------|---------|
 | `pm-explorer` | Haiku | Fast parallel codebase exploration |
-| `pm-librarian` | Sonnet | External docs, OSS research, library best practices |
+| `pm-researcher` | Sonnet | External docs, OSS research, library best practices |
 
-### Planning System (Greek Mythology Theme)
+### Planning System
 | Agent | Model | Use For |
 |-------|-------|---------|
-| `pm-metis` | Opus | Pre-planning analysis - finds hidden requirements |
-| `pm-prometheus` | Opus | Strategic planning with interview mode |
-| `pm-momus` | Sonnet | Plan review loop - iterates until quality bar met |
+| `pm-analyser` | Opus | Pre-planning analysis - finds hidden requirements |
+| `pm-powerplanner` | Opus | Strategic planning with interview mode |
+| `pm-planreviewer` | Sonnet | Plan review loop - iterates until quality bar met |
 
 ### Implementation & Verification
 | Agent | Model | Use For |
@@ -34,7 +34,7 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 
 | Command | Purpose |
 |---------|---------|
-| `/pm-plan [goal]` | Start planning workflow: Metis → Prometheus → Momus review loop |
+| `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer review loop |
 | `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
 
 ## Mandatory Workflow
@@ -42,7 +42,7 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 For any non-trivial task:
 
 1. **Classify** the request (Trivial/Explicit/Exploratory/Open-ended/Ambiguous)
-2. **Explore** - Fire `pm-explorer` (+ `pm-librarian` for external libs) in parallel
+2. **Explore** - Fire `pm-explorer` (+ `pm-researcher` for external libs) in parallel
 3. **Plan** - Use `/plan` for complex work, or create todos
 4. **Implement** - Use `pm-implementer` for focused tasks
 5. **Verify** - Use `pm-verifier` before claiming done

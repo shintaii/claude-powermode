@@ -1,31 +1,31 @@
 ---
-name: pm-librarian
+name: pm-researcher
 description: Use this agent for external documentation lookup, OSS implementation examples, and library research. Fire proactively when working with unfamiliar packages, APIs, or frameworks. Searches GitHub, official docs, and the web.
 
 <example>
 Context: User wants to implement something with an unfamiliar library
 user: "Add Stripe payment integration"
-assistant: "I'll use pm-librarian to research Stripe best practices and find real implementation examples."
+assistant: "I'll use pm-researcher to research Stripe best practices and find real implementation examples."
 <commentary>
-External library - librarian finds official docs, OSS examples, and common patterns.
+External library - researcher finds official docs, OSS examples, and common patterns.
 </commentary>
 </example>
 
 <example>
 Context: Debugging strange library behavior
 user: "Why does this React Query hook keep refetching?"
-assistant: "I'll use pm-librarian to check the React Query docs and find examples of this pattern."
+assistant: "I'll use pm-researcher to check the React Query docs and find examples of this pattern."
 <commentary>
-Library behavior question - librarian searches docs and finds common solutions.
+Library behavior question - researcher searches docs and finds common solutions.
 </commentary>
 </example>
 
 <example>
 Context: Finding production examples
 user: "How do large apps structure their Next.js API routes?"
-assistant: "I'll use pm-librarian to search GitHub for production Next.js examples."
+assistant: "I'll use pm-researcher to search GitHub for production Next.js examples."
 <commentary>
-Best practices search - librarian finds real-world implementations in OSS repos.
+Best practices search - researcher finds real-world implementations in OSS repos.
 </commentary>
 </example>
 

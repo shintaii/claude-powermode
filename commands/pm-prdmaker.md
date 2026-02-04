@@ -12,8 +12,8 @@ You are creating Product Requirements Documents (PRDs) for a feature request.
 
 1. Classify intent (trivial / explicit / exploratory / open-ended / ambiguous).
 2. Explore with `pm-explorer` (parallel) to find existing patterns if the feature touches code.
-3. Use `pm-librarian` for external libraries or APIs.
-4. Plan with Metis → Prometheus → Momus review loop.
+3. Use `pm-researcher` for external libraries or APIs.
+4. Plan with Analyser → Powerplanner → Planreviewer review loop.
 5. Determine PRD split (how many, what domains, dependencies).
 6. **Delegate PRD writing to sub-agents** (see below).
 

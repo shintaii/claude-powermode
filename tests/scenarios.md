@@ -2,7 +2,7 @@
 
 Manual scenarios to validate commands, hooks, and specialist agents. These are ordered from complex to light. Each scenario lists a prompt and the expected evidence.
 
-## 1) Planning loop quality (metis + prometheus + momus)
+## 1) Planning loop quality (analyser + powerplanner + planreviewer)
 
 Purpose
 - Validate /pm-plan orchestration and plan review quality.
@@ -13,10 +13,10 @@ Steps
    "Add multi-tenant billing with per-tenant rate limits, invoice export, and audit log. Keep existing API structure."
 
 Expected evidence
-- pm-metis runs first and flags hidden requirements and ambiguities.
-- pm-prometheus produces a structured plan with file paths and verification steps.
-- pm-momus reviews the plan and returns NEEDS REVISION if gaps exist.
-- After revisions, pm-momus can return OKAY.
+- pm-analyser runs first and flags hidden requirements and ambiguities.
+- pm-powerplanner produces a structured plan with file paths and verification steps.
+- pm-planreviewer reviews the plan and returns NEEDS REVISION if gaps exist.
+- After revisions, pm-planreviewer can return OKAY.
 
 ## 2) Architecture decision (oracle)
 
@@ -35,17 +35,17 @@ Expected evidence
 - Output follows the pm-oracle format (Analysis, Options Evaluated, Recommendation, Risks).
 - Recommendation is tied to constraints from the PRD.
 
-## 3) External docs research (librarian)
+## 3) External docs research (researcher)
 
 Purpose
 - Validate external documentation research and citation quality.
 
 Steps
 1. Run: `/powermode`
-2. Prompt: "Use pm-librarian to summarize the official OpenAPI 3.1 spec changes vs 3.0. Cite sources."
+2. Prompt: "Use pm-researcher to summarize the official OpenAPI 3.1 spec changes vs 3.0. Cite sources."
 
 Expected evidence
-- pm-librarian is used for research.
+- pm-researcher is used for research.
 - Sources are cited and match official docs.
 - Summary is concise and accurate.
 

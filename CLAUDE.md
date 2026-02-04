@@ -15,7 +15,7 @@ powermode/
 ├── .claude-plugin/plugin.json  # Manifest (version, components)
 ├── hooks/hooks.json            # Hook registrations (auto-loaded, NOT in plugin.json)
 ├── hooks/*.py                  # Python hook scripts
-├── agents/*.md                 # Agent definitions (explorer, librarian, oracle, etc.)
+├── agents/*.md                 # Agent definitions (explorer, researcher, oracle, etc.)
 ├── commands/*.md               # Slash commands (/powermode, /pm-plan, etc.)
 ├── skills/*/SKILL.md           # Skill definitions
 └── .powermode/                 # Runtime state (context-state.json, recovery.json)
@@ -58,8 +58,8 @@ plugin-dev:skill-reviewer    # Review specific implementations
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | pm-explorer | haiku | Fast codebase search |
-| pm-librarian | sonnet | External docs research |
-| pm-metis/prometheus/momus | sonnet | Planning loop |
+| pm-researcher | sonnet | External docs research |
+| pm-analyser/powerplanner/planreviewer | sonnet | Planning loop |
 | pm-oracle | opus | Architecture decisions |
 | pm-implementer | opus | Code changes |
 | pm-verifier | sonnet | Verification with evidence |

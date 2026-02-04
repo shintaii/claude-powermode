@@ -34,7 +34,7 @@ You are now in Power Mode. Follow the methodology:
 3. IMPLEMENT via pm-implementer - Don't code yourself
 4. VERIFY via pm-verifier - Always before "done"
 
-Available agents: pm-explorer, pm-librarian, pm-oracle, pm-implementer, pm-verifier, pm-metis, pm-prometheus, pm-momus
+Available agents: pm-explorer, pm-researcher, pm-oracle, pm-implementer, pm-verifier, pm-analyser, pm-powerplanner, pm-planreviewer
 
 Commands: /pm-plan [goal], /pm-ralph-loop [goal]
 """,
@@ -58,9 +58,9 @@ Don't rush. Quality over speed for this task.
 
 Use the Power Mode planning workflow:
 1. Run /pm-plan [goal] or manually:
-   - pm-metis: Analyze for hidden requirements
-   - pm-prometheus: Create comprehensive plan
-   - pm-momus: Review until quality bar met
+   - pm-analyser: Analyze for hidden requirements
+   - pm-powerplanner: Create comprehensive plan
+   - pm-planreviewer: Review until quality bar met
 
 The plan should have atomic, verifiable tasks.
 """,
