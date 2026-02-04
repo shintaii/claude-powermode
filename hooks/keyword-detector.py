@@ -14,11 +14,17 @@ Exit codes:
 import json
 import sys
 import re
+import os
+from pathlib import Path
 
-# Keyword patterns and their injected context
-KEYWORDS = {
-    # Power Mode activation
-    r"\b(powermode|power\s*mode)\b": """
+# Persistent modes - these stay active for the entire session once triggered
+PERSISTENT_MODES = {
+    r"\b(powermode|power\s*mode)\b": "powermode",
+}
+
+# Mode context injections
+MODE_CONTEXTS = {
+    "powermode": """
 [POWER MODE ACTIVATED]
 
 You are now in Power Mode. Follow the methodology:
@@ -32,19 +38,10 @@ Available agents: pm-explorer, pm-librarian, pm-oracle, pm-implementer, pm-verif
 
 Commands: /pm-plan [goal], /pm-ralph-loop [goal]
 """,
-    # Ultrawork mode
-    r"\b(ultrawork|ulw)\b": """
-[ULTRAWORK MODE ACTIVATED]
+}
 
-Maximum intensity mode engaged:
-- Fire MULTIPLE parallel agents for exploration
-- Use background tasks aggressively
-- Don't stop until the task is FULLY complete
-- Verify everything with evidence
-
-Work continuously. No half measures. Ship it.
-""",
-    # Think/analyze mode
+# Transient keywords - only injected when matched in the current prompt
+TRANSIENT_KEYWORDS = {
     r"\b(think\s+hard|reason\s+deeply|analyze\s+deeply|think\s+carefully)\b": """
 [DEEP THINKING MODE]
 
@@ -56,7 +53,6 @@ Take your time on this one:
 
 Don't rush. Quality over speed for this task.
 """,
-    # Plan request
     r"\b(create\s+a?\s*plan|make\s+a?\s*plan|plan\s+this|plan\s+for)\b": """
 [PLANNING REQUESTED]
 
@@ -71,6 +67,31 @@ The plan should have atomic, verifiable tasks.
 }
 
 
+def load_active_mode(cwd: str) -> str | None:
+    """Load persisted active mode from state file."""
+    state_file = Path(cwd) / ".powermode" / "active-mode.json"
+    if state_file.exists():
+        try:
+            with open(state_file, "r") as f:
+                data = json.load(f)
+            return data.get("mode")
+        except (json.JSONDecodeError, IOError):
+            pass
+    return None
+
+
+def save_active_mode(cwd: str, mode: str) -> None:
+    """Persist active mode to state file."""
+    state_dir = Path(cwd) / ".powermode"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    state_file = state_dir / "active-mode.json"
+    try:
+        with open(state_file, "w") as f:
+            json.dump({"mode": mode}, f)
+    except IOError:
+        pass
+
+
 def main():
     try:
         input_data = json.load(sys.stdin)
@@ -79,15 +100,33 @@ def main():
         return
 
     prompt = input_data.get("prompt", "")
+    cwd = input_data.get("cwd", "")
+
     if not prompt:
         print(json.dumps({"continue": True}))
         return
 
     prompt_lower = prompt.lower()
-
-    # Check for keywords and collect all matching contexts
     contexts = []
-    for pattern, context in KEYWORDS.items():
+
+    # Check for persistent mode activation via keyword
+    newly_activated = None
+    for pattern, mode_name in PERSISTENT_MODES.items():
+        if re.search(pattern, prompt_lower):
+            newly_activated = mode_name
+            break
+
+    if newly_activated and cwd:
+        save_active_mode(cwd, newly_activated)
+        contexts.append(MODE_CONTEXTS[newly_activated].strip())
+    elif not newly_activated and cwd:
+        # No keyword match - check if a persistent mode is already active
+        active_mode = load_active_mode(cwd)
+        if active_mode and active_mode in MODE_CONTEXTS:
+            contexts.append(MODE_CONTEXTS[active_mode].strip())
+
+    # Check transient keywords
+    for pattern, context in TRANSIENT_KEYWORDS.items():
         if re.search(pattern, prompt_lower):
             contexts.append(context.strip())
 
