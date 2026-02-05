@@ -213,7 +213,14 @@ These run automatically - you don't invoke them:
 | **Context monitor** | Tracks token usage, warns at 70% |
 | **Session recovery** | Saves/restores state across compaction |
 | **CLAUDE.md enforcer** | Reminds you of project rules |
-| **Comment checker** | Flags unnecessary comments |
+| **Comment checker** | Flags unnecessary comments (agent-scoped to pm-implementer) |
+| **Delegation enforcer** | Blocks direct Edit/Write in Power Mode (must use pm-implementer) |
+| **Task containment** | Injects scope constraints into subagent prompts |
+| **Implementer lifecycle** | Creates/cleans up implementer sessions via SubagentStart/Stop |
+| **Subagent context** | Injects role reminders when any pm-* agent spawns |
+| **Workflow reinforcer** | Reminds about Power Mode methodology after user answers questions (prompt-based) |
+| **Edit error recovery** | Provides contextual recovery guidance on Edit failures (prompt-based) |
+| **Task retry guidance** | Analyzes Task errors and suggests correct agents (prompt-based) |
 
 ---
 
@@ -291,6 +298,7 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 
 ## Version Notes
 
+- **2.7.0**: SubagentStart/Stop lifecycle for implementer sessions, agent-scoped comment-checker, prompt-based hooks (workflow-reinforcer, edit-error-recovery, task-retry-guidance), subagent context injection for all pm-* agents
 - **2.6.15**: Fix pm-prdmaker workflow (explicit Task calls), pm-plan now outputs PRD files, expanded README
 - **2.6.14**: Add delegation-enforcer hook
 - **2.6.13**: Persist powermode activation across prompts
