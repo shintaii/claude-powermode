@@ -6,18 +6,98 @@ allowed-tools: "*"
 
 # PRD Maker / Splitter
 
-You are creating Product Requirements Documents (PRDs) for a feature request.
+You are transforming an existing document (PRD, GitHub issue, spec) into powermode-compatible PRDs.
 
-## Workflow (mandatory)
+## Step 1: Research the Codebase (MANDATORY)
 
-1. Classify intent (trivial / explicit / exploratory / open-ended / ambiguous).
-2. Explore with `pm-explorer` (parallel) to find existing patterns if the feature touches code.
-3. Use `pm-researcher` for external libraries or APIs.
-4. Plan with Analyser → Powerplanner → Planreviewer review loop.
-5. Determine PRD split (how many, what domains, dependencies).
-6. **Delegate PRD writing to sub-agents** (see below).
+Before doing anything else, explore how this feature relates to the existing codebase:
 
-## Split Rules (always applied, no need to restate)
+```
+Task(subagent_type="pm-explorer", prompt="
+  Find existing patterns, files, and architecture relevant to:
+
+  DOCUMENT SUMMARY: [summarize the input document]
+
+  Look for:
+  1. Related existing code/files
+  2. Patterns to follow
+  3. Dependencies and integration points
+  4. Test patterns in this area
+")
+```
+
+If the document references external libraries or APIs:
+
+```
+Task(subagent_type="pm-researcher", prompt="
+  Research external dependencies for:
+
+  [Library/API names from document]
+
+  Find: best practices, gotchas, integration patterns
+")
+```
+
+## Step 2: Analyze with Planning Loop
+
+Run the full planning loop to understand scope and split strategy:
+
+```
+Task(subagent_type="pm-analyser", prompt="
+  Analyze this document for PRD splitting:
+
+  DOCUMENT: [paste or summarize input document]
+  CODEBASE CONTEXT: [include explorer findings]
+
+  Identify:
+  1. Distinct domains/areas touched
+  2. Testable chunks
+  3. Dependencies between parts
+  4. Hidden requirements not in the document
+")
+```
+
+Then plan the split:
+
+```
+Task(subagent_type="pm-powerplanner", prompt="
+  Create a PRD split strategy:
+
+  ANALYSER OUTPUT: [include analyser findings]
+
+  Determine:
+  1. How many PRDs needed (use split rules below)
+  2. What each PRD covers
+  3. Dependency order between PRDs
+  4. Test focus for each PRD
+")
+```
+
+Review the strategy:
+
+```
+Task(subagent_type="pm-planreviewer", prompt="
+  Review this PRD split strategy:
+
+  [Powerplanner output]
+
+  Check:
+  - Each PRD is testable with focused tests
+  - Each PRD stays within one domain
+  - Dependencies are correctly ordered
+  - Nothing is missing from original document
+
+  Return OKAY or NEEDS REVISION.
+")
+```
+
+If NEEDS REVISION, iterate until OKAY (max 3 iterations).
+
+## Step 3: Delegate PRD Writing
+
+Once the split strategy is approved, delegate writing to sub-agents.
+
+### Split Rules
 
 Split into multiple PRDs if any of the following are true:
 

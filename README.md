@@ -1,6 +1,6 @@
 # Powermode Plugin
 
-Disciplined engineering workflow for Claude Code: consistent exploration, planning, implementation, verification, and guardrails against drift. This plugin turns the "power mode" methodology into concrete hooks, commands, and skills.
+Disciplined engineering workflow for Claude Code: consistent exploration, planning, implementation, verification, and guardrails against drift.
 
 ## Installation
 
@@ -15,52 +15,226 @@ claude plugin install powermode@claude-powermode
 claude plugin list | grep powermode
 ```
 
-## Goals
+---
 
-- Enforce a structured workflow (explore → plan → implement → verify)
-- Prevent unfinished work (todo enforcement + stop hook)
-- Preserve context across compaction and sessions
-- Add guardrails for risky actions and comment hygiene
-- Provide reusable specialist agents for research, planning, and verification
+## Quick Start: Which Command Do I Use?
 
-## What It Does
+| I have... | I want... | Use |
+|-----------|-----------|-----|
+| An idea/goal | A detailed plan + PRD files | `/pm-plan add user authentication` |
+| An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-prdmaker @path/to/doc.md` |
+| A PRD ready to implement | Autonomous implementation loop | `/pm-ralph-loop @resources/prd/feature/README.md` |
+| Started work, want methodology | Enable powermode workflow | `/powermode` |
+| Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
 
-### Hooks (automatic)
+---
 
-- **PostToolUse**
-  - `context-monitor.py`: tracks tool call count and estimated token usage
-  - `comment-checker.py`: ensures comments are necessary
-  - `task-retry-guidance.py`: suggests recovery steps after Task retries
-  - `rules-injector.py`: injects repo rules after file reads
-  - `plan-checkpoint-validator.py`: checks plan/todo drift after TodoWrite
-- **PostToolUseFailure**
-  - `edit-error-recovery.py`: guidance for Edit failures
-- **UserPromptSubmit**
-  - `claude-md-enforcer.py`: enforces CLAUDE.md rules
-  - `keyword-detector.py`: detects key terms and injects guidance
-  - `context-summary-injector.py`: injects context when tool usage is high
-- **Stop**
-  - `stop-validator.py`: blocks exit if todos are incomplete (with escape hatch)
-- **PreCompact / SessionEnd / SessionStart**
-  - `session-state-saver.py`: saves state before compaction/end
-  - `session-state-restorer.py`: restores state after compaction
+## Commands Explained
 
-### Commands
+### `/powermode` - Activate the Methodology
 
-- `/powermode`: activate methodology
-- `/pm-plan`: structured planning loop (Analyser → Powerplanner → Planreviewer)
-- `/pm-ralph-loop`: self-referential dev loop
-- `/pm-checkpoint`: manual drift check
-- `/pm-prdmaker`: create or split PRDs (adds index README when multiple)
+**When:** You want disciplined engineering on any task.
 
-### Agents
+**What it does:**
+- Reminds you of the explore → plan → implement → verify workflow
+- Lists available agents and when to use them
+- Enables all guardrails
 
-- **pm-explorer** (Haiku): fast codebase search
-- **pm-researcher** (Sonnet): external docs / library research
-- **pm-analyser / pm-powerplanner / pm-planreviewer**: plan creation and review
-- **pm-oracle** (Opus): architecture & deep reasoning
-- **pm-implementer** (Opus): code changes
-- **pm-verifier** (Sonnet): verification with evidence
+**Example:**
+```
+/powermode
+> Now help me refactor the auth module
+```
+
+---
+
+### `/pm-plan [goal]` - Create a Plan from Scratch
+
+**When:** You have an idea or goal but no written spec.
+
+**Input:** A description of what you want to build.
+
+**Workflow:**
+```
+1. ANALYSER      → Finds hidden requirements, ambiguities
+2. POWERPLANNER  → Creates comprehensive plan (may interview you)
+3. PLANREVIEWER  → Reviews until quality bar met (max 3 iterations)
+4. PRD FILES     → Writes plan to resources/prd/<feature>/
+5. READY         → Suggests next command
+```
+
+**Output:** A folder with:
+- `README.md` - Index with dependency order
+- `01-<title>.md`, `02-<title>.md`, ... - Numbered PRDs
+
+**Example:**
+```
+/pm-plan add multi-tenancy support to the application
+```
+
+---
+
+### `/pm-prdmaker @document` - Transform Existing Doc into PRDs
+
+**When:** You already have a spec, GitHub issue, or requirements document.
+
+**Input:** An existing document via `@` reference.
+
+**Workflow:**
+```
+1. EXPLORE       → pm-explorer finds related code, patterns
+2. RESEARCH      → pm-researcher looks up external libs/APIs (if needed)
+3. ANALYSER      → Identifies domains, testable chunks, dependencies
+4. POWERPLANNER  → Creates split strategy
+5. PLANREVIEWER  → Reviews split (max 3 iterations)
+6. PRD FILES     → Delegates writing to sub-agents
+```
+
+**Output:** Same as `/pm-plan` - a PRD folder structure.
+
+**Example:**
+```
+/pm-prdmaker @docs/DJANGO_INTEGRATION.md
+```
+
+**Key difference from `/pm-plan`:**
+- `/pm-plan`: Starts from an idea, needs more interviewing
+- `/pm-prdmaker`: Starts from a document, needs more codebase research
+
+---
+
+### `/pm-ralph-loop [goal or @prd]` - Autonomous Implementation
+
+**When:** You have a PRD and want autonomous execution until done.
+
+**What it does:**
+- Implements tasks one by one
+- Self-corrects on failures
+- Runs verification after each task
+- Continues until all tasks complete or blocked
+
+**Example:**
+```
+/pm-ralph-loop @resources/prd/auth-feature/README.md
+```
+
+---
+
+### `/pm-checkpoint` - Manual Progress Check
+
+**When:** Mid-implementation, you want to verify you're on track.
+
+**What it does:**
+- Compares current state to the plan
+- Identifies drift or missed steps
+- Suggests corrections
+
+**Example:**
+```
+/pm-checkpoint
+```
+
+---
+
+## Agents Reference
+
+Use these with the `Task` tool for specific purposes:
+
+### Exploration
+
+| Agent | Model | Use When |
+|-------|-------|----------|
+| `pm-explorer` | Haiku | Finding files, patterns, understanding codebase structure |
+| `pm-researcher` | Sonnet | Looking up external library docs, API references, best practices |
+
+### Planning
+
+| Agent | Model | Use When |
+|-------|-------|----------|
+| `pm-analyser` | Opus | Pre-planning: find hidden requirements, ambiguities |
+| `pm-powerplanner` | Opus | Create comprehensive work plans |
+| `pm-planreviewer` | Sonnet | Review plans for gaps, iterate until solid |
+
+### Implementation
+
+| Agent | Model | Use When |
+|-------|-------|----------|
+| `pm-oracle` | Opus | Hard architecture decisions, debugging stuck problems |
+| `pm-implementer` | Opus | Focused code changes (single task at a time) |
+| `pm-verifier` | Sonnet | Verify work with evidence (tests, build, lsp) |
+
+---
+
+## Typical Workflows
+
+### New Feature (from scratch)
+
+```
+1. /pm-plan add payment processing
+2. Review generated PRDs in resources/prd/payment/
+3. /pm-ralph-loop @resources/prd/payment/README.md
+4. (automatic) Implementation with verification
+```
+
+### Feature from Existing Spec
+
+```
+1. /pm-prdmaker @docs/payment-spec.md
+2. Review generated PRDs
+3. /pm-ralph-loop @resources/prd/payment/README.md
+```
+
+### Quick Fix (no planning needed)
+
+```
+1. /powermode
+2. "Fix the null pointer in auth.py line 42"
+3. (uses pm-explorer → fix → pm-verifier automatically)
+```
+
+### Research Task
+
+```
+1. /powermode
+2. "How does the payment module handle refunds?"
+3. (uses pm-explorer, no implementation)
+```
+
+---
+
+## Automatic Behaviors (Hooks)
+
+These run automatically - you don't invoke them:
+
+| Hook | What It Does |
+|------|--------------|
+| **Stop validator** | Blocks exit if todos incomplete (3 attempts = escape hatch) |
+| **PRD enforcement** | Blocks exit if referenced PRD wasn't updated |
+| **Context monitor** | Tracks token usage, warns at 70% |
+| **Session recovery** | Saves/restores state across compaction |
+| **CLAUDE.md enforcer** | Reminds you of project rules |
+| **Comment checker** | Flags unnecessary comments |
+
+---
+
+## PRD File Structure
+
+When commands create PRDs, they follow this structure:
+
+```
+resources/prd/<feature-slug>/
+├── README.md              # Index: purpose, dependency order, table of PRDs
+├── 01-database-schema.md  # First PRD (no dependencies)
+├── 02-api-endpoints.md    # Second PRD (depends on 01)
+├── 03-frontend-ui.md      # Third PRD (depends on 02)
+└── ...
+```
+
+Each PRD contains:
+- Clear scope and requirements
+- Acceptance criteria
+- Test focus (what to verify)
+- Dependencies on other PRDs
 
 ## How It Works
 
@@ -117,6 +291,9 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 
 ## Version Notes
 
+- **2.6.15**: Fix pm-prdmaker workflow (explicit Task calls), pm-plan now outputs PRD files, expanded README
+- **2.6.14**: Add delegation-enforcer hook
+- **2.6.13**: Persist powermode activation across prompts
 - **2.6.10**: Add PRD NOTES.md tracking, fix stop-hook false positives (require @ prefix)
 - **2.6.8**: Open source release, GitHub marketplace support
 - **2.6.5**: PRD maker delegates writing to sub-agents (context preservation)

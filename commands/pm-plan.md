@@ -13,14 +13,17 @@ Starting the structured planning workflow for: `$ARGUMENTS`
 ```
 1. ANALYSER (Pre-Planning Analysis)
    ↓ Identifies hidden requirements, ambiguities, AI-slop risks
-   
-2. POWERPLANNER (Strategic Planning)  
+
+2. POWERPLANNER (Strategic Planning)
    ↓ Interviews for requirements, creates comprehensive plan
-   
+
 3. PLANREVIEWER (Plan Review Loop)
    ↓ Reviews plan for gaps, iterates until quality bar met
-   
-4. READY FOR IMPLEMENTATION
+
+4. PRD FILES (Persist the Plan)
+   ↓ Delegate to sub-agents to write PRD folder structure
+
+5. READY FOR IMPLEMENTATION
 ```
 
 ## Step 1: Pre-Planning Analysis (Analyser)
@@ -95,12 +98,52 @@ Iteration 2: Fix issues → Planreviewer reviews → NEEDS REVISION
 Iteration 3: Fix issues → Planreviewer reviews → OKAY ✓
 ```
 
-## Step 4: Ready for Implementation
+## Step 4: Write PRD Files
 
-Once Planreviewer approves:
-1. Present the final plan to the user
-2. Offer to start implementation with `/pm-ralph-loop`
-3. Or let user review and modify first
+Once Planreviewer approves, persist the plan as PRD files.
+
+### Determine PRD Location
+
+Use the first existing directory:
+1. `resources/prd/`
+2. `resources/prds/`
+3. `docs/prd/`
+4. `docs/prds/`
+
+If none exist, create: `resources/prd/<feature-slug>/`.
+
+### Delegate PRD Writing
+
+```
+Task(subagent_type="general-purpose", prompt="
+  Write PRD files to <path>:
+
+  APPROVED PLAN:
+  [Include the approved plan from Planreviewer]
+
+  Create:
+  - README.md (index with dependency order)
+  - 01-<title>.md, 02-<title>.md, ... (numbered PRDs)
+
+  Each PRD must include:
+  - Clear scope and requirements
+  - Acceptance criteria
+  - Test focus
+  - Dependencies on other PRDs
+
+  Use prd skill format.
+", description="Write PRD files")
+```
+
+- Max 2 PRDs per Task call to manage sub-agent context
+- Sequential execution (wait for each batch before starting next)
+
+## Step 5: Ready for Implementation
+
+After PRDs are written:
+1. List all created PRD files
+2. Offer to start implementation with `/powermode @<prd-path>/README.md`
+3. Or let user review and modify PRDs first
 
 ---
 
@@ -111,5 +154,6 @@ Once Planreviewer approves:
 | pm-analyser | Pre-analysis | Hidden requirements, directives |
 | pm-powerplanner | Planning | Comprehensive work plan |
 | pm-planreviewer | Review | OKAY or NEEDS REVISION |
+| general-purpose | PRD writing | PRD files in folder structure |
 
 **Start by running Analyser analysis now.**
