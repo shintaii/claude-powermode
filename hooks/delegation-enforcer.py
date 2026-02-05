@@ -92,13 +92,19 @@ def main():
 
     tool_input = input_data.get("tool_input", {})
     cwd = input_data.get("cwd", ".")
+    session_id = input_data.get("session_id", "")
 
     powermode_dir = Path(cwd) / ".powermode"
     active_mode_file = powermode_dir / "active-mode.json"
     state_file = powermode_dir / "delegation-state.json"
 
     mode_data = load_json(active_mode_file)
-    powermode_active = mode_data and mode_data.get("mode") == "powermode"
+    # Only consider powermode active if it's from the same session
+    powermode_active = (
+        mode_data
+        and mode_data.get("mode") == "powermode"
+        and mode_data.get("session_id") == session_id
+    )
 
     if not powermode_active:
         print(json.dumps({

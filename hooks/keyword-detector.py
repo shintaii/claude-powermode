@@ -67,27 +67,29 @@ The plan should have atomic, verifiable tasks.
 }
 
 
-def load_active_mode(cwd: str) -> str | None:
-    """Load persisted active mode from state file."""
+def load_active_mode(cwd: str, session_id: str) -> str | None:
+    """Load persisted active mode from state file, only if same session."""
     state_file = Path(cwd) / ".powermode" / "active-mode.json"
     if state_file.exists():
         try:
             with open(state_file, "r") as f:
                 data = json.load(f)
-            return data.get("mode")
+            # Only honor the mode if it's from the same session
+            if data.get("session_id") == session_id:
+                return data.get("mode")
         except (json.JSONDecodeError, IOError):
             pass
     return None
 
 
-def save_active_mode(cwd: str, mode: str) -> None:
-    """Persist active mode to state file."""
+def save_active_mode(cwd: str, mode: str, session_id: str) -> None:
+    """Persist active mode to state file with session scope."""
     state_dir = Path(cwd) / ".powermode"
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file = state_dir / "active-mode.json"
     try:
         with open(state_file, "w") as f:
-            json.dump({"mode": mode}, f)
+            json.dump({"mode": mode, "session_id": session_id}, f)
     except IOError:
         pass
 
@@ -101,6 +103,7 @@ def main():
 
     prompt = input_data.get("prompt", "")
     cwd = input_data.get("cwd", "")
+    session_id = input_data.get("session_id", "")
 
     if not prompt:
         print(json.dumps({"continue": True}))
@@ -116,12 +119,12 @@ def main():
             newly_activated = mode_name
             break
 
-    if newly_activated and cwd:
-        save_active_mode(cwd, newly_activated)
+    if newly_activated and cwd and session_id:
+        save_active_mode(cwd, newly_activated, session_id)
         contexts.append(MODE_CONTEXTS[newly_activated].strip())
-    elif not newly_activated and cwd:
-        # No keyword match - check if a persistent mode is already active
-        active_mode = load_active_mode(cwd)
+    elif not newly_activated and cwd and session_id:
+        # No keyword match - check if a persistent mode is already active (same session only)
+        active_mode = load_active_mode(cwd, session_id)
         if active_mode and active_mode in MODE_CONTEXTS:
             contexts.append(MODE_CONTEXTS[active_mode].strip())
 

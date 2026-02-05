@@ -33,6 +33,7 @@ def main():
 
     tool_name = input_data.get("tool_name", "")
     cwd = input_data.get("cwd", ".")
+    session_id = input_data.get("session_id", "")
 
     if tool_name != "AskUserQuestion":
         print(json.dumps({"continue": True}))
@@ -40,8 +41,20 @@ def main():
 
     state_file = Path(cwd) / ".powermode" / "active-mode.json"
 
-    # Only reinforce if powermode session is active
+    # Only reinforce if powermode session is active (same session)
+    powermode_active = False
     if state_file.exists():
+        try:
+            with open(state_file, "r") as f:
+                data = json.load(f)
+            powermode_active = (
+                data.get("mode") == "powermode"
+                and data.get("session_id") == session_id
+            )
+        except (json.JSONDecodeError, IOError):
+            pass
+
+    if powermode_active:
         print(json.dumps({
             "continue": True,
             "hookSpecificOutput": {
