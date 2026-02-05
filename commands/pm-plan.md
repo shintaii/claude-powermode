@@ -8,6 +8,17 @@ allowed-tools: "*"
 
 Starting the structured planning workflow for: `$ARGUMENTS`
 
+## MANDATORY FIRST ACTION
+
+**YOU MUST create these 4 todos NOW using the TaskCreate tool before proceeding:**
+
+1. TaskCreate with subject="Run Analyser", description="Pre-planning analysis", activeForm="Running Analyser"
+2. TaskCreate with subject="Run Powerplanner", description="Create work plan", activeForm="Running Powerplanner"
+3. TaskCreate with subject="Run Planreviewer", description="Review plan", activeForm="Running Planreviewer"
+4. TaskCreate with subject="Write PRD files", description="Persist plan", activeForm="Writing PRDs"
+
+**DO NOT proceed to Step 1 until all 4 todos are created. The stop-validator will BLOCK completion until all todos are marked complete.**
+
 ## Planning Pipeline
 
 ```
@@ -28,6 +39,8 @@ Starting the structured planning workflow for: `$ARGUMENTS`
 
 ## Step 1: Pre-Planning Analysis (Analyser)
 
+**Mark todo as in_progress, then run Analyser:**
+
 First, analyze the request for hidden complexity:
 
 ```
@@ -45,7 +58,11 @@ Task(subagent_type="pm-analyser", prompt="
 ")
 ```
 
+**After Analyser completes, mark its todo as completed.**
+
 ## Step 2: Requirements Gathering (Powerplanner)
+
+**Mark Powerplanner todo as in_progress.**
 
 If Analyser identifies blocking questions, ask the user first.
 Then proceed to planning:
@@ -65,7 +82,11 @@ Task(subagent_type="pm-powerplanner", prompt="
 ")
 ```
 
+**After Powerplanner completes, mark its todo as completed.**
+
 ## Step 3: Plan Review Loop (Planreviewer)
+
+**Mark Planreviewer todo as in_progress.**
 
 Review the plan until it meets quality standards:
 
@@ -98,7 +119,11 @@ Iteration 2: Fix issues → Planreviewer reviews → NEEDS REVISION
 Iteration 3: Fix issues → Planreviewer reviews → OKAY ✓
 ```
 
+**After Planreviewer approves (returns OKAY), mark its todo as completed.**
+
 ## Step 4: Write PRD Files
+
+**Mark PRD writing todo as in_progress.**
 
 Once Planreviewer approves, persist the plan as PRD files.
 
@@ -138,6 +163,8 @@ Task(subagent_type="general-purpose", prompt="
 - Max 2 PRDs per Task call to manage sub-agent context
 - Sequential execution (wait for each batch before starting next)
 
+**After all PRD files are written, mark the PRD writing todo as completed.**
+
 ## Step 5: Ready for Implementation
 
 After PRDs are written:
@@ -156,4 +183,4 @@ After PRDs are written:
 | pm-planreviewer | Review | OKAY or NEEDS REVISION |
 | general-purpose | PRD writing | PRD files in folder structure |
 
-**Start by running Analyser analysis now.**
+**Start by creating the 4 workflow todos, then run Analyser analysis.**

@@ -6,3 +6,6 @@ summary.md
 
 # macOS
 .DS_Store
+
+# Test directory
+.test-delegation/

@@ -107,7 +107,8 @@ def main():
                         message = entry.get("message")
                         for text in iter_message_text(message):
                             for match in re.findall(r"@[\w./-]+\.md", text):
-                                if "prd" in match.lower():
+                                # Only match files in actual PRD directories, not files with "prd" in name
+                                if "/prd/" in match.lower() or "/prds/" in match.lower():
                                     normalized = normalize_path(match, cwd)
                                     if normalized:
                                         referenced_prds.add(normalized)
@@ -121,19 +122,16 @@ def main():
                             normalized = (
                                 normalize_path(file_path, cwd) if file_path else None
                             )
+                            # Only track PRD modifications, not reads
+                            # Reading a PRD shouldn't require updating it
                             if (
                                 normalized
-                                and "prd" in normalized.lower()
+                                and ("/prd/" in normalized.lower() or "/prds/" in normalized.lower())
                                 and normalized.endswith(".md")
+                                and tool_name in {"Write", "Edit", "ApplyPatch", "apply_patch"}
                             ):
                                 referenced_prds.add(normalized)
-                                if tool_name in {
-                                    "Write",
-                                    "Edit",
-                                    "ApplyPatch",
-                                    "apply_patch",
-                                }:
-                                    updated_prds.add(normalized)
+                                updated_prds.add(normalized)
 
                         tool_result = entry.get("toolUseResult", {})
                         if "newTodos" in tool_result:
@@ -182,7 +180,7 @@ def main():
                     todo_list += f" (+{len(incomplete) - 3} more)"
                 issue_parts.append(f"{len(incomplete)} incomplete todos ({todo_list})")
                 action_parts.append(
-                    "Use TodoWrite to mark them 'completed' or 'cancelled'"
+                    "CONTINUE THE WORKFLOW - complete the remaining steps, then mark todos done"
                 )
             if missing_prd_updates:
                 prd_list = ", ".join([Path(p).name for p in missing_prd_updates[:3]])
