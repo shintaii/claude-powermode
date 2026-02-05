@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Subagent Context Injector (SubagentStart: pm-*)
+"""Subagent Context Injector (SubagentStart: powermode:*)
 
 Injects role-specific reminders when any powermode agent spawns.
 Keeps agents focused on their designated responsibilities.
 
-Fires on: SubagentStart (pm-.*)
+Fires on: SubagentStart (powermode:.*)
 
 Exit codes:
 - 0: Always exits cleanly
@@ -14,14 +14,14 @@ import json
 import sys
 
 AGENT_CONTEXT = {
-    "pm-explorer": "You are pm-explorer. Stay READ-ONLY. Use Glob, Grep, Read only. Do NOT modify any files.",
-    "pm-researcher": "You are pm-researcher. Research external docs and patterns. Do NOT modify project files.",
-    "pm-oracle": "You are pm-oracle. Provide architecture guidance and decisions. Do NOT implement code directly.",
-    "pm-implementer": "You are pm-implementer. Execute focused code changes. Verify with diagnostics before reporting done.",
-    "pm-verifier": "You are pm-verifier. Verify implementation quality. Do NOT fix issues yourself — only report them with evidence.",
-    "pm-analyser": "You are pm-analyser. Analyze the codebase to inform planning. Do NOT implement changes.",
-    "pm-powerplanner": "You are pm-powerplanner. Create implementation plans. Do NOT implement code.",
-    "pm-planreviewer": "You are pm-planreviewer. Review plans for completeness and risks. Do NOT implement changes.",
+    "powermode:explorer": "You are pm-explorer. Stay READ-ONLY. Use Glob, Grep, Read only. Do NOT modify any files.",
+    "powermode:researcher": "You are pm-researcher. Research external docs and patterns. Do NOT modify project files.",
+    "powermode:oracle": "You are pm-oracle. Provide architecture guidance and decisions. Do NOT implement code directly.",
+    "powermode:implementer": "You are pm-implementer. Execute focused code changes. Verify with diagnostics before reporting done.",
+    "powermode:verifier": "You are pm-verifier. Verify implementation quality. Do NOT fix issues yourself — only report them with evidence.",
+    "powermode:analyser": "You are pm-analyser. Analyze the codebase to inform planning. Do NOT implement changes.",
+    "powermode:powerplanner": "You are pm-powerplanner. Create implementation plans. Do NOT implement code.",
+    "powermode:planreviewer": "You are pm-planreviewer. Review plans for completeness and risks. Do NOT implement changes.",
 }
 
 

@@ -1,5 +1,5 @@
 {
-  "description": "Power Mode hooks v2.7.0 - SubagentStart/Stop lifecycle, agent-scoped hooks, prompt-based hooks",
+  "description": "Power Mode hooks v2.7.1 - SubagentStart/Stop lifecycle, agent-scoped hooks, prompt-based hooks",
   "hooks": {
     "PreToolUse": [
       {
@@ -159,7 +159,7 @@
     ],
     "SubagentStart": [
       {
-        "matcher": "pm-implementer",
+        "matcher": "powermode:implementer",
         "hooks": [
           {
             "type": "command",
@@ -169,7 +169,7 @@
         ]
       },
       {
-        "matcher": "pm-.*",
+        "matcher": "powermode:.*",
         "hooks": [
           {
             "type": "command",
@@ -181,7 +181,7 @@
     ],
     "SubagentStop": [
       {
-        "matcher": "pm-implementer",
+        "matcher": "powermode:implementer",
         "hooks": [
           {
             "type": "command",

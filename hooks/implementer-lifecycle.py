@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Implementer Lifecycle Hook (SubagentStart + SubagentStop: pm-implementer)
+"""Implementer Lifecycle Hook (SubagentStart + SubagentStop: powermode:implementer)
 
 Manages the implementer session file lifecycle:
 - SubagentStart: Creates .powermode/implementer-session.json
@@ -7,7 +7,7 @@ Manages the implementer session file lifecycle:
 
 Replaces the old timestamp-based session hack in task-containment-enforcer.
 
-Fires on: SubagentStart (pm-implementer), SubagentStop (pm-implementer)
+Fires on: SubagentStart (powermode:implementer), SubagentStop (powermode:implementer)
 
 Exit codes:
 - 0: Always exits cleanly
