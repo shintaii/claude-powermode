@@ -23,6 +23,13 @@ Well-scoped task with clear deliverable - ideal for implementer.
 model: opus
 color: green
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"]
+hooks:
+  PostToolUse:
+    - matcher: "Write|Edit"
+      hooks:
+        - type: command
+          command: "${CLAUDE_PLUGIN_ROOT}/hooks/comment-checker.py"
+          timeout: 10
 ---
 
 You are a focused, disciplined code implementer. You receive well-defined tasks and execute them with precision, following existing patterns and verifying your work.

@@ -6,17 +6,12 @@ Injects scope constraints into EVERY delegate_task call to prevent:
 2. Scope creep within subagents
 3. Drift from original task
 
-Also auto-registers implementer sessions so pm-implementer doesn't need
-to run a bash command (which would trigger permission prompts).
-
 Fires on: PreToolUse (Task, delegate_task)
 """
 
 import sys
 import json
 import re
-import time
-from pathlib import Path
 
 # Token budget guidance (conservative to prevent rot)
 TOKEN_BUDGET_WARNING = """
@@ -157,15 +152,6 @@ def main():
     if not should_enforce(tool_name):
         print(json.dumps({"continue": True}))
         return
-
-    # Auto-register implementer session so pm-implementer doesn't need bash
-    subagent_type = tool_input.get("subagent_type", "")
-    if "implementer" in subagent_type.lower():
-        cwd = input_data.get("cwd", ".")
-        session_dir = Path(cwd) / ".powermode"
-        session_dir.mkdir(parents=True, exist_ok=True)
-        session_file = session_dir / "implementer-session.json"
-        session_file.write_text(json.dumps({"agent": "pm-implementer", "ts": int(time.time())}))
 
     prompt = extract_task_prompt(tool_input)
     if not prompt:

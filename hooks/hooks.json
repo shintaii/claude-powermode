@@ -1,5 +1,5 @@
 {
-  "description": "Power Mode hooks v2.6.14 - Added delegation-enforcer for Edit|Write PreToolUse",
+  "description": "Power Mode hooks v2.7.0 - SubagentStart/Stop lifecycle, agent-scoped hooks, prompt-based hooks",
   "hooks": {
     "PreToolUse": [
       {
@@ -34,22 +34,12 @@
         ]
       },
       {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/comment-checker.py\"",
-            "timeout": 10
-          }
-        ]
-      },
-      {
         "matcher": "Task",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task-retry-guidance.py\"",
-            "timeout": 5
+            "type": "prompt",
+            "prompt": "A Task (subagent) tool call just completed. Context: $ARGUMENTS. Check if there was an error. Available agents: pm-explorer (haiku), pm-researcher (sonnet), pm-oracle (opus), pm-implementer (opus), pm-verifier (sonnet), pm-analyser (sonnet), pm-powerplanner (sonnet), pm-planreviewer (sonnet). If the task failed with an error, respond ok:false with reason containing the correct agent name or retry guidance. If the task succeeded, respond ok:true.",
+            "timeout": 10
           }
         ]
       },
@@ -67,9 +57,9 @@
         "matcher": "AskUserQuestion",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/workflow-reinforcer.py\"",
-            "timeout": 3
+            "type": "prompt",
+            "prompt": "The user just answered a clarifying question. Check if Power Mode methodology should be reinforced. Context: $ARGUMENTS. If the conversation involves code implementation, respond ok:false with reason reminding to delegate code changes to pm-implementer (Task tool), verify via pm-verifier, and not edit code directly. If not relevant, respond ok:true.",
+            "timeout": 10
           }
         ]
       },
@@ -89,9 +79,9 @@
         "matcher": "Edit",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/edit-error-recovery.py\"",
-            "timeout": 5
+            "type": "prompt",
+            "prompt": "An Edit tool call just failed. Analyze the error and provide recovery guidance. Context: $ARGUMENTS. Common issues: oldString not found (read file first, check whitespace), found multiple times (add more context to make unique), file doesn't exist (use Write instead). Respond ok:false with a concise reason containing numbered recovery steps. Always respond ok:false since we want to inject guidance.",
+            "timeout": 10
           }
         ]
       }
@@ -163,6 +153,40 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-state-restorer.py\"",
             "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "pm-implementer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/implementer-lifecycle.py\"",
+            "timeout": 3
+          }
+        ]
+      },
+      {
+        "matcher": "pm-.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context-injector.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "pm-implementer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/implementer-lifecycle.py\"",
+            "timeout": 3
           }
         ]
       }

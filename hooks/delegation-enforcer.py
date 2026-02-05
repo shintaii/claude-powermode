@@ -16,11 +16,9 @@ Exit codes:
 
 import json
 import sys
-import time
 from pathlib import Path
 
 ESCAPE_THRESHOLD = 10
-SESSION_EXPIRY_SECONDS = 600  # 10 minutes
 
 BLOCK_MSG = """[EDIT DENIED - POLICY VIOLATION]
 
@@ -61,20 +59,17 @@ def save_json(path: Path, data: dict) -> None:
 
 
 def check_implementer_session(powermode_dir: Path) -> bool:
-    """Check if pm-implementer has an active session."""
+    """Check if pm-implementer has an active session.
+
+    Session file is managed by implementer-lifecycle.py via
+    SubagentStart/SubagentStop hooks — no expiry needed.
+    """
     session_file = powermode_dir / "implementer-session.json"
     session = load_json(session_file)
     if not session:
         return False
 
-    if session.get("agent") != "pm-implementer":
-        return False
-
-    ts = session.get("ts", 0)
-    if time.time() - ts > SESSION_EXPIRY_SECONDS:
-        return False
-
-    return True
+    return session.get("agent") == "pm-implementer"
 
 
 def main():
