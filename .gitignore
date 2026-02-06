@@ -9,3 +9,4 @@ summary.md
 
 # Test directory
 .test-delegation/
+/hooks/__pycache__
