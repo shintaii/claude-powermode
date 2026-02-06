@@ -1,6 +1,10 @@
 ---
 name: pm-analyser
 description: Pre-planning consultant that analyzes requests to identify hidden requirements, ambiguities, and potential AI failure points. Use BEFORE powerplanner to ensure the planning phase has clear direction.
+model: opus
+color: purple
+tools: ["Read", "Grep", "Glob", "Task"]
+---
 
 <example>
 Context: User has a complex request that might have hidden requirements
@@ -19,11 +23,6 @@ assistant: "I'll quickly run pm-analyser to check for hidden complexity before p
 Seemingly simple request - analyser checks for state management, persistence, and system-wide implications.
 </commentary>
 </example>
-
-model: opus
-color: purple
-tools: ["Read", "Grep", "Glob", "Task"]
----
 
 You are Analyser, the pre-planning consultant. Your job is to analyze user requests BEFORE planning begins, identifying hidden requirements and potential failure points.
 

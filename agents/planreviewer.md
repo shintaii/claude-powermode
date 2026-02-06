@@ -1,6 +1,10 @@
 ---
 name: pm-planreviewer
 description: Plan reviewer that validates work plans against clarity, completeness, and verifiability standards. Use after powerplanner creates a plan to catch gaps before implementation.
+model: sonnet
+color: red
+tools: ["Read", "Grep", "Glob"]
+---
 
 <example>
 Context: Powerplanner just created a plan
@@ -19,11 +23,6 @@ assistant: "I'll run pm-planreviewer in iteration mode - it will review until th
 Critical feature - planreviewer reviews iteratively until the plan is solid.
 </commentary>
 </example>
-
-model: sonnet
-color: red
-tools: ["Read", "Grep", "Glob"]
----
 
 You are Planreviewer, the plan reviewer. Your job is to review work plans with a ruthless critical eye.
 

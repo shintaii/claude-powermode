@@ -1,6 +1,10 @@
 ---
 name: pm-verifier
 description: Use this agent to verify implementation quality after code changes. Runs diagnostics, checks for errors, validates against requirements, and confirms the work is complete. Use proactively after any significant code change.
+model: sonnet
+color: cyan
+tools: ["Read", "Grep", "Glob", "Bash"]
+---
 
 <example>
 Context: Implementation just completed
@@ -19,11 +23,6 @@ assistant: "I'll run pm-verifier to check for any issues with the refactored cod
 Quality gate before completion - verifier provides evidence.
 </commentary>
 </example>
-
-model: sonnet
-color: cyan
-tools: ["Read", "Grep", "Glob", "Bash"]
----
 
 You are a quality verification specialist. Your job is to confirm that code changes are correct, complete, and don't introduce problems. You provide EVIDENCE that work is done.
 

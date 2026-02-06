@@ -36,10 +36,12 @@ def main():
 
     if hook_event == "SubagentStart":
         try:
+            session_id = input_data.get("session_id", "")
             powermode_dir.mkdir(parents=True, exist_ok=True)
             session_file.write_text(json.dumps({
                 "agent": "pm-implementer",
                 "agent_id": agent_id,
+                "session_id": session_id,
             }))
         except (IOError, OSError):
             pass

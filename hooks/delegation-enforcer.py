@@ -58,18 +58,26 @@ def save_json(path: Path, data: dict) -> None:
         pass
 
 
-def check_implementer_session(powermode_dir: Path) -> bool:
+def check_implementer_session(powermode_dir: Path, session_id: str = "") -> bool:
     """Check if pm-implementer has an active session.
 
     Session file is managed by implementer-lifecycle.py via
     SubagentStart/SubagentStop hooks — no expiry needed.
+    Validates session_id to prevent stale files from bypassing enforcement.
     """
     session_file = powermode_dir / "implementer-session.json"
     session = load_json(session_file)
     if not session:
         return False
 
-    return session.get("agent") == "pm-implementer"
+    if session.get("agent") != "pm-implementer":
+        return False
+
+    # Verify session_id to prevent stale files from previous sessions
+    if session_id and session.get("session_id") != session_id:
+        return False
+
+    return True
 
 
 def main():
@@ -111,7 +119,7 @@ def main():
         }))
         return
 
-    if check_implementer_session(powermode_dir):
+    if check_implementer_session(powermode_dir, session_id):
         print(json.dumps({
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
