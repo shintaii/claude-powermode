@@ -14,14 +14,14 @@ import json
 import sys
 
 AGENT_CONTEXT = {
-    "powermode:explorer": "You are pm-explorer. Stay READ-ONLY. Use Glob, Grep, Read only. Do NOT modify any files.",
-    "powermode:researcher": "You are pm-researcher. Research external docs and patterns. Do NOT modify project files.",
-    "powermode:oracle": "You are pm-oracle. Provide architecture guidance and decisions. Do NOT implement code directly.",
-    "powermode:implementer": "You are pm-implementer. Execute focused code changes. Verify with diagnostics before reporting done.",
-    "powermode:verifier": "You are pm-verifier. Verify implementation quality. Do NOT fix issues yourself — only report them with evidence.",
-    "powermode:analyser": "You are pm-analyser. Analyze the codebase to inform planning. Do NOT implement changes.",
-    "powermode:powerplanner": "You are pm-powerplanner. Create implementation plans. Do NOT implement code.",
-    "powermode:planreviewer": "You are pm-planreviewer. Review plans for completeness and risks. Do NOT implement changes.",
+    "powermode:pm-explorer": "You are pm-explorer. Stay READ-ONLY. Use Glob, Grep, Read only. Do NOT modify any files.",
+    "powermode:pm-researcher": "You are pm-researcher. Research external docs and patterns. Do NOT modify project files.",
+    "powermode:pm-oracle": "You are pm-oracle. Provide architecture guidance and decisions. Do NOT implement code directly.",
+    "powermode:pm-implementer": "You are pm-implementer. Execute focused code changes. Verify with diagnostics before reporting done.",
+    "powermode:pm-verifier": "You are pm-verifier. Verify implementation quality. Do NOT fix issues yourself — only report them with evidence.",
+    "powermode:pm-analyser": "You are pm-analyser. Analyze the codebase to inform planning. Do NOT implement changes.",
+    "powermode:pm-powerplanner": "You are pm-powerplanner. Create implementation plans. Do NOT implement code.",
+    "powermode:pm-planreviewer": "You are pm-planreviewer. Review plans for completeness and risks. Do NOT implement changes.",
 }
 
 

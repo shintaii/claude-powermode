@@ -159,7 +159,7 @@
     ],
     "SubagentStart": [
       {
-        "matcher": "powermode:implementer",
+        "matcher": "powermode:pm-implementer",
         "hooks": [
           {
             "type": "command",
@@ -181,7 +181,7 @@
     ],
     "SubagentStop": [
       {
-        "matcher": "powermode:implementer",
+        "matcher": "powermode:pm-implementer",
         "hooks": [
           {
             "type": "command",

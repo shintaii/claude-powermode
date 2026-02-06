@@ -79,13 +79,13 @@ Also, I noticed [observation from codebase] - should we consider that?
 
 Use pm-explorer (via Task tool) to understand the codebase:
 ```
-Task(subagent_type="pm-explorer", prompt="Find existing [relevant] patterns")
-Task(subagent_type="pm-explorer", prompt="Find how [similar feature] is implemented")
+Task(subagent_type="powermode:pm-explorer", prompt="Find existing [relevant] patterns")
+Task(subagent_type="powermode:pm-explorer", prompt="Find how [similar feature] is implemented")
 ```
 
 Use pm-researcher for external research if needed:
 ```
-Task(subagent_type="pm-researcher", prompt="Research best practices for [topic]")
+Task(subagent_type="powermode:pm-researcher", prompt="Research best practices for [topic]")
 ```
 
 ## Plan Generation

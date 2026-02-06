@@ -25,7 +25,7 @@ BLOCK_MSG = """[EDIT DENIED - POLICY VIOLATION]
 This edit has been BLOCKED by Power Mode policy. RETRYING WILL NOT HELP.
 
 You MUST delegate code changes to pm-implementer:
-  Task(subagent_type="powermode:implementer", prompt="<describe what to implement>")
+  Task(subagent_type="powermode:pm-implementer", prompt="<describe what to implement>")
 
 DO NOT:
 - Try to edit directly again (it will keep failing)

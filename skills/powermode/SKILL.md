@@ -69,7 +69,7 @@ Every Task returns a `session_id`. **USE IT** for follow-ups:
 
 ```
 # First call
-result = Task(subagent_type="pm-implementer", prompt="Implement auth...")
+result = Task(subagent_type="powermode:pm-implementer", prompt="Implement auth...")
 # Returns: session_id="ses_abc123"
 
 # If it fails or needs follow-up, CONTINUE the session:
@@ -97,9 +97,9 @@ Task(session_id="ses_abc123", prompt="Fix: the type error on line 42")
 Fire multiple explorers/researchers in background:
 ```
 # Launch parallel exploration
-Task(subagent_type="pm-explorer", run_in_background=true, prompt="Find auth patterns")
-Task(subagent_type="pm-explorer", run_in_background=true, prompt="Find test patterns")
-Task(subagent_type="pm-researcher", run_in_background=true, prompt="Research JWT best practices")
+Task(subagent_type="powermode:pm-explorer", run_in_background=true, prompt="Find auth patterns")
+Task(subagent_type="powermode:pm-explorer", run_in_background=true, prompt="Find test patterns")
+Task(subagent_type="powermode:pm-researcher", run_in_background=true, prompt="Research JWT best practices")
 
 # Continue working, then collect results when needed
 background_output(task_id="bg_abc123")
@@ -178,8 +178,8 @@ Before ANY action, classify the request:
 
 ### Internal Search (pm-explorer)
 ```
-Task(subagent_type="pm-explorer", prompt="Find existing [X] patterns in this codebase")
-Task(subagent_type="pm-explorer", prompt="Find similar implementations to [feature]")
+Task(subagent_type="powermode:pm-explorer", prompt="Find existing [X] patterns in this codebase")
+Task(subagent_type="powermode:pm-explorer", prompt="Find similar implementations to [feature]")
 ```
 
 Exploration hygiene:
@@ -188,8 +188,8 @@ Exploration hygiene:
 
 ### External Research (pm-researcher)
 ```
-Task(subagent_type="pm-researcher", prompt="Research best practices for [library/framework]")
-Task(subagent_type="pm-researcher", prompt="Find production examples of [pattern]")
+Task(subagent_type="powermode:pm-researcher", prompt="Research best practices for [library/framework]")
+Task(subagent_type="powermode:pm-researcher", prompt="Find production examples of [pattern]")
 ```
 
 **Stop exploring when:**
@@ -221,7 +221,7 @@ For ANY task with 2+ steps, create todos IMMEDIATELY.
 **DO NOT write code yourself. DELEGATE to pm-implementer via Task tool.**
 
 ```
-Task(subagent_type="pm-implementer", prompt="
+Task(subagent_type="powermode:pm-implementer", prompt="
   Implement [feature] following these patterns found by explorer:
   - Pattern 1: [from exploration]
   - Pattern 2: [from exploration]
@@ -259,7 +259,7 @@ Every delegated task has implicit limits:
 When delegating, your prompt MUST include scope constraints:
 
 ```
-Task(subagent_type="pm-implementer", prompt="
+Task(subagent_type="powermode:pm-implementer", prompt="
   **SCOPE**: Single focused task
   **GOAL**: [1 sentence exactly what to accomplish]
   **FILES**: [specific files, max 5]
@@ -305,7 +305,7 @@ Each task should be completable in <20 tool calls.
 **NOTHING is "done" without running pm-verifier. NO EXCEPTIONS.**
 
 ```
-Task(subagent_type="pm-verifier", prompt="
+Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the implementation of [feature].
   
   Files changed: [list]
@@ -333,7 +333,7 @@ Load these skills to inject specialized knowledge:
 
 Usage: Include in load_skills when delegating:
 ```
-Task(subagent_type="pm-implementer", load_skills=["frontend-ui-ux"], prompt="Build the dashboard UI...")
+Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], prompt="Build the dashboard UI...")
 ```
 
 ---

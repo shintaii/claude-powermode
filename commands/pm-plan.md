@@ -44,7 +44,7 @@ Starting the structured planning workflow for: `$ARGUMENTS`
 First, analyze the request for hidden complexity:
 
 ```
-Task(subagent_type="pm-analyser", prompt="
+Task(subagent_type="powermode:pm-analyser", prompt="
   Analyze this request for hidden requirements and ambiguities:
   
   REQUEST: $ARGUMENTS
@@ -68,7 +68,7 @@ If Analyser identifies blocking questions, ask the user first.
 Then proceed to planning:
 
 ```
-Task(subagent_type="pm-powerplanner", prompt="
+Task(subagent_type="powermode:pm-powerplanner", prompt="
   Create a comprehensive work plan for:
   
   REQUEST: $ARGUMENTS
@@ -91,7 +91,7 @@ Task(subagent_type="pm-powerplanner", prompt="
 Review the plan until it meets quality standards:
 
 ```
-Task(subagent_type="pm-planreviewer", prompt="
+Task(subagent_type="powermode:pm-planreviewer", prompt="
   Review this plan for completeness and clarity:
   
   [Plan from Powerplanner]

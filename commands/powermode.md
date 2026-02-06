@@ -85,7 +85,7 @@ Load these when delegating for specialized knowledge:
 - `frontend-ui-ux` - Designer-developer mindset
 
 ```
-Task(subagent_type="pm-implementer", load_skills=["frontend-ui-ux"], prompt="...")
+Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], prompt="...")
 ```
 
 Load the full methodology docs: `/powermode` (loads skill with all references)

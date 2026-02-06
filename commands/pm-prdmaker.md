@@ -13,7 +13,7 @@ You are transforming an existing document (PRD, GitHub issue, spec) into powermo
 Before doing anything else, explore how this feature relates to the existing codebase:
 
 ```
-Task(subagent_type="pm-explorer", prompt="
+Task(subagent_type="powermode:pm-explorer", prompt="
   Find existing patterns, files, and architecture relevant to:
 
   DOCUMENT SUMMARY: [summarize the input document]
@@ -29,7 +29,7 @@ Task(subagent_type="pm-explorer", prompt="
 If the document references external libraries or APIs:
 
 ```
-Task(subagent_type="pm-researcher", prompt="
+Task(subagent_type="powermode:pm-researcher", prompt="
   Research external dependencies for:
 
   [Library/API names from document]
@@ -43,7 +43,7 @@ Task(subagent_type="pm-researcher", prompt="
 Run the full planning loop to understand scope and split strategy:
 
 ```
-Task(subagent_type="pm-analyser", prompt="
+Task(subagent_type="powermode:pm-analyser", prompt="
   Analyze this document for PRD splitting:
 
   DOCUMENT: [paste or summarize input document]
@@ -60,7 +60,7 @@ Task(subagent_type="pm-analyser", prompt="
 Then plan the split:
 
 ```
-Task(subagent_type="pm-powerplanner", prompt="
+Task(subagent_type="powermode:pm-powerplanner", prompt="
   Create a PRD split strategy:
 
   ANALYSER OUTPUT: [include analyser findings]
@@ -76,7 +76,7 @@ Task(subagent_type="pm-powerplanner", prompt="
 Review the strategy:
 
 ```
-Task(subagent_type="pm-planreviewer", prompt="
+Task(subagent_type="powermode:pm-planreviewer", prompt="
   Review this PRD split strategy:
 
   [Powerplanner output]
