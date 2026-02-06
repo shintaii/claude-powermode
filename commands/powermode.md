@@ -36,6 +36,7 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 |---------|---------|
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer review loop |
 | `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
+| `/pm-team [goal]` | Agent Teams mode - parallel implementation with independent sessions (requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) |
 
 ## Mandatory Workflow
 
@@ -77,6 +78,7 @@ Task(session_id="ses_abc123", prompt="Fix: ...")
 | Before "done" | Run pm-verifier |
 | Complex project | `/pm-plan [goal]` |
 | Autonomous work | `/pm-ralph-loop [goal]` |
+| Parallel implementation | `/pm-team [goal]` (requires agent teams enabled) |
 
 ## Available Skills
 

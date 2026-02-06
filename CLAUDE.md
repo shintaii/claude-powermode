@@ -71,6 +71,7 @@ plugin-dev:skill-reviewer    # Review specific implementations
 - **Context tracking**: Writes `.powermode/context-state.json` with tool counts and token estimates.
 - **Session recovery**: Saves/restores state on PreCompact/SessionEnd/SessionStart.
 - **PRD maker**: Delegates PRD writing to sub-agents sequentially (max 2 per batch).
+- **Agent teams**: `/pm-team` command for parallel implementation when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is enabled.
 
 ## Plugin Development Skills
 

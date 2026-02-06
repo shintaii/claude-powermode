@@ -38,6 +38,7 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 | `/powermode` | Activate Power Mode (loads this skill) |
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer loop |
 | `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
+| `/pm-team [goal]` | Agent Teams mode - parallel implementation with independent sessions |
 
 ---
 
@@ -364,6 +365,7 @@ Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], p
 | Task complete | Show verification evidence |
 | Complex project | Use `/pm-plan` command |
 | Want autonomous completion | Use `/pm-ralph-loop` command |
+| Parallel implementation (3+ tasks) | Use `/pm-team` command (requires agent teams) |
 
 ---
 
