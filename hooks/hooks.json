@@ -80,7 +80,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "An Edit tool call just failed. Analyze the error and provide recovery guidance. Context: $ARGUMENTS. Common issues: oldString not found (read file first, check whitespace), found multiple times (add more context to make unique), file doesn't exist (use Write instead). Respond ok:false with a concise reason containing numbered recovery steps. Always respond ok:false since we want to inject guidance.",
+            "prompt": "An Edit tool call just failed. Analyze the error and provide recovery guidance. Context: $ARGUMENTS. Common issues: oldString not found (read file first, check whitespace), found multiple times (add more context to make unique), file doesn't exist (use Write instead). Always respond ok:true with a concise reason containing numbered recovery steps. This hook is advisory - it must not stop continuation.",
             "timeout": 10
           }
         ]
