@@ -22,8 +22,9 @@ claude plugin list | grep powermode
 | I have... | I want... | Use |
 |-----------|-----------|-----|
 | An idea/goal | A detailed plan + PRD files | `/pm-plan add user authentication` |
-| An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-prdmaker @path/to/doc.md` |
-| A PRD ready to implement | Autonomous implementation loop | `/pm-ralph-loop @resources/prd/feature/README.md` |
+| An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-plan @path/to/doc.md` |
+| An existing PRD folder | See structure and next steps | `/pm-plan @.powermode/prds/feature/` |
+| A PRD ready to implement | Autonomous implementation loop | `/pm-ralph-loop @.powermode/prds/feature/README.md` |
 | Started work, want methodology | Enable powermode workflow | `/powermode` |
 | Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
 
@@ -59,7 +60,7 @@ claude plugin list | grep powermode
 1. ANALYSER      → Finds hidden requirements, ambiguities
 2. POWERPLANNER  → Creates comprehensive plan (may interview you)
 3. PLANREVIEWER  → Reviews until quality bar met (max 3 iterations)
-4. PRD FILES     → Writes plan to resources/prd/<feature>/
+4. PRD FILES     → Writes plan to .powermode/prds/<feature>/
 5. READY         → Suggests next command
 ```
 
@@ -74,32 +75,15 @@ claude plugin list | grep powermode
 
 ---
 
-### `/pm-prdmaker @document` - Transform Existing Doc into PRDs
+### `/pm-plan` - Unified Planning (auto-detects input)
 
-**When:** You already have a spec, GitHub issue, or requirements document.
+`/pm-plan` automatically detects what you give it:
 
-**Input:** An existing document via `@` reference.
-
-**Workflow:**
-```
-1. EXPLORE       → pm-explorer finds related code, patterns
-2. RESEARCH      → pm-researcher looks up external libs/APIs (if needed)
-3. ANALYSER      → Identifies domains, testable chunks, dependencies
-4. POWERPLANNER  → Creates split strategy
-5. PLANREVIEWER  → Reviews split (max 3 iterations)
-6. PRD FILES     → Delegates writing to sub-agents
-```
-
-**Output:** Same as `/pm-plan` - a PRD folder structure.
-
-**Example:**
-```
-/pm-prdmaker @docs/DJANGO_INTEGRATION.md
-```
-
-**Key difference from `/pm-plan`:**
-- `/pm-plan`: Starts from an idea, needs more interviewing
-- `/pm-prdmaker`: Starts from a document, needs more codebase research
+| Input | Mode | Example |
+|-------|------|---------|
+| Plain text goal | Plans from scratch | `/pm-plan add user authentication` |
+| `@` document reference | Transforms doc into PRDs | `/pm-plan @docs/DJANGO_INTEGRATION.md` |
+| `@` folder reference | Shows existing PRD structure | `/pm-plan @.powermode/prds/auth/` |
 
 ---
 
@@ -115,7 +99,7 @@ claude plugin list | grep powermode
 
 **Example:**
 ```
-/pm-ralph-loop @resources/prd/auth-feature/README.md
+/pm-ralph-loop @.powermode/prds/auth-feature/README.md
 ```
 
 ---
@@ -171,17 +155,17 @@ Use these with the `Task` tool for specific purposes:
 
 ```
 1. /pm-plan add payment processing
-2. Review generated PRDs in resources/prd/payment/
-3. /pm-ralph-loop @resources/prd/payment/README.md
+2. Review generated PRDs in .powermode/prds/payment/
+3. /pm-ralph-loop @.powermode/prds/payment/README.md
 4. (automatic) Implementation with verification
 ```
 
 ### Feature from Existing Spec
 
 ```
-1. /pm-prdmaker @docs/payment-spec.md
+1. /pm-plan @docs/payment-spec.md
 2. Review generated PRDs
-3. /pm-ralph-loop @resources/prd/payment/README.md
+3. /pm-ralph-loop @.powermode/prds/payment/README.md
 ```
 
 ### Quick Fix (no planning needed)
@@ -226,16 +210,24 @@ These run automatically - you don't invoke them:
 
 ## PRD File Structure
 
-When commands create PRDs, they follow this structure:
+Powermode-generated PRDs are stored separately from user files:
 
 ```
-resources/prd/<feature-slug>/
-├── README.md              # Index: purpose, dependency order, table of PRDs
-├── 01-database-schema.md  # First PRD (no dependencies)
-├── 02-api-endpoints.md    # Second PRD (depends on 01)
-├── 03-frontend-ui.md      # Third PRD (depends on 02)
-└── ...
+.powermode/prds/
+├── index.json                 # Tracks all PRD sets with metadata
+├── auth-feature/
+│   ├── README.md              # Index: purpose, dependency order, table of PRDs
+│   ├── 01-database-schema.md  # First PRD (no dependencies)
+│   ├── 02-api-endpoints.md    # Second PRD (depends on 01)
+│   └── 03-frontend-ui.md      # Third PRD (depends on 02)
+└── payment-v2/
+    ├── README.md
+    └── 01-stripe-integration.md
 ```
+
+**Why separate?** User PRDs (from external tools, manual creation) stay in their own folders. Powermode output never conflicts.
+
+**Git tracking:** `.powermode/prds/` is committed to git. Runtime files (`.powermode/*.json`) are gitignored.
 
 Each PRD contains:
 - Clear scope and requirements
@@ -299,6 +291,7 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 ## Version Notes
 
 - **2.7.0**: SubagentStart/Stop lifecycle for implementer sessions, agent-scoped comment-checker, prompt-based hooks (workflow-reinforcer, edit-error-recovery, task-retry-guidance), subagent context injection for all pm-* agents
+- **2.8.0**: Merge pm-prdmaker into pm-plan (unified planning with auto-detect), add /pm-team command for agent teams
 - **2.6.15**: Fix pm-prdmaker workflow (explicit Task calls), pm-plan now outputs PRD files, expanded README
 - **2.6.14**: Add delegation-enforcer hook
 - **2.6.13**: Persist powermode activation across prompts

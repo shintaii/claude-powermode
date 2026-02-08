@@ -25,7 +25,6 @@
     "./commands/pm-ralph-loop.md",
     "./commands/pm-plan.md",
     "./commands/pm-checkpoint.md",
-    "./commands/pm-prdmaker.md",
     "./commands/pm-team.md"
   ]
 }

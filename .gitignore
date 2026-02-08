@@ -1,5 +1,6 @@
 # Runtime state (session-specific)
-.powermode/
+.powermode/*
+!.powermode/prds/
 
 # Local development notes
 summary.md

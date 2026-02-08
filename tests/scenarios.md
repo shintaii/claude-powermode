@@ -24,10 +24,10 @@ Purpose
 - Validate deep architecture reasoning and structured output from pm-oracle.
 
 Setup
-- Create a minimal PRD file: `resources/prd/orchestrator/01-architecture.md` with tradeoffs (event sourcing vs relational) and constraints (scale, auditability, cost).
+- Create a minimal PRD file: `.powermode/prds/orchestrator/01-architecture.md` with tradeoffs (event sourcing vs relational) and constraints (scale, auditability, cost).
 
 Steps
-1. Run: `/powermode @resources/prd/orchestrator/01-architecture.md`
+1. Run: `/powermode @.powermode/prds/orchestrator/01-architecture.md`
 2. Prompt: "Choose an architecture and justify the decision."
 
 Expected evidence
@@ -55,9 +55,9 @@ Purpose
 - Validate README index injection and stop-validator PRD enforcement.
 
 Steps
-1. Run: `/pm-prdmaker` with a long feature request that splits into multiple PRDs.
-2. Confirm a folder with `README.md` index was created under `resources/prd/<feature>/`.
-3. Run: `/powermode @resources/prd/<feature>/02-<name>.md`
+1. Run: `/pm-plan` with a long feature request that splits into multiple PRDs.
+2. Confirm a folder with `README.md` index was created under `.powermode/prds/<feature>/`.
+3. Run: `/powermode @.powermode/prds/<feature>/02-<name>.md`
 4. Attempt to stop without editing the referenced PRD.
 5. Edit the PRD file and attempt to stop again.
 
