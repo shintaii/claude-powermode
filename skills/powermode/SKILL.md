@@ -37,7 +37,6 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 |---------|---------|
 | `/powermode` | Activate Power Mode (loads this skill) |
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer loop |
-| `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
 | `/pm-team [goal]` | Agent Teams mode - parallel implementation with independent sessions |
 
 ---
@@ -59,31 +58,30 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    a. EXPLORE with pm-explorer
    b. IMPLEMENT with pm-implementer
    c. VERIFY with pm-verifier
-4. Or use /ralph-loop for autonomous completion
 ```
 
 ---
 
 ## Session Continuity (CRITICAL)
 
-Every Task returns a `session_id`. **USE IT** for follow-ups:
+Every Task returns an `agentId`. **USE IT** for follow-ups via the `resume` parameter:
 
 ```
 # First call
 result = Task(subagent_type="powermode:pm-implementer", prompt="Implement auth...")
-# Returns: session_id="ses_abc123"
+# Returns: agentId (e.g. "a1b2c3d")
 
-# If it fails or needs follow-up, CONTINUE the session:
-Task(session_id="ses_abc123", prompt="Fix: the type error on line 42")
+# If it fails or needs follow-up, RESUME the agent:
+Task(resume="a1b2c3d", prompt="Fix: the type error on line 42")
 ```
 
-### When to Use session_id
+### When to Resume
 
 | Scenario | Action |
 |----------|--------|
-| Task failed | `session_id="...", prompt="Fix: {specific error}"` |
-| Need follow-up | `session_id="...", prompt="Also: {additional request}"` |
-| Verification failed | `session_id="...", prompt="Failed verification: {error}"` |
+| Task failed | `resume="<agentId>", prompt="Fix: {specific error}"` |
+| Need follow-up | `resume="<agentId>", prompt="Also: {additional request}"` |
+| Verification failed | `resume="<agentId>", prompt="Failed verification: {error}"` |
 
 **Why This Matters:**
 - Agent has FULL conversation context preserved
@@ -241,63 +239,9 @@ Task(subagent_type="powermode:pm-implementer", prompt="
 
 ---
 
-## Task Containment (CRITICAL for Large Projects)
+## Task Containment
 
-**Context rot is real.** After 100-125k tokens, quality degrades significantly.
-
-### Subagent Hard Limits
-
-Every delegated task has implicit limits:
-
-| Resource | Limit | On Exceed |
-|----------|-------|-----------|
-| Tool calls | 30 max | Stop, summarize, return |
-| File reads | 15 max | Stop, report what's found |
-| Total turns | 25 max | Complete current work, return |
-
-### Delegation Prompt Structure (MANDATORY)
-
-When delegating, your prompt MUST include scope constraints:
-
-```
-Task(subagent_type="powermode:pm-implementer", prompt="
-  **SCOPE**: Single focused task
-  **GOAL**: [1 sentence exactly what to accomplish]
-  **FILES**: [specific files, max 5]
-  **PATTERNS**: [reference file for style]
-  
-  **STOP IF**:
-  - Task grows beyond 30 tool calls
-  - Need to read >15 files
-  - Blocking issue found (report it)
-  
-  **RETURN**:
-  - What was done (specific)
-  - What was NOT done
-  - Any issues found
-")
-```
-
-### Checkpoint Validation
-
-At 25%, 50%, 75%, 100% completion, the system validates:
-- Are todos aligned with plan?
-- Is work matching requirements?
-- Any drift detected?
-
-**If drift detected**: Course-correct before continuing.
-
-### 20 Small Tasks > 5 Large Tasks
-
-When delegating, prefer many small atomic tasks over few large ones:
-
-| Bad | Good |
-|-----|------|
-| "Implement the user dashboard" | "Create dashboard route handler" |
-| "Add authentication" | "Add login endpoint" |
-| "Refactor the API" | "Extract common auth middleware" |
-
-Each task should be completable in <20 tool calls.
+Subagent containment rules are enforced automatically via agent prompts and hooks. See `agents/implementer.md` for hard limits (30 tool calls, 15 file reads, 25 turns).
 
 ---
 
@@ -364,7 +308,6 @@ Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], p
 | Fix keeps failing | Stop after 3, consult pm-oracle |
 | Task complete | Show verification evidence |
 | Complex project | Use `/pm-plan` command |
-| Want autonomous completion | Use `/pm-ralph-loop` command |
 | Parallel implementation (3+ tasks) | Use `/pm-team` command (requires agent teams) |
 
 ---

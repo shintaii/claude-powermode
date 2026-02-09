@@ -19,7 +19,7 @@ BEFORE writing ANY code, define what "working" means:
 ### After Each Logical Change
 
 1. **Save the file** - Let LSP process it
-2. **Check lsp_diagnostics** - Zero new errors on changed files
+2. **Check build/lint output** - Zero new errors on changed files
 3. **If error introduced** - Fix immediately, don't accumulate
 
 ### After Each Todo Item
@@ -36,8 +36,8 @@ BEFORE writing ANY code, define what "working" means:
 
 | Action | Required Evidence | How to Get It |
 |--------|-------------------|---------------|
-| File edit | Clean diagnostics | `lsp_diagnostics` on changed files |
-| New code | No type errors | `lsp_diagnostics` shows 0 errors |
+| File edit | Clean diagnostics | Build/lint on changed files |
+| New code | No type errors | Build/lint shows 0 errors |
 | Build | Exit code 0 | Run build command, check output |
 | Tests | All pass | Run test command, check output |
 | Feature | Works as expected | Describe what you tested |
@@ -45,7 +45,7 @@ BEFORE writing ANY code, define what "working" means:
 ### Verification Workflow
 
 ```
-1. lsp_diagnostics on ALL changed files
+1. Build/lint diagnostics on ALL changed files
    └── Any errors? Fix them first.
 
 2. Run build (if project has build step)
@@ -147,7 +147,7 @@ How would you like to proceed?
 
 Before saying "done", verify:
 
-- [ ] `lsp_diagnostics` clean on all changed files
+- [ ] Build/lint diagnostics clean on all changed files
 - [ ] Build passes (if applicable)
 - [ ] Tests pass (if applicable)
 - [ ] Feature actually works (if applicable)

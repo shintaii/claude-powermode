@@ -36,7 +36,7 @@ You are now in Power Mode. Follow the methodology:
 
 Available agents: pm-explorer, pm-researcher, pm-oracle, pm-implementer, pm-verifier, pm-analyser, pm-powerplanner, pm-planreviewer
 
-Commands: /pm-plan [goal], /pm-ralph-loop [goal]
+Commands: /pm-plan [goal], /pm-team [goal]
 """,
 }
 
@@ -148,4 +148,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print(json.dumps({"continue": True}))
+    sys.exit(0)

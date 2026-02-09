@@ -56,4 +56,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print(json.dumps({"continue": True}))
+    sys.exit(0)

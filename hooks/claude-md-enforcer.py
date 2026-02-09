@@ -136,32 +136,6 @@ def build_reminder(claude_files: list[tuple[str, str]]) -> str:
         parts.append(extracted)
         parts.append("")
 
-    # Add critical reminders for known problem areas
-    parts.extend(
-        [
-            "=== CRITICAL ENFORCEMENT (Most Violated Rules) ===",
-            "",
-            '1. SIMPLICITY: "Can this be solved with a simple loop or conditional?"',
-            "   - 20-line surgical fix > 200-line architectural refactor",
-            "   - Start SIMPLEST, add complexity only if proven necessary",
-            "",
-            "2. CLARIFICATION: Confidence < 80% = MUST ASK",
-            "   - Use mcp_question tool (multiple choice) - NOT prose questions",
-            "   - Present options with descriptions, let user choose",
-            "",
-            "3. TESTING: Test CORE PURPOSE only",
-            "   - Expand existing test files before creating new ones",
-            "   - Only mock EXTERNAL APIs (Amazon exception: use Sandbox)",
-            "   - 5 error scenarios? Test 1 representative one, not all 5",
-            "",
-            '4. NO FLATTERY: Never say "Great question!", "You\'re right", etc.',
-            "   - Challenge if user is wrong. Be honest, not agreeable.",
-            "",
-            "These rules are NON-NEGOTIABLE. The user explicitly asked for enforcement.",
-            "",
-        ]
-    )
-
     return "\n".join(parts)
 
 
@@ -198,4 +172,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print(json.dumps({"continue": True}))
+    sys.exit(0)

@@ -1,6 +1,6 @@
 ---
 name: powermode
-description: Activate Power Mode - disciplined engineering with parallel agents, planning system, and ralph-loop
+description: Activate Power Mode - disciplined engineering with parallel agents, planning system, and verification discipline
 allowed-tools: "*"
 ---
 
@@ -35,7 +35,6 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 | Command | Purpose |
 |---------|---------|
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer review loop |
-| `/pm-ralph-loop [goal]` | Self-referential dev loop until task completion |
 | `/pm-team [goal]` | Agent Teams mode - parallel implementation with independent sessions (requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) |
 
 ## Mandatory Workflow
@@ -50,20 +49,20 @@ For any non-trivial task:
 
 ## Session Continuity
 
-Always use `session_id` for follow-ups:
+Every Task returns an `agentId`. Use `resume` for follow-ups:
 ```
-# Task returns session_id="ses_abc123"
+# First call returns agentId (e.g. "a1b2c3d")
 # If failed or needs follow-up:
-Task(session_id="ses_abc123", prompt="Fix: ...")
+Task(resume="a1b2c3d", prompt="Fix: ...")
 ```
 
 ## Key Rules
 
 - **NEVER implement without exploring first** (for non-trivial tasks)
 - **Fire explorers in parallel** - multiple angles simultaneously
-- **Use session_id** - don't restart failed tasks from scratch
+- **Use resume** - don't restart failed tasks from scratch
 - **Consult oracle for hard decisions** - Architecture, after 2+ failed fixes
-- **Verify with evidence** - lsp_diagnostics, build, tests
+- **Verify with evidence** - build output, lint, tests
 - **No slop** - No `as any`, no empty catch, no deleted tests
 - **Exploration hygiene** - Use Grep/Read tools (with offsets for large files); avoid Bash find/grep
 - **PRD index first** - If a PRD folder has an index/README, read it first and honor dependency order
@@ -77,7 +76,6 @@ Task(session_id="ses_abc123", prompt="Fix: ...")
 | Hard problem | Consult pm-oracle |
 | Before "done" | Run pm-verifier |
 | Complex project | `/pm-plan [goal]` |
-| Autonomous work | `/pm-ralph-loop [goal]` |
 | Parallel implementation | `/pm-team [goal]` (requires agent teams enabled) |
 
 ## Available Skills

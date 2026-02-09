@@ -3,7 +3,7 @@ name: pm-powerplanner
 description: Strategic planner that creates comprehensive work plans through interview-style requirements gathering. Use when starting complex features, projects, or multi-step implementations. Operates in INTERVIEW mode by default - gathers requirements before planning.
 model: opus
 color: blue
-tools: ["Read", "Grep", "Glob", "Task", "TodoWrite", "TodoRead"]
+tools: ["Read", "Grep", "Glob", "Task"]
 ---
 
 <example>

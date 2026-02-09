@@ -59,7 +59,9 @@ plugin-dev:skill-reviewer    # Review specific implementations
 |-------|-------|---------|
 | pm-explorer | haiku | Fast codebase search |
 | pm-researcher | sonnet | External docs research |
-| pm-analyser/powerplanner/planreviewer | sonnet | Planning loop |
+| pm-analyser | opus | Pre-planning gap analysis |
+| pm-powerplanner | opus | Strategic planning |
+| pm-planreviewer | sonnet | Plan review loop |
 | pm-oracle | opus | Architecture decisions |
 | pm-implementer | opus | Code changes |
 | pm-verifier | sonnet | Verification with evidence |

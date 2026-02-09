@@ -24,7 +24,7 @@ claude plugin list | grep powermode
 | An idea/goal | A detailed plan + PRD files | `/pm-plan add user authentication` |
 | An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-plan @path/to/doc.md` |
 | An existing PRD folder | See structure and next steps | `/pm-plan @.powermode/prds/feature/` |
-| A PRD ready to implement | Autonomous implementation loop | `/pm-ralph-loop @.powermode/prds/feature/README.md` |
+| A PRD ready to implement | Parallel team implementation | `/pm-team @.powermode/prds/feature/README.md` |
 | Started work, want methodology | Enable powermode workflow | `/powermode` |
 | Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
 
@@ -87,23 +87,6 @@ claude plugin list | grep powermode
 
 ---
 
-### `/pm-ralph-loop [goal or @prd]` - Autonomous Implementation
-
-**When:** You have a PRD and want autonomous execution until done.
-
-**What it does:**
-- Implements tasks one by one
-- Self-corrects on failures
-- Runs verification after each task
-- Continues until all tasks complete or blocked
-
-**Example:**
-```
-/pm-ralph-loop @.powermode/prds/auth-feature/README.md
-```
-
----
-
 ### `/pm-checkpoint` - Manual Progress Check
 
 **When:** Mid-implementation, you want to verify you're on track.
@@ -156,8 +139,8 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /pm-plan add payment processing
 2. Review generated PRDs in .powermode/prds/payment/
-3. /pm-ralph-loop @.powermode/prds/payment/README.md
-4. (automatic) Implementation with verification
+3. /pm-team @.powermode/prds/payment/README.md
+4. (automatic) Parallel implementation with verification
 ```
 
 ### Feature from Existing Spec
@@ -165,7 +148,7 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /pm-plan @docs/payment-spec.md
 2. Review generated PRDs
-3. /pm-ralph-loop @.powermode/prds/payment/README.md
+3. /pm-team @.powermode/prds/payment/README.md
 ```
 
 ### Quick Fix (no planning needed)

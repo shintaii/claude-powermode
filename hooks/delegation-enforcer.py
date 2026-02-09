@@ -6,7 +6,7 @@ principle requires using pm-implementer for code changes.
 
 Bypass mechanisms:
 1. pm-implementer creates .powermode/implementer-session.json before editing
-2. Escape hatch after 5 blocked attempts (for edge cases)
+2. Escape hatch after 10 blocked attempts (for edge cases)
 
 Fires on: PreToolUse (Edit, Write)
 
@@ -131,12 +131,21 @@ def main():
         return
 
     state = load_json(state_file) or {}
-    attempt_count = state.get("direct_edit_attempts", 0) + 1
-    state["direct_edit_attempts"] = attempt_count
+    session_state = state.get(session_id, {}) if session_id else state
+    attempt_count = session_state.get("direct_edit_attempts", 0) + 1
+    session_state["direct_edit_attempts"] = attempt_count
+    if session_id:
+        state[session_id] = session_state
+    else:
+        state = session_state
     save_json(state_file, state)
 
     if attempt_count >= ESCAPE_THRESHOLD:
-        state["direct_edit_attempts"] = 0
+        session_state["direct_edit_attempts"] = 0
+        if session_id:
+            state[session_id] = session_state
+        else:
+            state = session_state
         save_json(state_file, state)
         print(json.dumps({
             "hookSpecificOutput": {
@@ -162,4 +171,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow", "updatedInput": {}}}))
+    sys.exit(0)

@@ -3,7 +3,7 @@ name: pm-researcher
 description: Use this agent for external documentation lookup, OSS implementation examples, and library research. Fire proactively when working with unfamiliar packages, APIs, or frameworks. Searches GitHub, official docs, and the web.
 model: sonnet
 color: cyan
-tools: ["Read", "Grep", "Glob", "WebFetch", "WebSearch", "Bash"]
+tools: ["Read", "Grep", "Glob", "WebFetch", "WebSearch"]
 ---
 
 <example>
@@ -48,17 +48,10 @@ Research external resources to answer questions about libraries, frameworks, API
 - Configuration references
 
 ### GitHub Research
-Use `gh` CLI to search repositories:
-```bash
-# Search code patterns
-gh search code "pattern" --language typescript
-
-# Clone and explore popular implementations
-gh repo clone owner/repo -- --depth 1
-
-# Search repos by topic
-gh search repos "topic" --stars ">1000"
-```
+Use WebSearch and WebFetch for GitHub research:
+- Search for GitHub repositories and code patterns via WebSearch
+- Fetch specific GitHub pages, READMEs, and code files via WebFetch
+- Browse repository structures and documentation through web URLs
 
 ### Web Search
 - Stack Overflow solutions (verify currency)

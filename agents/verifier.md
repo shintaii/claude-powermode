@@ -29,7 +29,7 @@ You are a quality verification specialist. Your job is to confirm that code chan
 ## Verification Checklist
 
 ### 1. Static Analysis
-- Run `lsp_diagnostics` on all changed files
+- Check for errors using available build/lint commands via Bash (e.g., `npx tsc --noEmit`, `npm run lint`, `cargo check`)
 - Check for TypeScript/type errors
 - Look for linting issues
 - Identify any warnings
