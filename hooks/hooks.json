@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "A Task (subagent) tool call just completed. Context: $ARGUMENTS. Available agents: pm-explorer (haiku), pm-researcher (sonnet), pm-oracle (opus), pm-implementer (opus), pm-verifier (sonnet), pm-analyser (opus), pm-powerplanner (opus), pm-planreviewer (sonnet). IMPORTANT: Only respond ok:false if the agent actually crashed, was not found, or threw an unrecoverable error. A plan review returning NEEDS REVISION is a normal successful result - respond ok:true. Warnings, partial results, and review feedback are all ok:true. Reserve ok:false strictly for hard failures.",
+            "prompt": "A Task (subagent) tool call just completed. Context: $ARGUMENTS. Available agents: pm-explorer (haiku), pm-researcher (sonnet), pm-oracle (opus), pm-implementer (opus), pm-verifier (sonnet), pm-analyser (opus), pm-powerplanner (opus), pm-planreviewer (sonnet). Only respond ok:false if the agent actually crashed, was not found, or threw an unrecoverable error. A plan review returning NEEDS REVISION is a normal successful result. Warnings, partial results, and review feedback are all ok:true. Reserve ok:false strictly for hard failures. You MUST respond with ONLY a valid JSON object, no other text: {\"ok\": true, \"reason\": \"brief explanation\"} or {\"ok\": false, \"reason\": \"what failed\"}",
             "timeout": 10
           }
         ]
@@ -81,7 +81,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "An Edit tool call just failed. Analyze the error and provide recovery guidance. Context: $ARGUMENTS. Common issues: oldString not found (read file first, check whitespace), found multiple times (add more context to make unique), file doesn't exist (use Write instead). Always respond ok:true with a concise reason containing numbered recovery steps. This hook is advisory - it must not stop continuation.",
+            "prompt": "An Edit tool call just failed. Analyze the error and provide recovery guidance. Context: $ARGUMENTS. Common issues: oldString not found (read file first, check whitespace), found multiple times (add more context to make unique), file doesn't exist (use Write instead). This hook is advisory and must not stop continuation. You MUST respond with ONLY a valid JSON object, no other text: {\"ok\": true, \"reason\": \"1. Step one 2. Step two 3. Step three\"}",
             "timeout": 10
           }
         ]
