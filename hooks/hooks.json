@@ -35,16 +35,6 @@
         ]
       },
       {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "prompt",
-            "prompt": "A Task (subagent) tool call just completed. Context: $ARGUMENTS. Available agents: pm-explorer (haiku), pm-researcher (sonnet), pm-oracle (opus), pm-implementer (opus), pm-verifier (sonnet), pm-analyser (opus), pm-powerplanner (opus), pm-planreviewer (sonnet). Only respond ok:false if the agent actually crashed, was not found, or threw an unrecoverable error. A plan review returning NEEDS REVISION is a normal successful result. Warnings, partial results, and review feedback are all ok:true. Reserve ok:false strictly for hard failures. You MUST respond with ONLY a valid JSON object, no other text: {\"ok\": true, \"reason\": \"brief explanation\"} or {\"ok\": false, \"reason\": \"what failed\"}",
-            "timeout": 10
-          }
-        ]
-      },
-      {
         "matcher": "Read",
         "hooks": [
           {

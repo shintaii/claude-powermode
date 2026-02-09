@@ -8,6 +8,20 @@ from pathlib import Path
 MAX_BLOCK_ATTEMPTS = 3
 
 
+def is_powermode_active(cwd: str, session_id: str) -> bool:
+    active_mode_file = Path(cwd) / ".powermode" / "active-mode.json"
+    try:
+        if active_mode_file.exists():
+            data = json.loads(active_mode_file.read_text())
+            return (
+                data.get("mode") == "powermode"
+                and data.get("session_id") == session_id
+            )
+    except (json.JSONDecodeError, IOError, OSError):
+        pass
+    return False
+
+
 def get_attempt_count(state_dir: Path, session_id: str) -> int:
     attempt_file = state_dir / "stop-attempts.json"
     if attempt_file.exists():
@@ -92,6 +106,10 @@ def main():
     session_id = input_data.get("session_id", "unknown")
     transcript_path = input_data.get("transcript_path", "")
     state_dir = Path(cwd) / ".powermode"
+
+    if not is_powermode_active(cwd, session_id):
+        print(json.dumps({"decision": "approve"}))
+        return
 
     pending_todos = []
     in_progress_todos = []

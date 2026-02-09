@@ -12,6 +12,7 @@ Fires on: PreToolUse (Task, delegate_task)
 import sys
 import json
 import re
+from pathlib import Path
 
 # Token budget guidance (conservative to prevent rot)
 TOKEN_BUDGET_WARNING = """
@@ -58,6 +59,20 @@ CHECKPOINT_REMINDER = """
 
 If any checkbox is NO, you went too far.
 """
+
+
+def is_powermode_active(cwd: str, session_id: str) -> bool:
+    active_mode_file = Path(cwd) / ".powermode" / "active-mode.json"
+    try:
+        if active_mode_file.exists():
+            data = json.loads(active_mode_file.read_text())
+            return (
+                data.get("mode") == "powermode"
+                and data.get("session_id") == session_id
+            )
+    except (json.JSONDecodeError, IOError, OSError):
+        pass
+    return False
 
 
 def extract_task_prompt(tool_input: dict) -> str:
@@ -151,6 +166,20 @@ def main():
 
     if not should_enforce(tool_name):
         print(json.dumps({"continue": True}))
+        return
+
+    cwd = input_data.get("cwd", ".")
+    session_id = input_data.get("session_id", "")
+
+    if not is_powermode_active(cwd, session_id):
+        # Outside powermode, just allow without injecting containment rules
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "allow",
+                "updatedInput": {**tool_input},
+            }
+        }))
         return
 
     prompt = extract_task_prompt(tool_input)

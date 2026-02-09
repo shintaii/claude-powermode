@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Persistent modes - these stay active for the entire session once triggered
 PERSISTENT_MODES = {
-    r"\b(powermode|power\s*mode)\b": "powermode",
+    r"# Power Mode|^/powermode\b|^/pm-plan\b|^/pm-team\b": "powermode",
 }
 
 # Mode context injections
@@ -115,7 +115,7 @@ def main():
     # Check for persistent mode activation via keyword
     newly_activated = None
     for pattern, mode_name in PERSISTENT_MODES.items():
-        if re.search(pattern, prompt_lower):
+        if re.search(pattern, prompt_lower, re.MULTILINE):
             newly_activated = mode_name
             break
 

@@ -19,6 +19,20 @@ from pathlib import Path
 from datetime import datetime
 
 
+def is_powermode_active(cwd: str, session_id: str) -> bool:
+    active_mode_file = Path(cwd) / ".powermode" / "active-mode.json"
+    try:
+        if active_mode_file.exists():
+            data = json.loads(active_mode_file.read_text())
+            return (
+                data.get("mode") == "powermode"
+                and data.get("session_id") == session_id
+            )
+    except (json.JSONDecodeError, IOError, OSError):
+        pass
+    return False
+
+
 def find_active_plan(cwd: str) -> tuple[str | None, str | None]:
     """Find the active plan file in .powermode/ or .planning/ directories."""
 
@@ -155,6 +169,11 @@ def main():
     tool_name = input_data.get("tool_name", "")
     tool_response = input_data.get("tool_response", {})
     cwd = input_data.get("cwd", os.getcwd())
+    session_id = input_data.get("session_id", "")
+
+    if not is_powermode_active(cwd, session_id):
+        print(json.dumps({"continue": True}))
+        return
 
     # Only fire on TodoWrite
     if tool_name.lower() not in ["todowrite", "mcp_todowrite"]:
