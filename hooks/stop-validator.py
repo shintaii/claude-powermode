@@ -123,17 +123,6 @@ def main():
                     try:
                         entry = json.loads(line)
                         message = entry.get("message")
-                        # Only scan user messages for @PRD references
-                        # to avoid false positives from tool results
-                        # containing paths like .powermode/prds/README.md
-                        msg_role = message.get("role") if isinstance(message, dict) else None
-                        if msg_role == "user":
-                            for text in iter_message_text(message):
-                                for match in re.findall(r"@[\w./-]+\.md", text):
-                                    if "/prd/" in match.lower() or "/prds/" in match.lower():
-                                        normalized = normalize_path(match, cwd)
-                                        if normalized:
-                                            referenced_prds.add(normalized)
 
                         for tool_use in iter_tool_uses(message):
                             tool_name = tool_use.get("name")
