@@ -120,7 +120,24 @@ def main():
             break
 
     if newly_activated and cwd and session_id:
-        save_active_mode(cwd, newly_activated, session_id)
+        # Don't overwrite active-mode.json if another session owns it.
+        # This prevents team members from hijacking the parent's mode,
+        # which would cause delegation-enforcer to block their edits.
+        existing_mode = load_active_mode(cwd, session_id)
+        if existing_mode is None:
+            # Check if a DIFFERENT session owns the mode
+            state_file = Path(cwd) / ".powermode" / "active-mode.json"
+            other_session_active = False
+            if state_file.exists():
+                try:
+                    with open(state_file, "r") as f:
+                        data = json.load(f)
+                    if data.get("session_id") and data.get("session_id") != session_id:
+                        other_session_active = True
+                except (json.JSONDecodeError, IOError):
+                    pass
+            if not other_session_active:
+                save_active_mode(cwd, newly_activated, session_id)
         contexts.append(MODE_CONTEXTS[newly_activated].strip())
     elif not newly_activated and cwd and session_id:
         # No keyword match - check if a persistent mode is already active (same session only)

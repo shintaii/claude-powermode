@@ -61,22 +61,33 @@ def save_json(path: Path, data: dict) -> None:
 def check_implementer_session(powermode_dir: Path, session_id: str = "") -> bool:
     """Check if pm-implementer has an active session.
 
-    Session file is managed by implementer-lifecycle.py via
+    Session files are managed by implementer-lifecycle.py via
     SubagentStart/SubagentStop hooks — no expiry needed.
-    Validates session_id to prevent stale files from bypassing enforcement.
+    Supports multiple concurrent implementers (team mode) via
+    implementer-sessions/ directory with per-agent files.
     """
+    # Check new multi-agent directory first
+    sessions_dir = powermode_dir / "implementer-sessions"
+    if sessions_dir.is_dir():
+        for session_file in sessions_dir.glob("*.json"):
+            session = load_json(session_file)
+            if not session:
+                continue
+            if session.get("agent") != "pm-implementer":
+                continue
+            if session_id and session.get("session_id") != session_id:
+                continue
+            return True
+
+    # Backward compat: check legacy single file
     session_file = powermode_dir / "implementer-session.json"
     session = load_json(session_file)
     if not session:
         return False
-
     if session.get("agent") != "pm-implementer":
         return False
-
-    # Verify session_id to prevent stale files from previous sessions
     if session_id and session.get("session_id") != session_id:
         return False
-
     return True
 
 
@@ -96,6 +107,23 @@ def main():
     tool_input = input_data.get("tool_input", {})
     cwd = input_data.get("cwd", ".")
     session_id = input_data.get("session_id", "")
+
+    # Allow writes to .powermode/ state files (not project code)
+    target_path = tool_input.get("file_path", "")
+    if target_path:
+        try:
+            powermode_path = Path(cwd) / ".powermode"
+            if Path(target_path).resolve().is_relative_to(powermode_path.resolve()):
+                print(json.dumps({
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "allow",
+                        "updatedInput": {**tool_input},
+                    }
+                }))
+                return
+        except (ValueError, OSError):
+            pass
 
     powermode_dir = Path(cwd) / ".powermode"
     active_mode_file = powermode_dir / "active-mode.json"

@@ -32,13 +32,22 @@ def main():
     cwd = input_data.get("cwd", ".")
 
     powermode_dir = Path(cwd) / ".powermode"
-    session_file = powermode_dir / "implementer-session.json"
+    sessions_dir = powermode_dir / "implementer-sessions"
+    # Per-agent session file supports multiple concurrent implementers (team mode)
+    session_file = sessions_dir / f"{agent_id}.json"
+    legacy_file = powermode_dir / "implementer-session.json"
 
     if hook_event == "SubagentStart":
         try:
             session_id = input_data.get("session_id", "")
-            powermode_dir.mkdir(parents=True, exist_ok=True)
+            sessions_dir.mkdir(parents=True, exist_ok=True)
             session_file.write_text(json.dumps({
+                "agent": "pm-implementer",
+                "agent_id": agent_id,
+                "session_id": session_id,
+            }))
+            # Also write legacy file for backward compat
+            legacy_file.write_text(json.dumps({
                 "agent": "pm-implementer",
                 "agent_id": agent_id,
                 "session_id": session_id,
@@ -57,6 +66,13 @@ def main():
         try:
             if session_file.exists():
                 session_file.unlink()
+            # Only remove legacy file if no other sessions remain
+            remaining = list(sessions_dir.glob("*.json")) if sessions_dir.is_dir() else []
+            if not remaining:
+                if legacy_file.exists():
+                    legacy_file.unlink()
+                if sessions_dir.is_dir():
+                    sessions_dir.rmdir()
         except (IOError, OSError):
             pass
 
