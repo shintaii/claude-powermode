@@ -37,7 +37,6 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 |---------|---------|
 | `/powermode` | Activate Power Mode (loads this skill) |
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer loop |
-| `/pm-team [goal]` | Agent Teams mode - parallel implementation with independent sessions |
 
 ---
 
@@ -308,7 +307,7 @@ Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], p
 | Fix keeps failing | Stop after 3, consult pm-oracle |
 | Task complete | Show verification evidence |
 | Complex project | Use `/pm-plan` command |
-| Parallel implementation (3+ tasks) | Use `/pm-team` command (requires agent teams) |
+| Parallel implementation (3+ tasks) | `/powermode` auto-detects team mode availability |
 
 ---
 

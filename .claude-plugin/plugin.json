@@ -1,6 +1,6 @@
 {
   "name": "powermode",
-  "version": "2.10.0",
+  "version": "2.11.0",
   "description": "Disciplined engineering methodology with specialized agents, planning system, verification discipline, and context management hooks.",
   "author": {
     "name": "Patrick Gerrits"
@@ -23,7 +23,6 @@
   "commands": [
     "./commands/powermode.md",
     "./commands/pm-plan.md",
-    "./commands/pm-checkpoint.md",
-    "./commands/pm-team.md"
+    "./commands/pm-checkpoint.md"
   ]
 }

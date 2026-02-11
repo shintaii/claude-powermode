@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Persistent modes - these stay active for the entire session once triggered
 PERSISTENT_MODES = {
-    r"# Power Mode|^/powermode\b|^/pm-plan\b|^/pm-team\b": "powermode",
+    r"# Power Mode|^/powermode\b|^/pm-plan\b": "powermode",
 }
 
 # Mode context injections
@@ -36,7 +36,7 @@ You are now in Power Mode. Follow the methodology:
 
 Available agents: pm-explorer, pm-researcher, pm-oracle, pm-implementer, pm-verifier, pm-analyser, pm-powerplanner, pm-planreviewer
 
-Commands: /pm-plan [goal], /pm-team [goal]
+Commands: /pm-plan [goal]
 """,
 }
 

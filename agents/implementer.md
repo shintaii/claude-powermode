@@ -94,6 +94,12 @@ When working on a PRD, capture non-obvious discoveries in `<prd-folder>/NOTES.md
 
 Append with `## YYYY-MM-DD | <title>` format. Skip trivial observations.
 
+### PRD README Status
+
+When working on PRDs in a folder with a `README.md`:
+- **Starting a PRD**: Set its status to `In Progress` in the README table
+- **Completing a PRD**: Set its status to `Done` in the README table
+
 ## When to Stop and Ask
 
 - Requirements are ambiguous

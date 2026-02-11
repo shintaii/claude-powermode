@@ -115,6 +115,8 @@ def main():
     in_progress_todos = []
     referenced_prds = set()
     updated_prds = set()
+    modified_prd_folders = set()
+    modified_prd_readmes = set()
 
     if transcript_path and Path(transcript_path).exists():
         try:
@@ -144,6 +146,16 @@ def main():
                                 referenced_prds.add(normalized)
                                 updated_prds.add(normalized)
 
+                                # Track PRD folder README updates
+                                norm_lower = normalized.lower()
+                                if ".powermode/prds/" in norm_lower or ".powermode\\prds\\" in norm_lower:
+                                    folder = os.path.dirname(normalized)
+                                    basename = os.path.basename(normalized).lower()
+                                    if basename == "readme.md":
+                                        modified_prd_readmes.add(folder)
+                                    else:
+                                        modified_prd_folders.add(folder)
+
                         tool_result = entry.get("toolUseResult", {})
                         if "newTodos" in tool_result:
                             todos = tool_result.get("newTodos", [])
@@ -164,8 +176,9 @@ def main():
 
     incomplete = pending_todos + in_progress_todos
     missing_prd_updates = sorted(referenced_prds - updated_prds)
+    folders_missing_readme = sorted(modified_prd_folders - modified_prd_readmes)
 
-    if incomplete or missing_prd_updates:
+    if incomplete or missing_prd_updates or folders_missing_readme:
         attempt = increment_attempt(state_dir, session_id)
 
         if attempt >= MAX_BLOCK_ATTEMPTS:
@@ -174,6 +187,8 @@ def main():
                 parts.append(f"{len(incomplete)} todos left incomplete")
             if missing_prd_updates:
                 parts.append(f"{len(missing_prd_updates)} PRD file(s) not updated")
+            if folders_missing_readme:
+                parts.append(f"{len(folders_missing_readme)} PRD README(s) not updated")
             warning = (
                 "[STOP HOOK] Approved after "
                 + str(attempt)
@@ -199,6 +214,18 @@ def main():
                     prd_list += f" (+{len(missing_prd_updates) - 3} more)"
                 issue_parts.append(f"PRD not updated ({prd_list})")
                 action_parts.append("Update the referenced PRD file(s)")
+            if folders_missing_readme:
+                folder_list = ", ".join(
+                    [os.path.basename(f) for f in folders_missing_readme[:3]]
+                )
+                if len(folders_missing_readme) > 3:
+                    folder_list += f" (+{len(folders_missing_readme) - 3} more)"
+                issue_parts.append(
+                    f"PRD README not updated ({folder_list})"
+                )
+                action_parts.append(
+                    "Update the README.md status column in the PRD folder(s)"
+                )
 
             reason = (
                 "BLOCKED: "

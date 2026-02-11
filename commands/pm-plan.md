@@ -274,7 +274,19 @@ When the user chooses to split a flagged PRD:
 Generate a README with:
 - Folder purpose/scope
 - Dependency order table
-- Each PRD: file, domain, test focus, dependencies
+- Each PRD: file, domain, test focus, dependencies, status
+
+Use this table format:
+
+```markdown
+| # | File | Domain | Test Focus | Dependencies | Status |
+|---|------|--------|-----------|--------------|--------|
+| 1 | 01-database-schema.md | Database | Schema + migrations | None | Pending |
+| 2 | 02-api-endpoints.md | API | Endpoint auth | 01 | Pending |
+| 3 | 03-frontend-ui.md | Frontend | UI components | 02 | Pending |
+```
+
+Status values: `Pending`, `In Progress`, `Done`
 
 ---
 
@@ -367,5 +379,4 @@ Present:
 1. List all created PRD files with paths
 2. Explain the split rationale (if split)
 3. Suggest next command:
-   - `/powermode @.powermode/prds/<slug>/README.md` to implement all PRDs in order
-   - `/powermode @.powermode/prds/<slug>/01-first.md` to start with the first PRD
+   - `/powermode @.powermode/prds/<slug>/README.md` to implement (auto-detects team mode if available)

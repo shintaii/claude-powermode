@@ -24,7 +24,7 @@ claude plugin list | grep powermode
 | An idea/goal | A detailed plan + PRD files | `/pm-plan add user authentication` |
 | An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-plan @path/to/doc.md` |
 | An existing PRD folder | See structure and next steps | `/pm-plan @.powermode/prds/feature/` |
-| A PRD ready to implement | Parallel team implementation | `/pm-team @.powermode/prds/feature/README.md` |
+| A PRD ready to implement | Implementation (auto-detects team mode) | `/powermode @.powermode/prds/feature/README.md` |
 | Started work, want methodology | Enable powermode workflow | `/powermode` |
 | Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
 
@@ -139,8 +139,8 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /pm-plan add payment processing
 2. Review generated PRDs in .powermode/prds/payment/
-3. /pm-team @.powermode/prds/payment/README.md
-4. (automatic) Parallel implementation with verification
+3. /powermode @.powermode/prds/payment/README.md
+4. (automatic) Detects team mode availability, implements with verification
 ```
 
 ### Feature from Existing Spec
@@ -148,7 +148,7 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /pm-plan @docs/payment-spec.md
 2. Review generated PRDs
-3. /pm-team @.powermode/prds/payment/README.md
+3. /powermode @.powermode/prds/payment/README.md
 ```
 
 ### Quick Fix (no planning needed)
@@ -274,7 +274,7 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 ## Version Notes
 
 - **2.7.0**: SubagentStart/Stop lifecycle for implementer sessions, agent-scoped comment-checker, prompt-based hooks (workflow-reinforcer, edit-error-recovery, task-retry-guidance), subagent context injection for all pm-* agents
-- **2.8.0**: Merge pm-prdmaker into pm-plan (unified planning with auto-detect), add /pm-team command for agent teams
+- **2.8.0**: Merge pm-prdmaker into pm-plan (unified planning with auto-detect)
 - **2.6.15**: Fix pm-prdmaker workflow (explicit Task calls), pm-plan now outputs PRD files, expanded README
 - **2.6.14**: Add delegation-enforcer hook
 - **2.6.13**: Persist powermode activation across prompts
