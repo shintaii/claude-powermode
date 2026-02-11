@@ -40,7 +40,9 @@ $ARGUMENTS
 
 | Command | Purpose |
 |---------|---------|
-| `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer review loop |
+| `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer → Write PRDs (hierarchical: Project → Feature → Task) |
+| `/pm-export [project-slug]` | Export project documentation to a folder |
+| `/pm-issues [project-slug]` | Review open issues, convert to new task PRDs |
 
 ## Workflow
 

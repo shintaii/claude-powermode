@@ -26,7 +26,7 @@ import re
 from pathlib import Path
 from fnmatch import fnmatch
 
-PRD_DIR_NAMES = {"prd", "prds"}
+PRD_DIR_NAMES = {"prd", "prds", "projects", "features"}
 
 
 def resolve_path(file_path: str, cwd: str) -> Path:

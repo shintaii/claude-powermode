@@ -100,6 +100,53 @@ When working on PRDs in a folder with a `README.md`:
 - **Starting a PRD**: Set its status to `In Progress` in the README table
 - **Completing a PRD**: Set its status to `Done` in the README table
 
+## Project Hierarchy Tracking
+
+When working within `.powermode/projects/`:
+
+### Decision Logging
+
+Log significant architectural decisions to the project's `decisions.md`. Only log decisions that future developers would benefit from knowing — not every small choice.
+
+Append format:
+```markdown
+## YYYY-MM-DD | <Decision Title>
+**Context:** <Why this came up>
+**Decision:** <What was decided>
+**Reason:** <Why this choice>
+**Feature:** <feature-slug>
+**Phase:** Implementation
+```
+
+If `decisions.md` doesn't exist yet, create it with `# Decision Log` header.
+
+### Issue Logging
+
+Log gaps, missing requirements, or out-of-scope problems to the project's `issues.md`.
+
+Append format:
+```markdown
+## OPEN | YYYY-MM-DD | <Issue Title>
+**Found by:** pm-implementer (during <feature>/<task>)
+**Feature:** <feature-slug>
+**Severity:** low/medium/high
+**Description:** <What's missing or wrong>
+**Suggested action:** <What should be done>
+```
+
+If `issues.md` doesn't exist yet, create it with `# Issues & Gaps` header.
+
+### Status Updates
+
+When starting or completing a task PRD within a project:
+1. Update `status.json` in the project root:
+   - Set the task status to `"in_progress"` when starting
+   - Set the task status to `"done"` when completing
+   - Update `tasks_done` count for the feature
+   - Update feature `status` to `"in_progress"` or `"done"` as appropriate
+   - Update the project-level `updated` timestamp
+2. Also update the feature README table status as before
+
 ## When to Stop and Ask
 
 - Requirements are ambiguous

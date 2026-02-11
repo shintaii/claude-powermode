@@ -17,7 +17,7 @@ import re
 import sys
 from pathlib import Path
 
-PRD_DIR_NAMES = {"prd", "prds"}
+PRD_DIR_NAMES = {"prd", "prds", "projects", "features"}
 
 
 def normalize_path(path_value: str, cwd: str) -> Path | None:

@@ -98,6 +98,42 @@ Only create the plan when:
 
 ### Plan Structure
 
+Use the template matching the **scope level** from the analyser output.
+
+#### Task-Level Plan (single PRD)
+
+```markdown
+# Work Plan: [Task Name]
+
+## Overview
+[1-2 sentence summary]
+
+## Requirements
+### Functional
+- [ ] [Requirement 1]
+
+### Non-Functional
+- [ ] [Performance/security requirement]
+
+## Technical Design
+### Components
+1. **[Component]** - Purpose, Location, Dependencies
+
+### Data Flow
+[How data moves through the system]
+
+## Implementation Tasks
+- [ ] Task 1: [Specific task with acceptance criteria]
+- [ ] Task 2: [Specific task with acceptance criteria]
+
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| [Risk 1] | [Impact] | [How to handle] |
+```
+
+#### Feature-Level Plan (multiple task PRDs)
+
 ```markdown
 # Work Plan: [Feature Name]
 
@@ -123,26 +159,16 @@ Only create the plan when:
    - Location: [file path]
    - Dependencies: [what it needs]
 
-2. **[Component 2]**
-   ...
-
 ### Data Flow
 [How data moves through the system]
 
-## Implementation Tasks
+## Task PRDs
 Priority-ordered, each task is atomic and testable:
 
-### Phase 1: Foundation
-- [ ] Task 1.1: [Specific task with acceptance criteria]
-- [ ] Task 1.2: [Specific task with acceptance criteria]
-
-### Phase 2: Core Implementation
-- [ ] Task 2.1: [Specific task]
-- [ ] Task 2.2: [Specific task]
-
-### Phase 3: Polish & Testing
-- [ ] Task 3.1: [Testing task]
-- [ ] Task 3.2: [Documentation task]
+| # | Task PRD | Domain | Dependencies | Description |
+|---|----------|--------|-------------|-------------|
+| 01 | [task-slug] | [area] | None | [What it does] |
+| 02 | [task-slug] | [area] | 01 | [What it does] |
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
@@ -151,10 +177,62 @@ Priority-ordered, each task is atomic and testable:
 
 ## Open Questions
 - [Question that needs user input]
+```
 
-## Estimated Effort
-- Total: [Quick/Short/Medium/Large]
-- Phase breakdown: [estimates per phase]
+#### Project-Level Plan (features with task PRDs)
+
+```markdown
+# Work Plan: [Project Name]
+
+## Overview
+[1-2 sentence summary of the project scope and goals]
+
+## Project Requirements
+### Functional
+- [ ] [High-level requirement 1]
+- [ ] [High-level requirement 2]
+
+### Non-Functional
+- [ ] [Performance/scalability requirement]
+- [ ] [Security requirement]
+
+## Architecture
+[Project-wide architectural decisions]
+
+## Feature Decomposition
+
+### Feature 1: [feature-slug]
+**Scope:** [What this feature covers]
+**Tasks:**
+| # | Task PRD | Domain | Dependencies | Description |
+|---|----------|--------|-------------|-------------|
+| 01 | [task-slug] | [area] | None | [What it does] |
+| 02 | [task-slug] | [area] | 01 | [What it does] |
+
+### Feature 2: [feature-slug]
+**Scope:** [What this feature covers]
+**Tasks:**
+| # | Task PRD | Domain | Dependencies | Description |
+|---|----------|--------|-------------|-------------|
+| 01 | [task-slug] | [area] | None | [What it does] |
+
+## Cross-Feature Dependencies
+| Feature | Depends On | Reason |
+|---------|-----------|--------|
+| [feature-2] | [feature-1] | [Why] |
+
+## Implementation Order
+1. [feature-slug] - Foundation, no dependencies
+2. [feature-slug] - Depends on 1
+3. [feature-slug] - Can parallel with 2
+
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| [Risk 1] | [Impact] | [How to handle] |
+
+## Open Questions
+- [Question that needs user input]
 ```
 
 ## Constraints

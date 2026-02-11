@@ -32,14 +32,20 @@ def main():
             if isinstance(token_percentage, (int, float)):
                 token_percentage = f"{token_percentage:.1f}"
             timestamp = recovery_data.get("saved_at", "unknown")
+            active_project = recovery_data.get("active_project")
 
             additional_context = (
                 f"[Session Recovery: Context was compacted. Previous state:\n"
                 f"- Session: {session_id}\n"
                 f"- Estimated tokens before: ~{tokens_before} ({token_percentage}%)\n"
                 f"- Last saved: {timestamp}\n"
-                f"Continue from where you left off.]"
             )
+            if active_project:
+                additional_context += (
+                    f"- Active project: {active_project} "
+                    f"(check .powermode/projects/{active_project}/status.json for progress)\n"
+                )
+            additional_context += "Continue from where you left off.]"
 
             restored_file = Path(str(recovery_file) + ".restored")
             try:

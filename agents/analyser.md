@@ -49,6 +49,27 @@ Classify the request type:
 | **Optimize** | Improve performance/quality | Measurable criteria |
 | **Explore** | Understand existing code | Scope boundaries |
 
+### 1b. Scope Classification
+
+Classify the scope level for planning:
+
+| Level | Signals | What Gets Created |
+|-------|---------|-------------------|
+| **Project** | Multiple domains, "build an app", 5+ functional areas, multiple user roles | Full project scaffold + feature folders + task PRDs per feature |
+| **Feature** | Single domain, multiple behaviors, 2-5 tasks | Feature folder + task PRDs (in new or existing project) |
+| **Task** | Single responsibility, one concern, clear scope | Single task PRD (in new or existing feature) |
+
+**How to classify:**
+- Count distinct functional areas/domains touched
+- Count the number of user-facing behaviors needed
+- Estimate total tasks: 1 = Task, 2-5 = Feature, 5+ = Project
+- When in doubt, prefer the smaller scope (Task > Feature > Project)
+
+**Existing project detection:**
+- Check `.powermode/projects/index.json` for existing projects
+- If a match exists, recommend adding to it (name the project)
+- If no match, recommend creating new (suggest a slug)
+
 ### 2. Hidden Requirements Analysis
 
 Look for implicit needs:
@@ -107,6 +128,15 @@ Watch for these common AI failure modes:
 **Type:** [Refactoring/Build/Fix/Optimize/Explore]
 **Confidence:** [High/Medium/Low]
 **Reason:** [Why this classification]
+
+### Scope Classification
+**Level:** [Project/Feature/Task]
+**Signals:** [What signals led to this classification]
+**Existing project:** [project-slug if match found in index.json, or "none"]
+**Suggested slug:** [kebab-case slug for new project/feature]
+**Features (if Project):**
+- [feature-1-slug]: [brief description]
+- [feature-2-slug]: [brief description]
 
 ### Explicit Requirements (What User Said)
 - [Requirement 1]

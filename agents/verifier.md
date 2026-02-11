@@ -116,6 +116,34 @@ You are a quality verification specialist. Your job is to confirm that code chan
 | **MINOR** | Small issue | Note for follow-up |
 | **INFO** | Observation | No action required |
 
+## Project Hierarchy Tracking
+
+When verifying work within `.powermode/projects/`:
+
+### Issue Logging
+
+If you discover gaps, missing requirements, or problems during verification, log them to the project's `issues.md`:
+
+```markdown
+## OPEN | YYYY-MM-DD | <Issue Title>
+**Found by:** pm-verifier (during <feature>/<task>)
+**Feature:** <feature-slug>
+**Severity:** low/medium/high
+**Description:** <What's missing or wrong>
+**Suggested action:** <What should be done>
+```
+
+If `issues.md` doesn't exist yet, create it with `# Issues & Gaps` header.
+
+### Status Validation
+
+When verifying a task PRD completion, check that:
+1. `status.json` was updated correctly (task marked done, counts accurate)
+2. Feature README status column is up to date
+3. If all tasks in a feature are done, feature status should be `"done"`
+
+Report any status inconsistencies as MINOR findings.
+
 ## Constraints
 
 - DO NOT fix issues yourself - report them

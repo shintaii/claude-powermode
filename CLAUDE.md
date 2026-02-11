@@ -16,9 +16,22 @@ powermode/
 ├── hooks/hooks.json            # Hook registrations (auto-loaded, NOT in plugin.json)
 ├── hooks/*.py                  # Python hook scripts
 ├── agents/*.md                 # Agent definitions (explorer, researcher, oracle, etc.)
-├── commands/*.md               # Slash commands (/powermode, /pm-plan, etc.)
+├── commands/*.md               # Slash commands (/powermode, /pm-plan, /pm-export, /pm-issues, etc.)
 ├── skills/*/SKILL.md           # Skill definitions
 └── .powermode/                 # Runtime state (context-state.json, recovery.json)
+    └── projects/               # Hierarchical planning artifacts
+        ├── index.json          # Master index of all projects
+        └── <project-slug>/
+            ├── project.md      # Scope, goals, high-level requirements
+            ├── status.json     # Machine-readable state (features, tasks, completion)
+            ├── decisions.md    # Decision log (append-only, created on demand)
+            ├── issues.md       # Issues/gaps tracker (created on demand)
+            └── features/
+                └── <feature-slug>/
+                    ├── README.md      # Feature index (dependency table)
+                    ├── 01-<task>.md   # Task PRD
+                    ├── 02-<task>.md   # Task PRD
+                    └── NOTES.md       # Implementation discoveries
 ```
 
 ## Development Commands
@@ -69,11 +82,14 @@ plugin-dev:skill-reviewer    # Review specific implementations
 ## Key Behaviors
 
 - **Stop hook**: Blocks exit if todos pending/in_progress. Escape hatch after 3 attempts.
-- **PRD enforcement**: Blocks stop if referenced PRD files weren't updated.
+- **PRD enforcement**: Blocks stop if referenced PRD files weren't updated. Recognizes both `/prds/` and `/projects/` paths.
 - **Context tracking**: Writes `.powermode/context-state.json` with tool counts and token estimates.
-- **Session recovery**: Saves/restores state on PreCompact/SessionEnd/SessionStart.
+- **Session recovery**: Saves/restores state on PreCompact/SessionEnd/SessionStart. Includes active project context.
+- **Hierarchical planning**: `/pm-plan` classifies scope (Project/Feature/Task) and creates appropriate structure in `.powermode/projects/`.
 - **PRD maker**: Delegates PRD writing to sub-agents sequentially (max 2 per batch).
 - **Agent teams**: `/powermode` automatically detects `TeamCreate` availability and offers team mode for 3+ independent tasks.
+- **Decision/issue logging**: Implementer and verifier log decisions and issues to project files.
+- **Backward compatibility**: Old `.powermode/prds/` paths continue to work alongside new `/projects/` structure.
 
 ## Plugin Development Skills
 

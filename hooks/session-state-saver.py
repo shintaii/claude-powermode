@@ -38,6 +38,20 @@ def main():
         except (json.JSONDecodeError, OSError) as e:
             print(f"Warning: Could not read context-state.json: {e}", file=sys.stderr)
 
+    # Detect active project from projects/index.json
+    active_project = None
+    projects_index = recovery_dir / "projects" / "index.json"
+    if projects_index.exists():
+        try:
+            with open(projects_index, "r") as f:
+                index_data = json.load(f)
+            for proj in index_data.get("projects", []):
+                if proj.get("status") in ("planning", "in_progress"):
+                    active_project = proj.get("slug")
+                    break
+        except (json.JSONDecodeError, OSError):
+            pass
+
     recovery_data = {
         "session_id": session_id,
         "saved_at": datetime.now(timezone.utc).isoformat(),
@@ -47,6 +61,7 @@ def main():
         ),
         "context_state": context_state,
         "transcript_path": event_data.get("transcript_path", ""),
+        "active_project": active_project,
     }
 
     try:

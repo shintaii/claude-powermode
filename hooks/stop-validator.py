@@ -139,7 +139,12 @@ def main():
                             # Reading a PRD shouldn't require updating it
                             if (
                                 normalized
-                                and ("/prd/" in normalized.lower() or "/prds/" in normalized.lower())
+                                and (
+                                    "/prd/" in normalized.lower()
+                                    or "/prds/" in normalized.lower()
+                                    or "/projects/" in normalized.lower()
+                                    or "/features/" in normalized.lower()
+                                )
                                 and normalized.endswith(".md")
                                 and tool_name in {"Write", "Edit", "ApplyPatch", "apply_patch"}
                             ):
@@ -148,7 +153,12 @@ def main():
 
                                 # Track PRD folder README updates
                                 norm_lower = normalized.lower()
-                                if ".powermode/prds/" in norm_lower or ".powermode\\prds\\" in norm_lower:
+                                if (
+                                    ".powermode/prds/" in norm_lower
+                                    or ".powermode\\prds\\" in norm_lower
+                                    or ".powermode/projects/" in norm_lower
+                                    or ".powermode\\projects\\" in norm_lower
+                                ):
                                     folder = os.path.dirname(normalized)
                                     basename = os.path.basename(normalized).lower()
                                     if basename == "readme.md":
