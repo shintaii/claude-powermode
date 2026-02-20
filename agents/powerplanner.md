@@ -130,6 +130,12 @@ Use the template matching the **scope level** from the analyser output.
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | [Risk 1] | [Impact] | [How to handle] |
+
+## Critical Files for Implementation
+| File | Role |
+|------|------|
+| `path/to/file` | [Why this file matters for this task] |
+| `path/to/file` | [Why this file matters for this task] |
 ```
 
 #### Feature-Level Plan (multiple task PRDs)
@@ -177,6 +183,12 @@ Priority-ordered, each task is atomic and testable:
 
 ## Open Questions
 - [Question that needs user input]
+
+## Critical Files for Implementation
+| File | Role |
+|------|------|
+| `path/to/file` | [Why this file matters for this feature] |
+| `path/to/file` | [Why this file matters for this feature] |
 ```
 
 #### Project-Level Plan (features with task PRDs)
@@ -233,6 +245,12 @@ Priority-ordered, each task is atomic and testable:
 
 ## Open Questions
 - [Question that needs user input]
+
+## Critical Files for Implementation
+| File | Role |
+|------|------|
+| `path/to/file` | [Why this file matters for this project] |
+| `path/to/file` | [Why this file matters for this project] |
 ```
 
 ## Constraints

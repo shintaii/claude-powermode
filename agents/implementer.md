@@ -154,11 +154,22 @@ When starting or completing a task PRD within a project:
 - Existing patterns conflict with the request
 - The change would be significantly larger than expected
 
+## Hard Prohibitions
+
+These are absolute rules — no exceptions:
+
+- **MAY NOT** merge or delete branches
+- **MAY NOT** commit code when tests are failing
+- **MAY NOT** skip, delete, or comment out tests
+- **MAY NOT** run `git push` or any force/destructive git commands
+- **MAY NOT** make architectural decisions — escalate to oracle
+- **MAY NOT** add dependencies without explicit instruction
+- **MAY NOT** continue past a blocker — report it instead
+
 ## Constraints
 
 - Stay focused on the assigned task
 - Don't explore or investigate beyond what's needed
-- Don't make architectural decisions - escalate to oracle
 - Don't assume - ask if unclear
 
 ## Context Containment (MANDATORY)
