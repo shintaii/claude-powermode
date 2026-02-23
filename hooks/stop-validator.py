@@ -117,6 +117,8 @@ def main():
     updated_prds = set()
     modified_prd_folders = set()
     modified_prd_readmes = set()
+    modified_project_dirs = set()
+    status_json_updated = set()
 
     if transcript_path and Path(transcript_path).exists():
         try:
@@ -166,6 +168,21 @@ def main():
                                     else:
                                         modified_prd_folders.add(folder)
 
+                            # Track status.json updates for project dirs
+                            if normalized and tool_name in {"Write", "Edit", "ApplyPatch", "apply_patch"}:
+                                norm_lower = normalized.lower()
+                                # Extract project slug from .powermode/projects/<slug>/...
+                                projects_marker = ".powermode/projects/"
+                                marker_pos = norm_lower.find(projects_marker)
+                                if marker_pos != -1:
+                                    after_marker = normalized[marker_pos + len(projects_marker):]
+                                    slug = after_marker.split("/")[0].split("\\")[0]
+                                    if slug:
+                                        if os.path.basename(normalized) == "status.json":
+                                            status_json_updated.add(slug)
+                                        elif "/features/" in norm_lower or "\\features\\" in norm_lower:
+                                            modified_project_dirs.add(slug)
+
                         tool_result = entry.get("toolUseResult", {})
                         if "newTodos" in tool_result:
                             todos = tool_result.get("newTodos", [])
@@ -187,8 +204,9 @@ def main():
     incomplete = pending_todos + in_progress_todos
     missing_prd_updates = sorted(referenced_prds - updated_prds)
     folders_missing_readme = sorted(modified_prd_folders - modified_prd_readmes)
+    projects_missing_status = sorted(modified_project_dirs - status_json_updated)
 
-    if incomplete or missing_prd_updates or folders_missing_readme:
+    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status:
         attempt = increment_attempt(state_dir, session_id)
 
         if attempt >= MAX_BLOCK_ATTEMPTS:
@@ -199,6 +217,8 @@ def main():
                 parts.append(f"{len(missing_prd_updates)} PRD file(s) not updated")
             if folders_missing_readme:
                 parts.append(f"{len(folders_missing_readme)} PRD README(s) not updated")
+            if projects_missing_status:
+                parts.append(f"{len(projects_missing_status)} project status.json not updated")
             warning = (
                 "[STOP HOOK] Approved after "
                 + str(attempt)
@@ -235,6 +255,16 @@ def main():
                 )
                 action_parts.append(
                     "Update the README.md status column in the PRD folder(s)"
+                )
+            if projects_missing_status:
+                slug_list = ", ".join(projects_missing_status[:3])
+                if len(projects_missing_status) > 3:
+                    slug_list += f" (+{len(projects_missing_status) - 3} more)"
+                issue_parts.append(
+                    f"status.json not updated ({slug_list})"
+                )
+                action_parts.append(
+                    "Update status.json (task status, tasks_done count, feature status, updated timestamp)"
                 )
 
             reason = (

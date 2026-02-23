@@ -2,7 +2,7 @@
 name: pm-analyser
 description: Pre-planning consultant that analyzes requests to identify hidden requirements, ambiguities, and potential AI failure points. Use BEFORE powerplanner to ensure the planning phase has clear direction.
 model: opus
-color: purple
+color: magenta
 tools: ["Read", "Grep", "Glob", "Task"]
 ---
 
