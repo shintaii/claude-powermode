@@ -27,11 +27,13 @@ powermode/
             ├── decisions.md    # Decision log (append-only, created on demand)
             ├── issues.md       # Issues/gaps tracker (created on demand)
             └── features/
-                └── <feature-slug>/
-                    ├── README.md      # Feature index (dependency table)
-                    ├── 01-<task>.md   # Task PRD
-                    ├── 02-<task>.md   # Task PRD
-                    └── NOTES.md       # Implementation discoveries
+                ├── 01-<feature-slug>/
+                │   ├── README.md      # Feature index (dependency table)
+                │   ├── 01-<task>.md   # Task PRD
+                │   ├── 02-<task>.md   # Task PRD
+                │   └── NOTES.md       # Implementation discoveries
+                └── 02-<feature-slug>/
+                    └── ...
 ```
 
 ## Development Commands

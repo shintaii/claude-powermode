@@ -30,9 +30,9 @@ Copy all markdown files from `.powermode/projects/<project-slug>/` to the target
 - `project.md`
 - `decisions.md` (if exists)
 - `issues.md` (if exists)
-- `features/<feature-slug>/README.md`
-- `features/<feature-slug>/*.md` (all task PRDs)
-- `features/<feature-slug>/NOTES.md` (if exists)
+- `features/<NN-feature-slug>/README.md`
+- `features/<NN-feature-slug>/*.md` (all task PRDs)
+- `features/<NN-feature-slug>/NOTES.md` (if exists)
 
 **Exclude:**
 - `status.json` (internal state, not documentation)
@@ -45,11 +45,11 @@ Copy all markdown files from `.powermode/projects/<project-slug>/` to the target
 ├── decisions.md
 ├── issues.md
 └── features/
-    ├── <feature-slug>/
+    ├── <NN-feature-slug>/
     │   ├── README.md
     │   ├── 01-<task>.md
     │   └── NOTES.md
-    └── <feature-slug>/
+    └── <NN-feature-slug>/
         └── ...
 ```
 

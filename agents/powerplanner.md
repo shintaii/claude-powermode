@@ -213,16 +213,18 @@ Priority-ordered, each task is atomic and testable:
 
 ## Feature Decomposition
 
-### Feature 1: [feature-slug]
+### Feature 1: 01-[feature-slug]
 **Scope:** [What this feature covers]
+**Directory:** `features/01-[feature-slug]/`
 **Tasks:**
 | # | Task PRD | Domain | Dependencies | Description |
 |---|----------|--------|-------------|-------------|
 | 01 | [task-slug] | [area] | None | [What it does] |
 | 02 | [task-slug] | [area] | 01 | [What it does] |
 
-### Feature 2: [feature-slug]
+### Feature 2: 02-[feature-slug]
 **Scope:** [What this feature covers]
+**Directory:** `features/02-[feature-slug]/`
 **Tasks:**
 | # | Task PRD | Domain | Dependencies | Description |
 |---|----------|--------|-------------|-------------|
@@ -231,12 +233,14 @@ Priority-ordered, each task is atomic and testable:
 ## Cross-Feature Dependencies
 | Feature | Depends On | Reason |
 |---------|-----------|--------|
-| [feature-2] | [feature-1] | [Why] |
+| 02-[feature-slug] | 01-[feature-slug] | [Why] |
 
 ## Implementation Order
-1. [feature-slug] - Foundation, no dependencies
-2. [feature-slug] - Depends on 1
-3. [feature-slug] - Can parallel with 2
+1. `01-[feature-slug]` - Foundation, no dependencies
+2. `02-[feature-slug]` - Depends on 1
+3. `03-[feature-slug]` - Can parallel with 2
+
+**Note:** The number prefix on feature directories defines implementation order. Use zero-padded two-digit numbers (01, 02, ... 99).
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |

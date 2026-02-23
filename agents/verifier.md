@@ -127,7 +127,7 @@ If you discover gaps, missing requirements, or problems during verification, log
 ```markdown
 ## OPEN | YYYY-MM-DD | <Issue Title>
 **Found by:** pm-verifier (during <feature>/<task>)
-**Feature:** <feature-slug>
+**Feature:** <NN-feature-slug>
 **Severity:** low/medium/high
 **Description:** <What's missing or wrong>
 **Suggested action:** <What should be done>

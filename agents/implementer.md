@@ -114,7 +114,7 @@ Append format:
 **Context:** <Why this came up>
 **Decision:** <What was decided>
 **Reason:** <Why this choice>
-**Feature:** <feature-slug>
+**Feature:** <NN-feature-slug>
 **Phase:** Implementation
 ```
 
@@ -128,7 +128,7 @@ Append format:
 ```markdown
 ## OPEN | YYYY-MM-DD | <Issue Title>
 **Found by:** pm-implementer (during <feature>/<task>)
-**Feature:** <feature-slug>
+**Feature:** <NN-feature-slug>
 **Severity:** low/medium/high
 **Description:** <What's missing or wrong>
 **Suggested action:** <What should be done>

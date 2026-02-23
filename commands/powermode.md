@@ -105,7 +105,7 @@ Use when the user opts for team mode with 3+ independent tasks.
 ### Phase 1: Create Team
 
 ```
-TeamCreate(team_name="pm-<feature-slug>", description="<goal summary>")
+TeamCreate(team_name="pm-<NN-feature-slug>", description="<goal summary>")
 ```
 
 ### Phase 2: Create Tasks
@@ -133,7 +133,7 @@ Spawn implementation teammates. Each gets assigned specific tasks.
 ```
 Task(
   subagent_type="powermode:pm-implementer",
-  team_name="pm-<feature-slug>",
+  team_name="pm-<NN-feature-slug>",
   name="impl-1",
   prompt="You are an implementer on a powermode team. Check TaskList for your assigned tasks. Work through them in order. Follow powermode discipline: explore files before editing, verify your changes compile/pass tests. After completing a PRD, update its status to Done in the folder's README.md. When done with a task, mark it completed and check for the next one."
 )

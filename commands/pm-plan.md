@@ -176,7 +176,7 @@ Mark scaffold todo completed.
 Mark feature structures todo as in_progress.
 
 For each feature in the plan, create:
-- `.powermode/projects/<project-slug>/features/<feature-slug>/README.md`
+- `.powermode/projects/<project-slug>/features/<NN-feature-slug>/README.md`
 
 README format:
 ```markdown
@@ -196,7 +196,7 @@ Update `status.json` with feature entries:
 ```json
 {
   "features": {
-    "<feature-slug>": {
+    "<NN-feature-slug>": {
       "status": "pending",
       "tasks_total": N,
       "tasks_done": 0,
@@ -507,7 +507,7 @@ Mark PRD writing todo as in_progress.
 
 ### Output Location
 
-**All powermode-generated PRDs go to `.powermode/projects/<project-slug>/features/<feature-slug>/`**
+**All powermode-generated PRDs go to `.powermode/projects/<project-slug>/features/<NN-feature-slug>/`**
 
 This keeps powermode output hierarchical and organized.
 
@@ -517,8 +517,10 @@ This keeps powermode output hierarchical and organized.
 
 Derive slugs from the goal, feature, or document name:
 - Use kebab-case, max 30 characters
-- Examples: `auth-feature`, `payment-v2`, `api-refactor`
-- If slug already exists, append a number: `auth-feature-2`
+- **Feature directories are numbered** by implementation order: `01-auth`, `02-dashboard`, `03-api-refactor`
+- The number comes from the Implementation Order in the plan
+- Task files within features are also numbered: `01-<task>.md`, `02-<task>.md`
+- If slug already exists, append a suffix: `01-auth-v2`
 
 #### Project Structure Guarantee
 
@@ -526,7 +528,7 @@ Before writing PRDs, ensure the project structure exists:
 1. `.powermode/projects/index.json` - Create or update
 2. `.powermode/projects/<project-slug>/project.md` - Create if missing
 3. `.powermode/projects/<project-slug>/status.json` - Create if missing
-4. `.powermode/projects/<project-slug>/features/<feature-slug>/README.md` - Create or update
+4. `.powermode/projects/<project-slug>/features/<NN-feature-slug>/README.md` - Create or update
 
 ### Split Rules
 
@@ -542,7 +544,7 @@ PRD writing MUST be delegated to sub-agents to preserve main context.
 **If 1 task PRD needed:**
 ```
 Task(subagent_type="general-purpose", prompt="
-  Write a single task PRD file at .powermode/projects/<project-slug>/features/<feature-slug>/01-<task>.md
+  Write a single task PRD file at .powermode/projects/<project-slug>/features/<NN-feature-slug>/01-<task>.md
 
   APPROVED PLAN: [include plan]
 
@@ -557,7 +559,7 @@ Then delegate writing in batches of max 2 PRDs per Task:
 
 ```
 Task(subagent_type="general-purpose", prompt="
-  Write these task PRDs to .powermode/projects/<project-slug>/features/<feature-slug>/:
+  Write these task PRDs to .powermode/projects/<project-slug>/features/<NN-feature-slug>/:
   - 01-<title>.md: <scope>
   - 02-<title>.md: <scope>
 
@@ -583,5 +585,5 @@ Present:
 2. Show the project structure tree
 3. Explain the split rationale (if split)
 4. Suggest next command:
-   - `/powermode @.powermode/projects/<project-slug>/features/<feature-slug>/README.md` to implement a feature
+   - `/powermode @.powermode/projects/<project-slug>/features/<NN-feature-slug>/README.md` to implement a feature
    - `/powermode @.powermode/projects/<project-slug>/project.md` to implement the full project (auto-detects team mode if available)

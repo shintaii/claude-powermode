@@ -43,8 +43,8 @@ Features:
   <feature-name>          [----] <done>/<total> tasks  <- NEXT
   <feature-name>          [WIP-] <done>/<total> tasks
 
-Next task: <feature>/<task-slug>
-Run: /powermode .powermode/projects/<slug>/features/<feature>/<task-slug>.md
+Next task: <NN-feature>/<task-slug>
+Run: /powermode .powermode/projects/<slug>/features/<NN-feature>/<task-slug>.md
 ```
 
 Status indicators:
@@ -62,8 +62,8 @@ If drift was detected between README and status.json, show:
 
 ```
 Drift detected:
-  - <feature>/<task>: README=Done, status.json=pending
-  - <feature>/<task>: README=Pending, status.json=done
+  - <NN-feature>/<task>: README=Done, status.json=pending
+  - <NN-feature>/<task>: README=Pending, status.json=done
   Action: Update status.json to match README (READMEs are source of truth)
 ```
 

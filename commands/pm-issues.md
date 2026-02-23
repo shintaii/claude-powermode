@@ -63,7 +63,7 @@ For each selected issue:
 Task(subagent_type="powermode:pm-analyser", prompt="
   Analyze this issue for a task PRD:
   ISSUE: <issue description>
-  FEATURE: <feature-slug>
+  FEATURE: <NN-feature-slug>
   PROJECT: <project-slug>
   Provide directives for a single task PRD.
 ")
@@ -75,7 +75,7 @@ Task(subagent_type="powermode:pm-powerplanner", prompt="
   Create a TASK-LEVEL plan for this issue:
   ISSUE: <issue description>
   ANALYSER OUTPUT: [analyser findings]
-  FEATURE: <feature-slug>
+  FEATURE: <NN-feature-slug>
   This will become a new task PRD in the feature.
 ")
 ```
@@ -92,7 +92,7 @@ Task(subagent_type="powermode:pm-powerplanner", prompt="
 ```markdown
 ## RESOLVED | YYYY-MM-DD | <Issue Title>
 **Found by:** <original finder>
-**Feature:** <feature-slug>
+**Feature:** <NN-feature-slug>
 **Resolution:** Converted to task PRD: <NN-task-slug>.md
 ```
 
@@ -105,5 +105,5 @@ Processed X issue(s) for project <project-slug>:
 - Still open: <count>
 
 New PRD files:
-- .powermode/projects/<slug>/features/<feature>/04-<task>.md
+- .powermode/projects/<slug>/features/<NN-feature>/04-<task>.md
 ```
