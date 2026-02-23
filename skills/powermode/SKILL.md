@@ -53,7 +53,10 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 ```
 1. PLAN with /plan command (or manually: Analyser → Powerplanner → Planreviewer)
 2. CREATE TODOS from the plan
-3. For each task:
+3. TEAM CHECK (MANDATORY) - Check if TeamCreate tool is available.
+   If available AND 3+ independent tasks → ASK user about team mode.
+   Log: "TeamCreate: [available/not available]. Independent tasks: N."
+4. For each task:
    a. EXPLORE with pm-explorer
    b. IMPLEMENT with pm-implementer
    c. VERIFY with pm-verifier
@@ -213,6 +216,18 @@ For ANY task with 2+ steps, create todos IMMEDIATELY.
 
 - If a PRD folder has an index/README, read it first and honor dependency order
 - When a specific PRD is referenced, use the index/README to validate prerequisites
+
+## Phase 2.5: Team Detection (MANDATORY before implementation)
+
+Before starting implementation, you MUST check for team mode:
+
+1. **Check your tool list** for `TeamCreate`. State the result explicitly.
+2. If `TeamCreate` is available AND you have 3+ independent tasks → **ASK the user** via AskUserQuestion whether they want team mode.
+3. If `TeamCreate` is NOT available → proceed with sequential subagent workflow.
+
+**Do NOT skip this step.** Log your finding: `"TeamCreate: [available/not available]. Independent tasks: N."`
+
+---
 
 ## Phase 3: Implementation (USE pm-implementer!)
 

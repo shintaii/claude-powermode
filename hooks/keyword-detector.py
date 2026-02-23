@@ -31,8 +31,9 @@ You are now in Power Mode. Follow the methodology:
 
 1. EXPLORE first - Use pm-explorer agents in parallel
 2. PLAN with todos - Create atomic, trackable tasks
-3. IMPLEMENT via pm-implementer - Don't code yourself
-4. VERIFY via pm-verifier - Always before "done"
+3. TEAM CHECK (MANDATORY) - Before implementation, check if `TeamCreate` tool is in your available tools. If it IS available and you have 3+ independent tasks, you MUST ask the user about team mode via AskUserQuestion. Do NOT skip this step.
+4. IMPLEMENT via pm-implementer - Don't code yourself
+5. VERIFY via pm-verifier - Always before "done"
 
 Available agents: pm-explorer, pm-researcher, pm-oracle, pm-implementer, pm-verifier, pm-analyser, pm-powerplanner, pm-planreviewer
 

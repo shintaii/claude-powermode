@@ -54,21 +54,24 @@ For any non-trivial task:
 4. **Smart Execution** - Detect team availability and choose implementation path (see below)
 5. **Verify** - Use `pm-verifier` before claiming done
 
-### Smart Execution: Team Detection
+### Smart Execution: Team Detection (MANDATORY)
 
-After exploration and planning, before implementation:
+**You MUST perform this check before starting implementation. Do NOT skip it.**
 
-1. **Check if `TeamCreate` tool is available** in your tool list
-2. **If NOT available** → use subagent workflow (no choice needed)
+After exploration and planning, before writing any code:
+
+1. **Check if `TeamCreate` tool is available** in your current tool list. Look for it explicitly — do not assume it's unavailable without checking.
+2. **If NOT available** → use subagent workflow (Path A below)
 3. **If available**, count independent, file-scoped tasks in the plan:
    - **1-2 tasks** → use subagent workflow (overhead not worth it, no question asked)
-   - **3+ independent tasks** → **ASK the user** via AskUserQuestion:
+   - **3+ independent tasks** → **You MUST ASK the user** via AskUserQuestion:
 
      > "This work has N independent tasks. Team mode can parallelize them but costs significantly more (each teammate = full session). Want to use team mode?"
      >
      > Options: "Team mode (parallel, faster, higher cost)" / "Sequential (subagents, slower, lower cost)"
 
-4. Proceed with the chosen path below.
+4. **Log your finding**: State explicitly whether TeamCreate was found and how many independent tasks you counted. Example: "TeamCreate: available. Independent tasks: 4. Asking about team mode."
+5. Proceed with the chosen path below.
 
 ---
 
