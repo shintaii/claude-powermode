@@ -44,6 +44,7 @@ Features:
   <feature-name>          [WIP-] <done>/<total> tasks
 
 Next task: <feature>/<task-slug>
+Run: /powermode .powermode/projects/<slug>/features/<feature>/<task-slug>.md
 ```
 
 Status indicators:
