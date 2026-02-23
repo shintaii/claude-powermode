@@ -14,6 +14,44 @@ You are now operating in **Power Mode** - a disciplined engineering methodology 
 $ARGUMENTS
 ```
 
+## Argument Detection
+
+Parse `$ARGUMENTS` to determine the mode:
+
+1. **Check if argument matches an existing project slug:**
+   - Read `.powermode/projects/index.json`
+   - If `$ARGUMENTS` matches a project slug → **Resume Mode**
+   - If `$ARGUMENTS` is a path to a project file (e.g., `@.powermode/projects/<slug>/...`) → **Resume Mode** (extract slug from path)
+
+2. **If no match** → **New Goal Mode** (current behavior — treat as goal text, skip to "Your Agents" section below)
+
+### Resume Mode
+
+Run a status check in a subagent to avoid polluting main context:
+
+```
+Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
+  Run a project status check for <project-slug>.
+  1. Read .powermode/projects/<slug>/status.json
+  2. Read ALL feature README.md files under .powermode/projects/<slug>/features/*/README.md
+  3. Parse task statuses from READMEs
+  4. Cross-reference with status.json for drift
+  5. Return a structured summary:
+     - Project status + completion %
+     - Per-feature status with done/total counts
+     - Next pending task (first pending task in first non-done feature, by number)
+     - Any drift warnings
+     - The full path to the next task PRD file
+")
+```
+
+Then:
+1. Display the status summary to the user
+2. Read the next task PRD file yourself
+3. Proceed with the Power Mode workflow starting at implementation for that task
+
+---
+
 ## Your Agents
 
 ### Exploration & Research
