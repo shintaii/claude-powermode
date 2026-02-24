@@ -126,6 +126,8 @@ Task(subagent_type="powermode:pm-implementer", prompt="
 ")
 ```
 
+Each `pm-implementer` run commits after completing its task PRD (format: `<feature-slug>: <description>`).
+
 After each implementation task, verify with `pm-verifier`:
 
 ```
