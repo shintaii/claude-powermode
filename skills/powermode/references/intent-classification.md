@@ -151,4 +151,4 @@ Is the request trivial/explicit?
 | Vague ("Improve X") | Create todos, then implement |
 
 **NEVER ask "Would you like me to build/plan/implement?"** - the original request already told you what to do.
-**NEVER ask "Want me to continue to the next task?"** - when working through project tasks, auto-continue to the next pending PRD after each completion. Only stop if verification fails or you need user input to resolve an issue.
+**NEVER ask "Want me to continue to the next task?"** within Feature or Project scope. Auto-continue is determined by scope: single `.md` → stop after that task; feature directory → continue through feature; project slug → continue through project.

@@ -16,18 +16,22 @@ $ARGUMENTS
 
 ## Argument Detection
 
-Parse `$ARGUMENTS` to determine the mode:
+Parse `$ARGUMENTS` to determine the mode and **scope**:
 
-1. **Check if argument matches an existing project slug:**
-   - Read `.powermode/projects/index.json`
-   - If `$ARGUMENTS` matches a project slug → **Resume Mode**
-   - If `$ARGUMENTS` is a path to a project file (e.g., `@.powermode/projects/<slug>/...`) → **Resume Mode** (extract slug from path)
+1. **Single task PRD** — path ends in `.md` (e.g., `@.powermode/projects/<slug>/features/01-feat/03-task.md`)
+   → **Task Scope**: implement that one task only, then stop.
 
-2. **If no match** → **New Goal Mode** (current behavior — treat as goal text, skip to "Your Agents" section below)
+2. **Feature directory** — path ends in a feature folder (e.g., `@.powermode/projects/<slug>/features/01-feat/`)
+   → **Feature Scope**: auto-continue through all pending tasks in that feature, then stop.
+
+3. **Project slug** — matches a project slug in `.powermode/projects/index.json` (e.g., `my-project`)
+   → **Project Scope**: auto-continue through all pending tasks across all features, then stop.
+
+4. **No match** → **New Goal Mode** (treat as goal text, skip to "Your Agents" section below)
 
 ### Resume Mode
 
-Run a status check in a subagent to avoid polluting main context:
+#### Step 1: Status Check (subagent — keeps main context clean)
 
 ```
 Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
@@ -45,12 +49,42 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 ")
 ```
 
-Then:
-1. Display the status summary to the user
-2. Read the next task PRD file yourself
-3. Proceed with the Power Mode workflow starting at implementation for that task
+#### Step 2: Display status summary to user
 
-**CRITICAL: Auto-continue between tasks.** When a task PRD is completed, immediately read the next pending task PRD and start working on it. Do NOT ask "Want me to continue?" or "Next up is X, should I proceed?" — just continue. The user started a project session; they expect all pending tasks to be worked through sequentially without pauses for confirmation.
+#### Step 3: Execute based on scope
+
+**Task Scope** (single `.md` file):
+1. Read the task PRD
+2. Implement via `pm-implementer` subagent
+3. Verify via `pm-verifier` subagent
+4. Done — stop and report result
+
+**Feature Scope** (feature directory):
+1. Read the feature README to get task list and dependency order
+2. For each pending task in the feature (in order):
+   - Delegate to `pm-implementer` subagent (keeps main context clean)
+   - Verify via `pm-verifier` subagent
+   - Auto-continue to next task — do NOT ask for confirmation
+3. After last task in feature: stop and report feature completion
+
+**Project Scope** (project slug):
+1. Read the project status to get feature order
+2. For each feature with pending tasks:
+   - Work through all pending tasks (same as Feature Scope above)
+   - Auto-continue to next feature — do NOT ask for confirmation
+3. After last task in project: stop and report project completion
+
+### Context Management (critical)
+
+The main orchestrator should stay lean. **Delegate all heavy work to subagents:**
+
+- **Each task PRD** → one `pm-implementer` subagent call (it reads the PRD, explores, implements, commits)
+- **Each verification** → one `pm-verifier` subagent call
+- **Never read implementation files in main context** — that's the implementer's job
+- The orchestrator only reads: status.json, feature READMEs, task PRD titles/paths
+- This keeps main context available for coordinating many tasks across a feature or project
+
+For project scope with 3+ independent tasks across features, consider team mode (see Smart Execution below).
 
 ---
 
@@ -139,7 +173,7 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 ")
 ```
 
-After verification passes, **immediately proceed to the next pending task PRD**. Do not ask for confirmation — read the next PRD and start implementation. Only stop between tasks if verification fails and needs user input.
+After verification, check the **scope** (Task/Feature/Project) to decide whether to continue or stop. Only auto-continue for Feature and Project scopes. Only pause if verification fails and needs user input.
 
 ---
 
@@ -252,7 +286,8 @@ Task(resume="a1b2c3d", prompt="Fix: ...")
 - **Consult oracle for hard decisions** - Architecture, after 2+ failed fixes
 - **Verify with evidence** - build output, lint, tests
 - **No slop** - No `as any`, no empty catch, no deleted tests
-- **Never pause between tasks** - After completing a task PRD, auto-continue to the next one. No "Want me to continue?" prompts
+- **Scope-aware continuation** - Single task PRD → do it, stop. Feature dir → auto-continue through feature. Project slug → auto-continue through project. Never ask "Want me to continue?" within scope
+- **Context hygiene** - Main context orchestrates only. All implementation and verification happens in subagents. Don't read implementation files in main context
 - **Exploration hygiene** - Use Grep/Read tools (with offsets for large files); avoid Bash find/grep
 - **PRD index first** - If a PRD folder has an index/README, read it first and honor dependency order
 - **PRD status tracking** - After completing a PRD, update its status to `Done` in the folder's README.md
