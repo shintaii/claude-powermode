@@ -50,6 +50,8 @@ Then:
 2. Read the next task PRD file yourself
 3. Proceed with the Power Mode workflow starting at implementation for that task
 
+**CRITICAL: Auto-continue between tasks.** When a task PRD is completed, immediately read the next pending task PRD and start working on it. Do NOT ask "Want me to continue?" or "Next up is X, should I proceed?" — just continue. The user started a project session; they expect all pending tasks to be worked through sequentially without pauses for confirmation.
+
 ---
 
 ## Your Agents
@@ -136,6 +138,8 @@ Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the implementation of <task>. Check: builds, tests pass, no regressions.
 ")
 ```
+
+After verification passes, **immediately proceed to the next pending task PRD**. Do not ask for confirmation — read the next PRD and start implementation. Only stop between tasks if verification fails and needs user input.
 
 ---
 
@@ -248,6 +252,7 @@ Task(resume="a1b2c3d", prompt="Fix: ...")
 - **Consult oracle for hard decisions** - Architecture, after 2+ failed fixes
 - **Verify with evidence** - build output, lint, tests
 - **No slop** - No `as any`, no empty catch, no deleted tests
+- **Never pause between tasks** - After completing a task PRD, auto-continue to the next one. No "Want me to continue?" prompts
 - **Exploration hygiene** - Use Grep/Read tools (with offsets for large files); avoid Bash find/grep
 - **PRD index first** - If a PRD folder has an index/README, read it first and honor dependency order
 - **PRD status tracking** - After completing a PRD, update its status to `Done` in the folder's README.md
