@@ -79,6 +79,7 @@ Then:
 | Command | Purpose |
 |---------|---------|
 | `/pm-plan [goal]` | Start planning workflow: Analyser → Powerplanner → Planreviewer → Write PRDs (hierarchical: Project → Feature → Task) |
+| `/pm-uiux [file/url/goal]` | UI/UX review, audit, or build — 8-phase framework with 4-layer color system |
 | `/pm-export [project-slug]` | Export project documentation to a folder |
 | `/pm-issues [project-slug]` | Review open issues, convert to new task PRDs |
 
@@ -266,9 +267,23 @@ Task(resume="a1b2c3d", prompt="Fix: ...")
 Load these when delegating for specialized knowledge:
 - `git-master` - Git operations expert
 - `frontend-ui-ux` - Designer-developer mindset
+- `pm-uiux` - Comprehensive UI/UX review, audit & build (8-phase framework + 4-layer color system)
 
 ```
 Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], prompt="...")
 ```
+
+### UI/UX Work Detection
+
+When the goal involves UI/UX (building interfaces, reviewing designs, fixing colors, polishing frontend), **automatically load the `pm-uiux` skill**:
+
+1. **For UI reviews/audits** — Use `/pm-uiux` directly or load the skill references before reviewing
+2. **For UI implementation** — Load `pm-uiux` AND `frontend-ui-ux` skills into `pm-implementer`:
+   ```
+   Task(subagent_type="powermode:pm-implementer", load_skills=["pm-uiux", "frontend-ui-ux"], prompt="...")
+   ```
+3. **For color-specific work** — Read `${CLAUDE_PLUGIN_ROOT}/skills/pm-uiux/references/color-system.md` before any color decisions
+
+**Trigger keywords:** UI, UX, design, frontend, interface, color, palette, dark mode, theme, layout, icons, landing page, polish, "looks AI-generated", "looks like vibe code", responsive, accessibility.
 
 Load the full methodology docs: `/powermode` (loads skill with all references)

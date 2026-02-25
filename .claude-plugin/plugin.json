@@ -18,7 +18,8 @@
   "skills": [
     "./skills/powermode",
     "./skills/git-master",
-    "./skills/frontend-ui-ux"
+    "./skills/frontend-ui-ux",
+    "./skills/pm-uiux"
   ],
   "commands": [
     "./commands/powermode.md",
@@ -27,6 +28,7 @@
     "./commands/pm-export.md",
     "./commands/pm-issues.md",
     "./commands/pm-status.md",
-    "./commands/pm-review.md"
+    "./commands/pm-review.md",
+    "./commands/pm-uiux.md"
   ]
 }

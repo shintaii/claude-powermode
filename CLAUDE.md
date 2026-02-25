@@ -16,7 +16,7 @@ powermode/
 ├── hooks/hooks.json            # Hook registrations (auto-loaded, NOT in plugin.json)
 ├── hooks/*.py                  # Python hook scripts
 ├── agents/*.md                 # Agent definitions (explorer, researcher, oracle, etc.)
-├── commands/*.md               # Slash commands (/powermode, /pm-plan, /pm-export, /pm-issues, etc.)
+├── commands/*.md               # Slash commands (/powermode, /pm-plan, /pm-uiux, /pm-export, /pm-issues, etc.)
 ├── skills/*/SKILL.md           # Skill definitions
 └── .powermode/                 # Runtime state (context-state.json, recovery.json)
     └── projects/               # Hierarchical planning artifacts
