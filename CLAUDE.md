@@ -125,6 +125,7 @@ Use these skills when modifying this plugin:
 git add -A && git commit -m "Release vX.Y.Z: <description>"
 git tag vX.Y.Z
 git push origin main vX.Y.Z
+# pre-push hook auto-syncs the marketplace clone (~5s after push)
 ```
 
 Users update via: `claude plugin update powermode@claude-powermode`
