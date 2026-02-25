@@ -70,6 +70,20 @@ def extract_md_paths(prompt: str) -> list[str]:
     return re.findall(r"@?[^\s]+\.md", prompt)
 
 
+def is_powermode_session(cwd: str, session_id: str) -> bool:
+    """Check if powermode is active for this session."""
+    if not cwd or not session_id:
+        return False
+    state_file = Path(cwd) / ".powermode" / "active-mode.json"
+    if not state_file.exists():
+        return False
+    try:
+        data = json.loads(state_file.read_text())
+        return data.get("session_id") == session_id
+    except (json.JSONDecodeError, OSError):
+        return False
+
+
 def main():
     try:
         input_data = json.loads(sys.stdin.read())
@@ -80,6 +94,10 @@ def main():
     prompt = input_data.get("prompt", "")
     cwd = input_data.get("cwd", os.getcwd())
     session_id = input_data.get("session_id", "")
+
+    if not is_powermode_session(cwd, session_id):
+        print(json.dumps({"continue": True}))
+        return
 
     candidates = extract_md_paths(prompt)
     if not candidates:

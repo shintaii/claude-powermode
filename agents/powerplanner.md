@@ -96,6 +96,18 @@ Only create the plan when:
 - Codebase context is gathered
 - User confirms readiness
 
+### Deductive Priming: Define "Good" Before Building
+
+Before writing the plan, **articulate what makes a good plan for this specific type of task**. Write 3-5 quality criteria that this plan must satisfy, based on the scope, domain, and constraints gathered.
+
+Example for an API feature:
+> A good plan for this task must: (1) define the contract/interface before implementation details, (2) account for backward compatibility with existing consumers, (3) keep the migration path simple, (4) have independently testable tasks.
+
+Example for a refactor:
+> A good plan for this task must: (1) preserve all existing behavior, (2) minimize files changed per task, (3) have a rollback point after each task, (4) not mix refactoring with feature changes.
+
+Write these criteria in the plan under a "## Quality Criteria" section. Then reference them as you write — they keep you honest and give the reviewer a rubric.
+
 ### Plan Structure
 
 Use the template matching the **scope level** from the analyser output.

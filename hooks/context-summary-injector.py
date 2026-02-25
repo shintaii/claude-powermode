@@ -5,6 +5,20 @@ import os
 from pathlib import Path
 
 
+def is_powermode_session(cwd: str, session_id: str) -> bool:
+    """Check if powermode is active for this session."""
+    if not cwd or not session_id:
+        return False
+    state_file = Path(cwd) / ".powermode" / "active-mode.json"
+    if not state_file.exists():
+        return False
+    try:
+        data = json.loads(state_file.read_text())
+        return data.get("session_id") == session_id
+    except (json.JSONDecodeError, OSError):
+        return False
+
+
 def main():
     try:
         hook_input = json.loads(sys.stdin.read())
@@ -13,6 +27,12 @@ def main():
         return
 
     cwd = hook_input.get("cwd", "")
+    session_id = hook_input.get("session_id", "")
+
+    if not is_powermode_session(cwd, session_id):
+        json.dump({"continue": True}, sys.stdout)
+        return
+
     state_file = Path(cwd) / ".powermode" / "context-state.json"
 
     additional_context = None

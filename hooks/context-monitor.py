@@ -62,6 +62,21 @@ def extract_modified_files(tool_response: dict) -> list:
     return modified
 
 
+def is_powermode_session(cwd: str, session_id: str) -> bool:
+    """Check if powermode is active for this session."""
+    if not cwd or not session_id:
+        return False
+    state_file = Path(cwd) / ".powermode" / "active-mode.json"
+    if not state_file.exists():
+        return False
+    try:
+        with open(state_file, "r") as f:
+            data = json.load(f)
+        return data.get("session_id") == session_id
+    except (json.JSONDecodeError, IOError):
+        return False
+
+
 def main():
     try:
         hook_input = json.load(sys.stdin)
@@ -71,6 +86,10 @@ def main():
 
     session_id = hook_input.get("session_id")
     cwd = hook_input.get("cwd", ".")
+
+    if not is_powermode_session(cwd, session_id or ""):
+        print(json.dumps({"continue": True}))
+        return
     tool_name = hook_input.get("tool_name", "unknown")
     tool_input = hook_input.get("tool_input", {})
     tool_response = hook_input.get("tool_response", {})
