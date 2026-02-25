@@ -26,6 +26,7 @@
     "./commands/pm-checkpoint.md",
     "./commands/pm-export.md",
     "./commands/pm-issues.md",
-    "./commands/pm-status.md"
+    "./commands/pm-status.md",
+    "./commands/pm-review.md"
   ]
 }
