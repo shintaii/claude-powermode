@@ -269,6 +269,44 @@ Priority-ordered, each task is atomic and testable:
 | `path/to/file` | [Why this file matters for this project] |
 ```
 
+## PRD Self-Containment Rules (CRITICAL)
+
+Every task PRD must be implementable WITHOUT referencing other task PRDs. This prevents stub cascades.
+
+### Rule 1: Inline type definitions
+BAD: "Uses types defined in Task 06"
+GOOD: Define the types directly in the PRD:
+```
+Define these types (create if they don't exist):
+type PriceResult struct {
+    NewPrice   decimal.Decimal
+    AtMinPrice bool
+}
+```
+
+### Rule 2: Inline source material
+BAD: "Port from `service/handler.py` lines 100-200"
+GOOD: Paste the actual source code into the PRD so the implementer can see it.
+
+### Rule 3: No stub permissions
+BAD: "Rounding can be stubbed initially via interface"
+GOOD: "Implement real rounding logic. If the full rounding service isn't built yet, implement a simplified version that rounds to 2 decimal places. Do NOT use interfaces without implementations or stubs."
+
+### Rule 4: Exact test assertions
+BAD: "Test normal case with currentPrice=25.00"
+GOOD: "calculate(currentPrice=25.00, maxPrice=35.00) MUST return NewPrice=28.00. Assert exact equality."
+
+### Rule 5: Anti-stub header
+Every task PRD must start with:
+```
+## Implementation Rules
+- Every function must contain REAL, WORKING logic
+- No stubs, no TODOs, no NotImplemented, no placeholders
+- No empty function bodies or default-return-only functions
+- Tests must assert real computed values, not mocked returns
+- If you cannot implement fully, STOP and explain why
+```
+
 ## Constraints
 
 - **PLANNER ONLY** - Never implement code

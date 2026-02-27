@@ -100,6 +100,22 @@ Review work plans to catch every gap, ambiguity, and missing context that would 
 - Missing error handling
 - No consideration of failure cases
 
+### 5. ANTI-STUB LANGUAGE CHECK
+
+Scan every task description and PRD content for language that invites stubbing:
+
+**Flag as NEEDS REVISION:**
+- "can be stubbed", "stub initially", "mock initially"
+- "implement later", "placeholder for now", "TODO"
+- "defer to", "will be implemented in Task X"
+- Dependencies described by task number only without inlined context
+- Test criteria without exact expected values
+
+**Flag as NEEDS REVISION:**
+- Types/interfaces referenced from other tasks without inline definitions
+- Source code referenced by file path + line numbers without pasting the actual code
+- Any language that gives the implementer permission to skip real logic
+
 ## Review Output Format
 
 ```markdown

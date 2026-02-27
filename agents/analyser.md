@@ -118,6 +118,9 @@ Watch for these common AI failure modes:
 | **Ignoring Existing Patterns** | New approach when pattern exists | Follow conventions |
 | **Magic Numbers** | Hardcoded values without constants | Make configurable |
 | **Incomplete Error Handling** | Happy path only | Handle all cases |
+| **Stub/Scaffold** | File structures, interfaces, empty classes without real logic | Every function must have real implementation |
+| **Mock-validated tests** | Tests that test mocked returns instead of real behavior | Test assertions must check computed values |
+| **Dependency deferral** | "Uses Task 06 types" without inlining them | PRDs must be self-contained |
 
 ## Output Format
 
@@ -170,6 +173,10 @@ Watch for these common AI failure modes:
 1. [Directive 1] - ensure plan addresses this
 2. [Directive 2] - watch out for this
 3. [Directive 3] - include this in scope
+
+*Always include these directives:*
+- "All PRDs must be self-contained with inlined types, source material, and exact test assertions"
+- "No PRD may permit stubbing, deferral, or placeholder implementations"
 
 ### Recommended Approach
 [Your synthesis: how should this request be approached?]

@@ -549,6 +549,14 @@ Task(subagent_type="general-purpose", prompt="
   APPROVED PLAN: [include plan]
 
   Include: scope, requirements, acceptance criteria, test focus, dependencies
+
+  CRITICAL PRD RULES:
+  - Start the PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values)
+  - Inline all type definitions — do NOT reference other task PRDs
+  - Inline source material if porting — paste the actual code
+  - Test assertions must include exact expected values
+  - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
+  - Each PRD must be fully implementable standalone
 ", description="Write PRD")
 ```
 
@@ -565,12 +573,31 @@ Task(subagent_type="general-purpose", prompt="
 
   Each PRD must include: scope, requirements, acceptance criteria, test focus, dependencies
 
+  CRITICAL PRD RULES:
+  - Start every PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values)
+  - Inline all type definitions — do NOT reference other task PRDs
+  - Inline source material if porting — paste the actual code
+  - Test assertions must include exact expected values
+  - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
+  - Each PRD must be fully implementable standalone
+
   APPROVED PLAN: [include relevant sections]
 ", description="Write PRDs 01-02")
 ```
 
 - **Sequential execution** - wait for each batch before starting next
 - Max 2 PRDs per Task to keep sub-agent context manageable
+
+### PRD Content Rules
+
+Task PRDs should NOT contain awareness of total project scope. Avoid:
+- "This is task 5 of 12" — just describe the task
+- "After this, Task 06 will build on..." — focus on this task only
+- Listing all other tasks in the feature
+
+Dependencies should reference what EXISTS IN THE CODEBASE, not task numbers:
+- BAD: "Depends on Task 03 for the User model"
+- GOOD: "Depends on `models/user.go` (should exist before this task runs). If it doesn't exist, create it with these fields: [inline the type definition]"
 
 ### After Writing
 

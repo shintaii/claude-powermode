@@ -61,18 +61,22 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 
 **Feature Scope** (feature directory):
 1. Read the feature README to get task list and dependency order
-2. For each pending task in the feature (in order):
+2. For each pending task in the feature (in order), up to **5 tasks max per session**:
    - Delegate to `pm-implementer` subagent (keeps main context clean)
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
-3. After last task in feature: stop and report feature completion
+3. After 5 tasks OR last task in feature: **STOP and report progress**
+   - Show: completed X of Y tasks, next pending task path
+   - User decides whether to continue with another `/powermode` invocation
 
 **Project Scope** (project slug):
 1. Read the project status to get feature order
-2. For each feature with pending tasks:
-   - Work through all pending tasks (same as Feature Scope above)
-   - Auto-continue to next feature — do NOT ask for confirmation
-3. After last task in project: stop and report project completion
+2. For each feature with pending tasks, up to **5 tasks total across features**:
+   - Work through pending tasks (same as Feature Scope above)
+   - The 5-task limit is cumulative across features
+3. After 5 tasks OR last task in project: **STOP and report progress**
+   - Show: completed X of Y tasks across N features, next pending task path
+   - User decides whether to continue with another `/powermode` invocation
 
 ### Context Management (critical)
 
@@ -156,12 +160,23 @@ Use `pm-implementer` for focused, sequential implementation:
 
 ```
 Task(subagent_type="powermode:pm-implementer", prompt="
-  Implement: <task description>
-  Files: <specific files>
-  Patterns: <conventions to follow>
-  Tests: <what to verify>
+  Read and implement this task PRD: <path to single .md file>
+
+  This is a standalone implementation task. Focus only on what this PRD asks for.
+
+  CRITICAL: Every function must contain real, working logic.
+  No stubs, no TODOs, no placeholders, no empty bodies.
+  If blocked, STOP and report — do not write placeholder code.
 ")
 ```
+
+**Context isolation rules — NEVER include in the implementer prompt:**
+- Total task count ("task 3 of 15")
+- Feature-level context ("this feature has 8 tasks")
+- List of other tasks in the feature
+- Project-level scope information
+
+The orchestrator tracks progress. The implementer sees one job.
 
 Each `pm-implementer` run commits after completing its task PRD (format: `<feature-slug>: <description>`).
 
@@ -169,7 +184,11 @@ After each implementation task, verify with `pm-verifier`:
 
 ```
 Task(subagent_type="powermode:pm-verifier", prompt="
-  Verify the implementation of <task>. Check: builds, tests pass, no regressions.
+  Verify the implementation of <task PRD path>.
+  Read the PRD for requirements, then check: builds, tests pass, no regressions.
+
+  CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
+  and tests that validate mocked behavior. Any stub = BLOCKER.
 ")
 ```
 
@@ -191,13 +210,11 @@ TeamCreate(team_name="pm-<NN-feature-slug>", description="<goal summary>")
 
 Create tasks for the shared task list. Each task should:
 - Own specific files (no overlap between tasks)
-- Be self-contained with clear acceptance criteria
-- Include file paths, patterns to follow, and test requirements
+- Reference a **single PRD path** as the task description
+- NOT include task counts, feature scope, or project scope context
 
 ```
-TaskCreate(subject="Implement X", description="...", activeForm="Implementing X")
-TaskCreate(subject="Implement Y", description="...", activeForm="Implementing Y")
-TaskCreate(subject="Add tests for X", description="...", activeForm="Testing X")
+TaskCreate(subject="Implement <task-slug>", description="Read and implement PRD: <path to single .md file>", activeForm="Implementing <task-slug>")
 ```
 
 Set dependencies where needed:
@@ -207,22 +224,33 @@ TaskUpdate(taskId="3", addBlockedBy=["1"])  // Tests wait for implementation
 
 ### Phase 3: Spawn Teammates
 
-Spawn implementation teammates. Each gets assigned specific tasks.
+Spawn implementation teammates. Each gets assigned a single task PRD.
 
 ```
 Task(
   subagent_type="powermode:pm-implementer",
   team_name="pm-<NN-feature-slug>",
   name="impl-1",
-  prompt="You are an implementer on a powermode team. Check TaskList for your assigned tasks. Work through them in order. Follow powermode discipline: explore files before editing, verify your changes compile/pass tests. After completing a PRD, update its status to Done in the folder's README.md. When done with a task, mark it completed and check for the next one."
+  prompt="Read and implement this task PRD: <path to single .md file>
+
+  This is a standalone implementation task. Focus only on what this PRD asks for.
+
+  CRITICAL: Every function must contain real, working logic.
+  No stubs, no TODOs, no placeholders, no empty bodies.
+  If blocked, STOP and report — do not write placeholder code."
 )
 ```
+
+**Context isolation applies to teammates too — NEVER include:**
+- Total task count or feature/project scope
+- References to other tasks or teammates
+- "You are on a team" or "check TaskList" — each teammate gets ONE PRD, that's it
 
 **Guidelines for teammate spawning:**
 - **2-4 teammates** is the sweet spot (more = more coordination overhead + cost)
 - Use **Sonnet** model for teammates to manage cost: `Task(..., model="sonnet")`
 - Each teammate should own **different files** to avoid conflicts
-- Assign tasks via `TaskUpdate(taskId="1", owner="impl-1")`
+- One teammate per PRD — assign by including the PRD path directly in the prompt
 
 ### Phase 4: Monitor & Coordinate
 
@@ -245,7 +273,13 @@ After all tasks complete:
 1. **Update PRD README status** - Set completed PRDs to `Done` in the folder's README.md
 2. **Run pm-verifier** as a subagent to check the combined work:
    ```
-   Task(subagent_type="powermode:pm-verifier", prompt="Verify the implementation of <goal>. Check: builds, tests pass, no regressions.")
+   Task(subagent_type="powermode:pm-verifier", prompt="
+     Verify the implementation of <task PRD path>.
+     Read the PRD for requirements, then check: builds, tests pass, no regressions.
+
+     CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
+     and tests that validate mocked behavior. Any stub = BLOCKER.
+   ")
    ```
 
 3. **Shutdown teammates**:
@@ -291,6 +325,9 @@ Task(resume="a1b2c3d", prompt="Fix: ...")
 - **Exploration hygiene** - Use Grep/Read tools (with offsets for large files); avoid Bash find/grep
 - **PRD index first** - If a PRD folder has an index/README, read it first and honor dependency order
 - **PRD status tracking** - After completing a PRD, update its status to `Done` in the folder's README.md
+- **Batch limit** - Max 5 tasks per session. Stop and report after 5, let user decide to continue
+- **Context isolation** - Implementer sees ONE task PRD only. Never expose task counts, feature scope, or project scope to implementer subagents
+- **No architect triggers** - Never tell implementer "this is task N of M" or show the full task list
 
 ## Quick Actions
 

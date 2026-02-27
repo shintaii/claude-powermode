@@ -63,6 +63,26 @@ Write this list BEFORE running diagnostics. Then use it as your verification tar
 - Check edge cases are handled
 - Verify error handling exists
 
+### 4b. Stub/Placeholder Detection (BLOCKER if found)
+
+Scan ALL new/modified files for incomplete implementations:
+
+**Automated scan** (use Grep):
+- `TODO`, `FIXME`, `HACK`, `XXX` in comments
+- `NotImplementedError`, `NotImplemented`
+- `pass` as sole statement in function/method bodies
+- `return nil` / `return None` / `return {}` / `return []` as sole function body
+- `panic("not implemented")`, `panic("todo")`
+- `// implement`, `# implement`, `// stub`, `// placeholder`
+
+**Manual inspection** of each new/modified function:
+- Does the function contain real logic, or is it just scaffolding?
+- Does it compute a real result, or return a hardcoded/default value?
+- Are test assertions checking real computed values with specific expected results?
+- Are tests testing mocked/stubbed behavior instead of real code paths?
+
+**Any stub found = BLOCKER.** Do not PASS work with stubs.
+
 ### 5. Pattern Verification
 - Confirm code follows existing patterns
 - Check naming conventions
