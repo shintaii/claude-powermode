@@ -115,6 +115,8 @@ Scan every task description and PRD content for language that invites stubbing:
 - Types/interfaces referenced from other tasks without inline definitions
 - Source code referenced by file path + line numbers without pasting the actual code
 - Any language that gives the implementer permission to skip real logic
+- Default/fallback values without specifying where they're defined and how they're accessed (e.g., "default 30" without saying which config, constant, or DB column holds it)
+- Dependencies referenced by task number ("Depends on Task 01") instead of concrete codebase artifacts
 
 ## Review Output Format
 

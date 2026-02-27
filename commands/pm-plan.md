@@ -551,10 +551,11 @@ Task(subagent_type="general-purpose", prompt="
   Include: scope, requirements, acceptance criteria, test focus, dependencies
 
   CRITICAL PRD RULES:
-  - Start the PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values)
-  - Inline all type definitions — do NOT reference other task PRDs
-  - Inline source material if porting — paste the actual code
-  - Test assertions must include exact expected values
+  - Start the PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
+  - Describe type definitions as specs (prose/tables) — do NOT reference other task PRDs
+  - No fenced code blocks — PRDs are functional specs, not implementation code
+  - Test assertions must include exact expected values (not 'has items' but 'has exactly 1 item with code X')
+  - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
 ", description="Write PRD")
@@ -574,10 +575,11 @@ Task(subagent_type="general-purpose", prompt="
   Each PRD must include: scope, requirements, acceptance criteria, test focus, dependencies
 
   CRITICAL PRD RULES:
-  - Start every PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values)
-  - Inline all type definitions — do NOT reference other task PRDs
-  - Inline source material if porting — paste the actual code
-  - Test assertions must include exact expected values
+  - Start every PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
+  - Describe type definitions as specs (prose/tables) — do NOT reference other task PRDs
+  - No fenced code blocks — PRDs are functional specs, not implementation code
+  - Test assertions must include exact expected values (not 'has items' but 'has exactly 1 item with code X')
+  - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
 
@@ -595,9 +597,9 @@ Task PRDs should NOT contain awareness of total project scope. Avoid:
 - "After this, Task 06 will build on..." — focus on this task only
 - Listing all other tasks in the feature
 
-Dependencies should reference what EXISTS IN THE CODEBASE, not task numbers:
-- BAD: "Depends on Task 03 for the User model"
-- GOOD: "Depends on `models/user.go` (should exist before this task runs). If it doesn't exist, create it with these fields: [inline the type definition]"
+NEVER reference other tasks by number. Use a Prerequisites section instead:
+- BAD: "Dependencies: Task 01", "Depends on Task 03 for the User model"
+- GOOD: "Prerequisites (must already exist in codebase): `UserModel` in `models/user.go` with fields: `id` (uuid), `name` (string), `org_id` (uuid). If these don't exist, STOP and create BLOCKED.md."
 
 ### After Writing
 

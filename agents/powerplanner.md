@@ -273,30 +273,73 @@ Priority-ordered, each task is atomic and testable:
 
 Every task PRD must be implementable WITHOUT referencing other task PRDs. This prevents stub cascades.
 
-### Rule 1: Inline type definitions
+### Rule 1: Describe type definitions (no code blocks)
 BAD: "Uses types defined in Task 06"
-GOOD: Define the types directly in the PRD:
-```
-Define these types (create if they don't exist):
-type PriceResult struct {
-    NewPrice   decimal.Decimal
-    AtMinPrice bool
-}
-```
+BAD: Pasting a Go struct or TypeScript interface as a code block
+GOOD: Describe the types as a spec:
+> **PriceResult** — fields: `NewPrice` (decimal), `AtMinPrice` (boolean). Create if it doesn't exist.
 
-### Rule 2: Inline source material
+### Rule 2: Describe source behavior, don't paste code
 BAD: "Port from `service/handler.py` lines 100-200"
-GOOD: Paste the actual source code into the PRD so the implementer can see it.
+BAD: Pasting 50 lines of source code into the PRD
+GOOD: Describe the behavior to port: "The handler validates the request, looks up the user by org_id, applies pricing rules (multiply base × tier factor, round to 2 decimals), and returns the result."
 
-### Rule 3: No stub permissions
+### Rule 3: No code blocks in PRDs
+PRDs are functional specifications. They describe WHAT to build and HOW to verify it.
+- Use prose, tables, diagrams, and flow descriptions
+- Use inline `backticks` for field names, function names, file paths
+- Do NOT use fenced code blocks with implementation code
+- Exception: the Implementation Rules header (Rule 10) is the only permitted code-fence content
+
+### Rule 4: Prerequisites, not task references
+NEVER reference other tasks by number. Instead, describe what must exist in the codebase.
+
+BAD: "Dependencies: Task 01", "Depends on Task 03 for the User model"
+GOOD: Use a Prerequisites section:
+> **Prerequisites (must already exist in codebase)**
+> - `SapODataClient` class in `server/integrations/sap/client.ts` with methods: `get()`, `patch()`, `fetchCsrfToken()`
+> - `organizations` table with columns: `id`, `name`, `sap_system_id`
+> - If these don't exist, STOP. Create BLOCKED.md.
+
+### Rule 5: No stub permissions
 BAD: "Rounding can be stubbed initially via interface"
 GOOD: "Implement real rounding logic. If the full rounding service isn't built yet, implement a simplified version that rounds to 2 decimal places. Do NOT use interfaces without implementations or stubs."
 
-### Rule 4: Exact test assertions
+### Rule 6: Fully specify defaults and fallbacks
+Every default/fallback value must state where it's defined and how the implementer accesses it.
+
+BAD: "default 30", "fallback to standard pricing"
+GOOD: "Default reprice interval: 30 minutes, stored in `organization_settings.reprice_interval_minutes` column. Read via `getOrgSettings(orgId).repriceIntervalMinutes`."
+
+### Rule 7: Exact test assertions
+Every test case must have a concrete expected value. Never produce a test case without one.
+
+BAD: "assert result has items", "assert error is present"
+GOOD: "assert result has exactly 1 item", "assert errors has length 1 with code === 'SAP_AUTH_INSUFFICIENT'"
+
 BAD: "Test normal case with currentPrice=25.00"
 GOOD: "calculate(currentPrice=25.00, maxPrice=35.00) MUST return NewPrice=28.00. Assert exact equality."
 
-### Rule 5: Anti-stub header
+### Rule 8: Anti-stub canary test
+Every task PRD must include this verification test:
+
+> **Anti-Stub Verification Test**
+> Run: `grep -rn "TODO\|FIXME\|NotImplemented\|stub\|mock\|noop\|throw new Error"` on all files created/modified by this task.
+> Assert: zero matches (excluding test mocks of external HTTP calls).
+
+### Rule 9: Files to Create/Modify table
+Every task PRD must include a table listing every file the implementer will touch, with the exact action.
+
+> | File | Action |
+> |------|--------|
+> | `server/integrations/sap/client.ts` | Create — SAP OData client class |
+> | `server/api/sap/search.post.ts` | Create — HR/BP search endpoint |
+> | `tests/sap/client.test.ts` | Create — integration tests for client |
+> | `server/utils/http.ts` | Modify — add CSRF token helper |
+
+Actions must be one of: **Create**, **Modify**, **Delete**. Each with a brief description of what changes.
+
+### Rule 10: Anti-stub header
 Every task PRD must start with:
 ```
 ## Implementation Rules
@@ -304,6 +347,7 @@ Every task PRD must start with:
 - No stubs, no TODOs, no NotImplemented, no placeholders
 - No empty function bodies or default-return-only functions
 - Tests must assert real computed values, not mocked returns
+- If a dependency (function, type, file) does not exist yet, STOP and create BLOCKED.md in the project root (.powermode/projects/<project-slug>/BLOCKED.md) with what's missing. Do NOT mock, stub, or create placeholder implementations of dependencies
 - If you cannot implement fully, STOP and explain why
 ```
 
