@@ -272,6 +272,26 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 ")
 ```
 
+### Verification Failure → Fix Cycle
+
+When pm-verifier returns a BLOCKER or FAIL:
+1. **RESUME** the same pm-implementer via `resume="<agentId>"` with the verifier's findings
+2. Re-run pm-verifier after the fix
+3. Repeat up to 3 times total
+
+```
+# Implementer returns agentId "a1b2c3d"
+result = Task(subagent_type="powermode:pm-implementer", prompt="Implement X...")
+
+# Verifier finds issues
+Task(subagent_type="powermode:pm-verifier", prompt="Verify X...")  # → FAIL
+
+# Resume SAME implementer (preserves full context)
+Task(resume="a1b2c3d", prompt="Failed verification: {verifier findings}")
+```
+
+**Do NOT spawn a new implementer** — resuming preserves context and saves 70%+ tokens.
+
 ### After 3 Consecutive Failures
 
 1. **STOP** all further edits

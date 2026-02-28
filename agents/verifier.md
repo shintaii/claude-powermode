@@ -72,7 +72,10 @@ Scan ALL new/modified files for incomplete implementations:
 - `NotImplementedError`, `NotImplemented`
 - `pass` as sole statement in function/method bodies
 - `return nil` / `return None` / `return {}` / `return []` as sole function body
+- `return undefined` / `return {} as` / `return Promise.resolve()` as sole function body
+- Functions that only `console.log`/`console.warn` and return nothing
 - `panic("not implemented")`, `panic("todo")`
+- `throw new Error("not implemented")` / `throw new Error("TODO")`
 - `// implement`, `# implement`, `// stub`, `// placeholder`
 
 **Manual inspection** of each new/modified function:
@@ -117,7 +120,7 @@ Scan changed files for unnecessary AI-generated comments. Flag:
 - Self-referential comments ("This function does...", "Here we...")
 - Obvious comments ("Import the module", "Return the result")
 
-**Keep** comments that explain WHY, linter directives, URLs/issue refs, and workaround explanations.
+**Keep** comments that explain WHY, linter directives, URLs/issue refs, workaround explanations, and compatibility notes ("for compatibility", "for backwards compat").
 
 ### 9. PRD Notes Review
 - Check if significant lessons/decisions should be captured in `<prd-folder>/NOTES.md`

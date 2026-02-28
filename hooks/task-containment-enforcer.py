@@ -14,50 +14,12 @@ import json
 import re
 from pathlib import Path
 
-# Token budget guidance (conservative to prevent rot)
-TOKEN_BUDGET_WARNING = """
-=== TASK CONTAINMENT RULES (MANDATORY) ===
-
-You are a CONTAINED subagent. Your context window is LIMITED.
-
-**HARD LIMITS:**
-- Maximum tool calls: 30 (prefer <20)
-- Maximum file reads: 15 files
-- Maximum turns: 25
-- If you hit these limits: STOP, summarize progress, return results
-
-**ATOMIC TASK PRINCIPLE:**
-- Complete ONE specific thing, not multiple
-- If task feels too big: Return early with "Task too large, recommend splitting"
-- Do NOT explore tangentially - stay focused on the exact request
-
-**MANDATORY BEHAVIORS:**
-1. Start with a clear 1-sentence goal statement
-2. Track your progress: "Completed X of Y steps"
-3. If >50% through and struggling: STOP and report blockers
-4. At completion: Summarize what you did in 3-5 bullet points
-
-**FORBIDDEN:**
-- Reading files "just to understand context" beyond what's needed
-- Refactoring code that wasn't asked for
-- Adding features beyond the explicit request
-- Continuing after hitting a blocker - report it instead
-
-**EVIDENCE REQUIRED:**
-Your final response MUST include:
-- What was accomplished (specific files/functions)
-- What was NOT done (explicit)
-- Any issues found
-- Recommended follow-up (if any)
-"""
-
-CHECKPOINT_REMINDER = """
-**CHECKPOINT**: After completing your task, verify:
-- [ ] Did I stay within scope?
-- [ ] Did I accomplish the specific goal?
-- [ ] Can I summarize what I did in <5 bullets?
-
-If any checkbox is NO, you went too far.
+# Compact containment reminder (agent definitions have the full rules)
+CONTAINMENT_REMINDER = """
+=== CONTAINMENT ===
+Hard limits: 30 tool calls, 15 file reads, 25 turns. Stay focused on the exact request.
+If task is too big: STOP early with "Task too large, recommend splitting".
+At completion: summarize in 3-5 bullets (done / not done / issues).
 """
 
 
@@ -128,30 +90,13 @@ def get_containment_reminder(complexity: str) -> str:
     """Get appropriate reminder based on task complexity."""
     if complexity == "HIGH":
         return f"""
-{TOKEN_BUDGET_WARNING}
-
-⚠️ HIGH COMPLEXITY DETECTED ⚠️
-
-This task appears complex. Consider:
-1. Can it be broken into smaller subtasks?
-2. What's the MINIMUM viable outcome?
-3. Set explicit stopping points
-
-{CHECKPOINT_REMINDER}
+{CONTAINMENT_REMINDER}
+⚠️ HIGH COMPLEXITY — consider splitting into subtasks. What's the MINIMUM viable outcome?
 """
     elif complexity == "MEDIUM":
-        return f"""
-{TOKEN_BUDGET_WARNING}
-
-{CHECKPOINT_REMINDER}
-"""
+        return CONTAINMENT_REMINDER
     else:
-        # Low complexity - lighter touch
-        return """
-=== TASK SCOPE ===
-Stay focused. Complete the specific request and return results.
-Don't explore beyond what's needed.
-"""
+        return ""
 
 
 def main():
