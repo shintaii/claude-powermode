@@ -150,6 +150,7 @@ Before saying "done", verify:
 - [ ] Build/lint diagnostics clean on all changed files
 - [ ] Build passes (if applicable)
 - [ ] Tests pass (if applicable)
+- [ ] Wiring verified — new code is reachable from entry points
 - [ ] Feature actually works (if applicable)
 - [ ] Pre-existing issues noted (if any)
 - [ ] Evidence included in response

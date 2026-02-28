@@ -86,6 +86,23 @@ Scan ALL new/modified files for incomplete implementations:
 
 **Any stub found = BLOCKER.** Do not PASS work with stubs.
 
+### 4c. Wiring Verification (BLOCKER if broken)
+
+Stubs check that functions are real. This step checks that they're **reachable**. A service where every function is legit but nothing is connected does nothing.
+
+**For each new/modified component, trace the path from entry point to implementation:**
+
+- **Routes/endpoints**: Is the handler registered in the router/framework? Does the route path match what's expected? Run a Grep for the handler name — is it imported and referenced in routing config?
+- **Services/classes**: Is the class instantiated or injected somewhere? A perfect class that's never constructed is dead code. Grep for `new ClassName` or DI registration.
+- **Event handlers/listeners**: Are they subscribed/registered? Grep for the event name — does something emit it?
+- **Exports**: If a module exports new functions/types, are they imported anywhere? (Skip if the module is a public API surface.)
+- **Config/environment references**: If code reads `process.env.X` or config keys, do those keys exist in `.env.example`, config files, or documentation?
+- **DB triggers/hooks**: If the implementation relies on database triggers, webhooks, or cron jobs, verify they're defined and point to reachable targets.
+
+**Method**: For each new piece, ask: "What calls this?" If you can't find a caller, it's unwired. Use Grep to trace import chains from entry points to the new code. Two hops max — if it takes more than two hops to find a connection, look harder.
+
+**Any unwired component = BLOCKER.** Code that can't be reached can't work.
+
 ### 5. Pattern Verification
 - Confirm code follows existing patterns
 - Check naming conventions
@@ -134,8 +151,9 @@ Scan changed files for unnecessary AI-generated comments. Flag:
 4. **Run build** - Does it compile?
 5. **Run tests** - Do they pass?
 6. **Manual check** - Does it meet requirements?
-7. **Cross-check failure modes** - Was each failure mode disproven or flagged?
-8. **Report findings** - Evidence-based summary
+7. **Trace wiring** - Can entry points reach the new code?
+8. **Cross-check failure modes** - Was each failure mode disproven or flagged?
+9. **Report findings** - Evidence-based summary
 
 ## Output Format
 
