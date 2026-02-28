@@ -205,8 +205,9 @@ def main():
     missing_prd_updates = sorted(referenced_prds - updated_prds)
     folders_missing_readme = sorted(modified_prd_folders - modified_prd_readmes)
     projects_missing_status = sorted(modified_project_dirs - status_json_updated)
+    pending_verification = (state_dir / "pending-verification.json").exists()
 
-    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status:
+    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status or pending_verification:
         attempt = increment_attempt(state_dir, session_id)
 
         if attempt >= MAX_BLOCK_ATTEMPTS:
@@ -219,6 +220,8 @@ def main():
                 parts.append(f"{len(folders_missing_readme)} PRD README(s) not updated")
             if projects_missing_status:
                 parts.append(f"{len(projects_missing_status)} project status.json not updated")
+            if pending_verification:
+                parts.append("verification not run after implementation")
             warning = (
                 "[STOP HOOK] Approved after "
                 + str(attempt)
@@ -265,6 +268,12 @@ def main():
                 )
                 action_parts.append(
                     "Update status.json (task status, tasks_done count, feature status, updated timestamp)"
+                )
+            if pending_verification:
+                issue_parts.append("verification pending")
+                action_parts.append(
+                    "Run pm-verifier on the implementation, then /simplify: "
+                    "Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
                 )
 
             reason = (
