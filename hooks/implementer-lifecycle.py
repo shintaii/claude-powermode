@@ -76,9 +76,19 @@ def main():
         except (IOError, OSError):
             pass
 
+        # Signal that verification is needed before next implementer
+        pending_file = powermode_dir / "pending-verification.json"
+        try:
+            pending_file.write_text(json.dumps({
+                "agent_id": agent_id,
+                "awaiting_verifier": True,
+            }))
+        except (IOError, OSError):
+            pass
+
         print(json.dumps({
             "decision": "approve",
-            "reason": f"Implementer session cleaned up (agent_id={agent_id})",
+            "reason": f"Implementer session cleaned up (agent_id={agent_id}). Verification pending.",
         }))
 
     else:

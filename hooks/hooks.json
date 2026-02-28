@@ -181,6 +181,16 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "powermode:pm-verifier",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/verification-tracker.py\"",
+            "timeout": 3
+          }
+        ]
       }
     ]
   }

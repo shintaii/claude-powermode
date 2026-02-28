@@ -127,6 +127,26 @@ def main():
         }))
         return
 
+    # Block new pm-implementer if verification is pending
+    subagent_type = tool_input.get("subagent_type", "")
+    is_resume = bool(tool_input.get("resume"))
+    if "pm-implementer" in subagent_type and not is_resume:
+        pending_file = Path(cwd) / ".powermode" / "pending-verification.json"
+        if pending_file.exists():
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "additionalContext": (
+                        "[BLOCKED] Verification pending. You MUST run pm-verifier on the "
+                        "previous implementer's changes before starting a new implementer. "
+                        "Use: Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
+                    ),
+                    "updatedInput": {**tool_input},
+                }
+            }))
+            return
+
     prompt = extract_task_prompt(tool_input)
     if not prompt:
         print(json.dumps({"continue": True}))

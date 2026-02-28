@@ -56,11 +56,16 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 3. TEAM CHECK (MANDATORY) - Check if TeamCreate tool is available.
    If available AND 3+ independent tasks → ASK user about team mode.
    Log: "TeamCreate: [available/not available]. Independent tasks: N."
-4. For each task:
-   a. EXPLORE with pm-explorer
-   b. IMPLEMENT with pm-implementer
-   c. VERIFY with pm-verifier
+4. For each task — this is a STRICT sequence, do NOT skip steps:
+   a. EXPLORE with pm-explorer (if needed)
+   b. IMPLEMENT with pm-implementer → save the agentId
+   c. VERIFY with pm-verifier — MANDATORY, no exceptions
+   d. If FAIL → resume implementer via agentId → re-verify
+   e. Only after PASS → move to next task
 ```
+
+**The verify step is ENFORCED by a hook.** Starting a new pm-implementer
+without running pm-verifier first will be BLOCKED.
 
 ---
 
