@@ -15,6 +15,12 @@ claude plugin install powermode@claude-powermode
 claude plugin list | grep powermode
 ```
 
+## Updating
+
+```bash
+claude plugin update powermode@claude-powermode
+```
+
 ---
 
 ## Quick Start: Which Command Do I Use?
@@ -23,112 +29,128 @@ claude plugin list | grep powermode
 |-----------|-----------|-----|
 | An idea/goal | A detailed plan + PRD files | `/pm-plan add user authentication` |
 | An existing document (spec, issue, PRD) | Split into implementable PRDs | `/pm-plan @path/to/doc.md` |
-| An existing PRD folder | See structure and next steps | `/pm-plan @.powermode/prds/feature/` |
-| A PRD ready to implement | Implementation (auto-detects team mode) | `/powermode @.powermode/prds/feature/README.md` |
+| An existing project folder | See structure and next steps | `/pm-plan @.powermode/projects/my-project/` |
+| A project/feature ready to implement | Implementation (auto-detects team mode) | `/powermode @.powermode/projects/my-project/` |
 | Started work, want methodology | Enable powermode workflow | `/powermode` |
 | Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
+| Want project dashboard | See status of all features/tasks | `/pm-status` |
+| Need to re-verify recent changes | Manual verification run | `/pm-review` |
 
 ---
 
-## Commands Explained
+## Commands
 
 ### `/powermode` - Activate the Methodology
 
-**When:** You want disciplined engineering on any task.
+Enables the disciplined explore → plan → implement → verify → simplify workflow. Lists available agents and enables all guardrails.
 
-**What it does:**
-- Reminds you of the explore → plan → implement → verify workflow
-- Lists available agents and when to use them
-- Enables all guardrails
-
-**Example:**
 ```
 /powermode
 > Now help me refactor the auth module
 ```
 
----
+Can also resume a project directly: `/powermode my-project-slug`
 
-### `/pm-plan [goal]` - Create a Plan from Scratch
+### `/pm-plan [goal]` - Unified Planning
 
-**When:** You have an idea or goal but no written spec.
-
-**Input:** A description of what you want to build.
-
-**Workflow:**
-```
-1. ANALYSER      → Finds hidden requirements, ambiguities
-2. POWERPLANNER  → Creates comprehensive plan (may interview you)
-3. PLANREVIEWER  → Reviews until quality bar met (max 3 iterations)
-4. PRD FILES     → Writes plan to .powermode/prds/<feature>/
-5. READY         → Suggests next command
-```
-
-**Output:** A folder with:
-- `README.md` - Index with dependency order
-- `01-<title>.md`, `02-<title>.md`, ... - Numbered PRDs
-
-**Example:**
-```
-/pm-plan add multi-tenancy support to the application
-```
-
----
-
-### `/pm-plan` - Unified Planning (auto-detects input)
-
-`/pm-plan` automatically detects what you give it:
+Auto-detects input type and acts accordingly:
 
 | Input | Mode | Example |
 |-------|------|---------|
 | Plain text goal | Plans from scratch | `/pm-plan add user authentication` |
-| `@` document reference | Transforms doc into PRDs | `/pm-plan @docs/DJANGO_INTEGRATION.md` |
-| `@` folder reference | Shows existing PRD structure | `/pm-plan @.powermode/prds/auth/` |
+| `@` document reference | Transforms doc into PRDs | `/pm-plan @docs/payment-spec.md` |
+| `@` folder reference | Shows existing structure | `/pm-plan @.powermode/projects/auth/` |
 
----
+**Workflow:** Analyser → Powerplanner → Planreviewer (max 3 review iterations) → PRD files written to `.powermode/projects/`.
 
 ### `/pm-checkpoint` - Manual Progress Check
 
-**When:** Mid-implementation, you want to verify you're on track.
+Compares current state to the plan. Identifies drift or missed steps.
 
-**What it does:**
-- Compares current state to the plan
-- Identifies drift or missed steps
-- Suggests corrections
+### `/pm-status` - Project Dashboard
 
-**Example:**
-```
-/pm-checkpoint
-```
+Shows status of all projects, features, and tasks with completion percentages. Detects drift between `status.json` and feature READMEs.
+
+### `/pm-review` - Manual Verification
+
+Runs pm-verifier on recent changes. Use when verification was skipped, after manual fixes, or to re-check work.
+
+### `/pm-export` - Export Documentation
+
+Copies all project markdown files to a user-specified folder, preserving structure.
+
+### `/pm-issues` - Review Open Issues
+
+Lists open issues tracked in project `issues.md` files. Can convert issues to new task PRDs.
+
+### `/pm-uiux` - UI/UX Review & Build
+
+Comprehensive UI/UX review, audit, and implementation using the powermode workflow. Reviews existing interfaces or builds new ones.
 
 ---
 
-## Agents Reference
+## Agents
 
-Use these with the `Task` tool for specific purposes:
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| **pm-explorer** | Haiku | Fast codebase search, finding files and patterns |
+| **pm-researcher** | Sonnet | External docs, library research, OSS examples |
+| **pm-analyser** | Opus | Pre-planning gap analysis, hidden requirements |
+| **pm-powerplanner** | Opus | Strategic planning, comprehensive work plans |
+| **pm-planreviewer** | Sonnet | Plan review, iterates until quality bar met |
+| **pm-oracle** | Opus | Architecture decisions, deep reasoning, stuck debugging |
+| **pm-implementer** | Opus | Focused code implementation (auto-commits per task) |
+| **pm-verifier** | Sonnet | Quality verification with evidence |
 
-### Exploration
+---
 
-| Agent | Model | Use When |
-|-------|-------|----------|
-| `pm-explorer` | Haiku | Finding files, patterns, understanding codebase structure |
-| `pm-researcher` | Sonnet | Looking up external library docs, API references, best practices |
+## Per-Task Execution Cycle
 
-### Planning
+Every task follows this strict sequence (steps c-e are hook-enforced):
 
-| Agent | Model | Use When |
-|-------|-------|----------|
-| `pm-analyser` | Opus | Pre-planning: find hidden requirements, ambiguities |
-| `pm-powerplanner` | Opus | Create comprehensive work plans |
-| `pm-planreviewer` | Sonnet | Review plans for gaps, iterate until solid |
+```
+a. EXPLORE with pm-explorer (if needed)
+b. IMPLEMENT with pm-implementer → auto-commits, returns agentId
+c. VERIFY with pm-verifier — MANDATORY, enforced by hook
+d. If FAIL → resume implementer via agentId → re-verify (max 3 attempts)
+e. After PASS → /simplify for code quality polish
+f. Move to next task
+```
 
-### Implementation
+**Verification is hook-enforced:** starting a new pm-implementer without running pm-verifier first is automatically BLOCKED. Resume calls (fix cycles) bypass this check.
 
-| Agent | Model | Use When |
-|-------|-------|----------|
-| `pm-oracle` | Opus | Hard architecture decisions, debugging stuck problems |
-| `pm-implementer` | Opus | Focused code changes (single task at a time) |
-| `pm-verifier` | Sonnet | Verify work with evidence (tests, build, lsp) |
+**After 3 consecutive verification failures:** stop → revert → consult pm-oracle → ask user.
+
+---
+
+## Project Structure
+
+Powermode uses hierarchical planning: Project → Feature → Task.
+
+```
+.powermode/projects/
+├── index.json                          # Master index of all projects
+└── my-project/
+    ├── project.md                      # Scope, goals, high-level requirements
+    ├── status.json                     # Machine-readable state (features, tasks, completion)
+    ├── decisions.md                    # Decision log (append-only)
+    ├── issues.md                       # Issues/gaps tracker
+    └── features/
+        ├── 01-auth/
+        │   ├── README.md               # Feature index with dependency table
+        │   ├── 01-database-schema.md   # Task PRD
+        │   ├── 02-api-endpoints.md     # Task PRD (depends on 01)
+        │   ├── 03-frontend-ui.md       # Task PRD (depends on 02)
+        │   └── NOTES.md               # Implementation discoveries
+        └── 02-payments/
+            ├── README.md
+            └── 01-stripe-setup.md
+```
+
+- Features are numbered for implementation order
+- Each task PRD contains scope, requirements, acceptance criteria, test focus, and dependencies
+- `status.json` tracks completion state per feature and task
+- Runtime files (`.powermode/*.json`) are gitignored; project files are committed
 
 ---
 
@@ -138,9 +160,9 @@ Use these with the `Task` tool for specific purposes:
 
 ```
 1. /pm-plan add payment processing
-2. Review generated PRDs in .powermode/prds/payment/
-3. /powermode @.powermode/prds/payment/README.md
-4. (automatic) Detects team mode availability, implements with verification
+2. Review generated PRDs in .powermode/projects/payments/
+3. /powermode @.powermode/projects/payments/
+4. (automatic) implement → verify → simplify per task, auto-commits
 ```
 
 ### Feature from Existing Spec
@@ -148,7 +170,7 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /pm-plan @docs/payment-spec.md
 2. Review generated PRDs
-3. /powermode @.powermode/prds/payment/README.md
+3. /powermode @.powermode/projects/payments/
 ```
 
 ### Quick Fix (no planning needed)
@@ -156,110 +178,76 @@ Use these with the `Task` tool for specific purposes:
 ```
 1. /powermode
 2. "Fix the null pointer in auth.py line 42"
-3. (uses pm-explorer → fix → pm-verifier automatically)
+3. (uses pm-explorer → pm-implementer → pm-verifier → /simplify)
 ```
 
-### Research Task
+### Resume a Project
 
 ```
-1. /powermode
-2. "How does the payment module handle refunds?"
-3. (uses pm-explorer, no implementation)
+1. /powermode my-project-slug
+2. (picks up from last completed task)
 ```
 
 ---
 
 ## Automatic Behaviors (Hooks)
 
-These run automatically - you don't invoke them:
+These run automatically — you don't invoke them:
 
 | Hook | What It Does |
 |------|--------------|
-| **Stop validator** | Blocks exit if todos incomplete (3 attempts = escape hatch) |
+| **Stop validator** | Blocks exit if todos incomplete (escape hatch after 3 attempts) |
 | **PRD enforcement** | Blocks exit if referenced PRD wasn't updated |
+| **Verification tracker** | Clears pending-verification flag when pm-verifier finishes |
 | **Context monitor** | Tracks token usage, warns at 70% |
 | **Session recovery** | Saves/restores state across compaction |
-| **CLAUDE.md enforcer** | Reminds you of project rules |
-| **Comment checker** | Flags unnecessary comments (agent-scoped to pm-implementer) |
+| **CLAUDE.md enforcer** | Reminds of project rules on each prompt |
 | **Delegation enforcer** | Blocks direct Edit/Write in Power Mode (must use pm-implementer) |
-| **Task containment** | Injects scope constraints into subagent prompts |
-| **Implementer lifecycle** | Creates/cleans up implementer sessions via SubagentStart/Stop |
+| **Task containment** | Injects scope constraints into subagent prompts; blocks new implementer if verification pending |
+| **Implementer lifecycle** | Manages implementer sessions via SubagentStart/Stop; sets verification-pending flag |
 | **Subagent context** | Injects role reminders when any pm-* agent spawns |
-| **Workflow reinforcer** | Reminds about Power Mode methodology after user answers questions (prompt-based) |
-| **Edit error recovery** | Provides contextual recovery guidance on Edit failures (prompt-based) |
-| **Task retry guidance** | Analyzes Task errors and suggests correct agents (prompt-based) |
+| **PRD index injector** | Auto-injects PRD structure when `@` references are used |
+| **Keyword detector** | Detects powermode-related keywords and activates workflow |
 
 ---
 
-## PRD File Structure
-
-Powermode-generated PRDs are stored separately from user files:
-
-```
-.powermode/prds/
-├── index.json                 # Tracks all PRD sets with metadata
-├── auth-feature/
-│   ├── README.md              # Index: purpose, dependency order, table of PRDs
-│   ├── 01-database-schema.md  # First PRD (no dependencies)
-│   ├── 02-api-endpoints.md    # Second PRD (depends on 01)
-│   └── 03-frontend-ui.md      # Third PRD (depends on 02)
-└── payment-v2/
-    ├── README.md
-    └── 01-stripe-integration.md
-```
-
-**Why separate?** User PRDs (from external tools, manual creation) stay in their own folders. Powermode output never conflicts.
-
-**Git tracking:** `.powermode/prds/` is committed to git. Runtime files (`.powermode/*.json`) are gitignored.
-
-Each PRD contains:
-- Clear scope and requirements
-- Acceptance criteria
-- Test focus (what to verify)
-- Dependencies on other PRDs
-
 ## How It Works
 
-- **Context tracking** writes `.powermode/context-state.json` in the current workspace.
-- **Stop hook** reads the session transcript and blocks stop if todos are pending/in_progress.
-- **Escape hatch** auto-approves after 3 consecutive stop attempts with a warning.
-- **Session recovery** stores `.powermode/recovery.json` on SessionEnd/PreCompact and restores on SessionStart.
-- **PRD enforcement** blocks stop when referenced PRDs were not updated.
+- **Context tracking** writes `.powermode/context-state.json` in the current workspace
+- **Stop hook** reads the session transcript and blocks stop if todos are pending/in_progress
+- **Escape hatch** auto-approves after 3 consecutive stop attempts with a warning
+- **Session recovery** stores `.powermode/recovery.json` on SessionEnd/PreCompact and restores on SessionStart
+- **PRD enforcement** blocks stop when referenced PRDs were not updated
+- **Verification enforcement** blocks new pm-implementer calls until pm-verifier has run
+- **Auto-commit** implementer commits after each task PRD completion (local only, no push)
+- **Post-verify polish** `/simplify` runs automatically after verification PASS (3 parallel review agents: code reuse, quality, efficiency)
 
-## Updating
-
-```bash
-claude plugin update powermode@claude-powermode
-```
-
-### Important: hooks.json auto-load
-
-Claude Code auto-loads `hooks/hooks.json`. Do NOT reference it in `plugin.json` or you will get:
-
-```
-Hook load failed: Duplicate hooks file detected
-```
+---
 
 ## Manual Hook Tests
 
-### Stop hook
-
 ```bash
+# Stop hook
 echo '{"cwd":"/tmp","transcript_path":"/path/to/session.jsonl"}' | python3 hooks/stop-validator.py
-```
 
-### Context monitor
-
-```bash
+# Context monitor
 echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool_response":{}}' | python3 hooks/context-monitor.py
+
+# Task containment
+echo '{"tool_name":"Task","tool_input":{"prompt":"test","subagent_type":"pm-implementer"},"cwd":"/tmp","session_id":"test"}' | python3 hooks/task-containment-enforcer.py
+
+# Verification tracker
+echo '{"hook_event_name":"SubagentStop","agent_type":"powermode:pm-verifier","cwd":"/tmp"}' | python3 hooks/verification-tracker.py
 ```
+
+---
 
 ## Troubleshooting
 
 ### PostToolUse hook error spam
 
 - Cause: invalid schema in PostToolUse output
-- Fix: ensure `hookSpecificOutput.for PostToolUse` is used
+- Fix: ensure `hookSpecificOutput` uses correct event name
 
 ### Stop hook never blocks
 
@@ -269,33 +257,22 @@ echo '{"session_id":"test","cwd":"/tmp","tool_name":"Bash","tool_input":{},"tool
 ### Duplicate hooks file
 
 - Cause: `plugin.json` includes `"hooks": "./hooks/hooks.json"`
-- Fix: remove that key (hooks auto-load)
+- Fix: remove that key — hooks auto-load from `hooks/hooks.json`
 
-## Version Notes
+### Important: hooks.json auto-load
 
-- **2.7.0**: SubagentStart/Stop lifecycle for implementer sessions, agent-scoped comment-checker, prompt-based hooks (workflow-reinforcer, edit-error-recovery, task-retry-guidance), subagent context injection for all pm-* agents
-- **2.8.0**: Merge pm-prdmaker into pm-plan (unified planning with auto-detect)
-- **2.6.15**: Fix pm-prdmaker workflow (explicit Task calls), pm-plan now outputs PRD files, expanded README
-- **2.6.14**: Add delegation-enforcer hook
-- **2.6.13**: Persist powermode activation across prompts
-- **2.6.10**: Add PRD NOTES.md tracking, fix stop-hook false positives (require @ prefix)
-- **2.6.8**: Open source release, GitHub marketplace support
-- **2.6.5**: PRD maker delegates writing to sub-agents (context preservation)
-- **2.6.4**: All hooks use proper output schemas (8 hooks fixed)
-- **2.6.3**: PRD maker always applies split rules
-- **2.6.2**: PRD index auto-inject for @prompt references
-- **2.6.1**: PRD index auto-inject on PRD read
-- **2.6.0**: PRD maker command + PRD index guidance
-- **2.5.6**: PostToolUse JSON output for rules/task hooks
-- **2.5.5**: stop hook PRD enforcement + exploration hygiene notes
-- **2.5.4**: removed duplicate hooks reference in plugin.json
-- **2.5.3**: PostToolUse output schema fix
-- **2.5.2**: stop hook improvements + escape hatch
+Claude Code auto-loads `hooks/hooks.json`. Do NOT reference it in `plugin.json` or you will get:
+
+```
+Hook load failed: Duplicate hooks file detected
+```
+
+---
 
 ## Credits
 
-Heavily inspired by [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) - thank you for the foundational ideas.
+Heavily inspired by [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode) — thank you for the foundational ideas.
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE)
