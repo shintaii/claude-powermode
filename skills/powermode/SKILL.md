@@ -47,6 +47,7 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 1. EXPLORE with pm-explorer (parallel)
 2. IMPLEMENT with pm-implementer
 3. VERIFY with pm-verifier
+4. SIMPLIFY with /simplify (after PASS)
 ```
 
 ### For Complex Tasks (3+ steps)
@@ -61,7 +62,8 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    b. IMPLEMENT with pm-implementer → save the agentId
    c. VERIFY with pm-verifier — MANDATORY, no exceptions
    d. If FAIL → resume implementer via agentId → re-verify
-   e. Only after PASS → move to next task
+   e. Only after PASS → run /simplify to polish
+   f. Move to next task
 ```
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
@@ -303,6 +305,18 @@ Task(resume="a1b2c3d", prompt="Failed verification: {verifier findings}")
 2. **REVERT** to last known working state
 3. **CONSULT** pm-oracle for root cause analysis
 4. **ASK** user if still stuck
+
+### Post-Verification Polish
+
+After pm-verifier returns **PASS**, run the built-in `/simplify` skill:
+
+```
+Skill(skill="simplify")
+```
+
+This spawns 3 parallel review agents (code reuse, quality, efficiency) and applies fixes.
+Do NOT re-verify after simplify — it's a polish step, not a structural change.
+If `/simplify` makes changes, they'll be included in the next commit or amend the task commit.
 
 ---
 
