@@ -289,7 +289,7 @@ PRDs are functional specifications. They describe WHAT to build and HOW to verif
 - Use prose, tables, diagrams, and flow descriptions
 - Use inline `backticks` for field names, function names, file paths
 - Do NOT use fenced code blocks with implementation code
-- Exception: the Implementation Rules header (Rule 10) is the only permitted code-fence content
+- Exception: the Implementation Rules header (Rule 12) is the only permitted code-fence content
 
 ### Rule 4: Prerequisites, not task references
 NEVER reference other tasks by number. Instead, describe what must exist in the codebase.
@@ -311,7 +311,18 @@ Every default/fallback value must state where it's defined and how the implement
 BAD: "default 30", "fallback to standard pricing"
 GOOD: "Default reprice interval: 30 minutes, stored in `organization_settings.reprice_interval_minutes` column. Read via `getOrgSettings(orgId).repriceIntervalMinutes`."
 
-### Rule 7: Exact test assertions
+### Rule 7: Named constants for magic numbers
+Every numeric constant in a PRD (timeouts, TTLs, page sizes, retry counts, thresholds) must specify: hardcoded or configurable?
+
+- **Hardcoded**: Define as a named constant at the top of the file. State the name and value.
+- **Configurable**: State which env var, config field, or database column holds it.
+
+BAD: "Timeout after 120 seconds", "Cache for 30 minutes", "Fetch 100 items per page"
+GOOD: "Timeout: `REQUEST_TIMEOUT_MS = 120_000` as a named constant at top of file", "Cache TTL: read from `CACHE_TTL_MINUTES` env var, default 30", "Page size: `PAGE_SIZE = 100` constant in `server/utils/pagination.ts`"
+
+No unnamed numeric literals in implementation. Every number gets a name and a home.
+
+### Rule 8: Exact test assertions
 Every test case must have a concrete expected value. Never produce a test case without one.
 
 BAD: "assert result has items", "assert error is present"
@@ -320,26 +331,38 @@ GOOD: "assert result has exactly 1 item", "assert errors has length 1 with code 
 BAD: "Test normal case with currentPrice=25.00"
 GOOD: "calculate(currentPrice=25.00, maxPrice=35.00) MUST return NewPrice=28.00. Assert exact equality."
 
-### Rule 8: Anti-stub canary test
+### Rule 9: Anti-stub canary test
 Every task PRD must include this verification test:
 
 > **Anti-Stub Verification Test**
 > Run: `grep -rn "TODO\|FIXME\|NotImplemented\|stub\|mock\|noop\|throw new Error"` on all files created/modified by this task.
 > Assert: zero matches (excluding test mocks of external HTTP calls).
 
-### Rule 9: Files to Create/Modify table
-Every task PRD must include a table listing every file the implementer will touch, with the exact action.
+### Rule 10: Files to Create/Modify table
+Every task PRD must include a table listing every file the implementer will touch, with the exact action. For **Modify** actions, specify which function, method, or section is being changed — this prevents the agent from creating new files when it should modify existing ones.
 
 > | File | Action |
 > |------|--------|
 > | `server/integrations/sap/client.ts` | Create — SAP OData client class |
 > | `server/api/sap/search.post.ts` | Create — HR/BP search endpoint |
 > | `tests/sap/client.test.ts` | Create — integration tests for client |
-> | `server/utils/http.ts` | Modify — add CSRF token helper |
+> | `server/utils/http.ts` | Modify — add `fetchCsrfToken()` method to existing `HttpClient` class |
+> | `server/api/auth/login.post.ts` | Modify — update `handleLogin()` to add rate limiting check before credential validation |
 
-Actions must be one of: **Create**, **Modify**, **Delete**. Each with a brief description of what changes.
+Actions must be one of: **Create**, **Modify**, **Delete**. Each with a brief description of what changes. Modify actions must name the specific function/method/section being touched.
 
-### Rule 10: Anti-stub header
+### Rule 11: Framework signatures for new files
+When a PRD creates a new file (route, component, utility, middleware), include the exact function signature matching the project's framework conventions. This prevents the implementer from guessing the wrong pattern.
+
+BAD: "Create a new API endpoint at `server/api/users/[id].get.ts`"
+GOOD: "Create `server/api/users/[id].get.ts` — a Nitro route handler with signature `export default defineEventHandler(async (event) => { ... })`. Extract `id` via `getRouterParam(event, 'id')`."
+
+BAD: "Create a composable for user state"
+GOOD: "Create `composables/useUser.ts` — a Vue composable with signature `export const useUser = () => { ... }` returning `{ user, isLoading, error }` as refs."
+
+Discover the correct signatures by exploring existing files of the same type in the codebase during planning.
+
+### Rule 12: Anti-stub header
 Every task PRD must start with:
 ```
 ## Implementation Rules
