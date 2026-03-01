@@ -21,6 +21,7 @@ If `$ARGUMENTS` contains a project slug, use it. Otherwise:
 1. Read `.powermode/projects/<slug>/status.json` for machine state
 2. Read ALL feature `README.md` files under `.powermode/projects/<slug>/features/*/README.md`
 3. Parse the "Status" column from each README's task table (look for `| Done |` or `| Pending |` etc.)
+4. Check if `.powermode/projects/<slug>/BLOCKED.md` exists — if so, read its contents
 
 ## Step 3: Cross-Reference for Drift
 
@@ -38,6 +39,8 @@ Show a summary like this:
 Project: <slug>
 Status: <status> | <done>/<total> tasks done (<percent>%)
 
+⛔ BLOCKED — missing prerequisites (see below)
+
 Features:
   <feature-name>          [DONE] <done>/<total> tasks
   <feature-name>          [----] <done>/<total> tasks  <- NEXT
@@ -46,6 +49,16 @@ Features:
 Next task: <NN-feature>/<task-slug>
 Run: /powermode .powermode/projects/<slug>/features/<NN-feature>/<task-slug>.md
 ```
+
+**If BLOCKED.md exists**, show the blocker banner at the top and append:
+
+```
+Blocker:
+  BLOCKED.md says: <summarize missing prerequisites>
+  Action: Implement the missing prerequisites first, then delete BLOCKED.md
+```
+
+The blocker banner replaces the "Next task" suggestion — you can't continue until the blocker is resolved.
 
 Status indicators:
 - `[DONE]` — all tasks done

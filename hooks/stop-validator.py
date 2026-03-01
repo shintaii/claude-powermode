@@ -207,7 +207,10 @@ def main():
     projects_missing_status = sorted(modified_project_dirs - status_json_updated)
     pending_verification = (state_dir / "pending-verification.json").exists()
 
-    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status or pending_verification:
+    # Check for BLOCKED.md in any project
+    blocked_files = sorted(state_dir.glob("projects/*/BLOCKED.md"))
+
+    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status or pending_verification or blocked_files:
         attempt = increment_attempt(state_dir, session_id)
 
         if attempt >= MAX_BLOCK_ATTEMPTS:
@@ -222,6 +225,9 @@ def main():
                 parts.append(f"{len(projects_missing_status)} project status.json not updated")
             if pending_verification:
                 parts.append("verification not run after implementation")
+            if blocked_files:
+                slugs = [f.parent.name for f in blocked_files]
+                parts.append(f"BLOCKED.md exists in: {', '.join(slugs)}")
             warning = (
                 "[STOP HOOK] Approved after "
                 + str(attempt)
@@ -274,6 +280,13 @@ def main():
                 action_parts.append(
                     "Run pm-verifier on the implementation, then /simplify: "
                     "Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
+                )
+            if blocked_files:
+                slugs = [f.parent.name for f in blocked_files]
+                issue_parts.append(f"BLOCKED.md in {', '.join(slugs)}")
+                action_parts.append(
+                    "Read BLOCKED.md to see missing prerequisites, "
+                    "implement them first, then delete BLOCKED.md"
                 )
 
             reason = (

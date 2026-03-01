@@ -60,10 +60,11 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 4. For each task — this is a STRICT sequence, do NOT skip steps:
    a. EXPLORE with pm-explorer (if needed)
    b. IMPLEMENT with pm-implementer → save the agentId
-   c. VERIFY with pm-verifier — MANDATORY, no exceptions
-   d. If FAIL → resume implementer via agentId → re-verify
-   e. Only after PASS → run /simplify to polish
-   f. Move to next task
+   c. CHECK for BLOCKED.md — if exists, resolve it (Phase 3.5) before continuing
+   d. VERIFY with pm-verifier — MANDATORY, no exceptions
+   e. If FAIL → resume implementer via agentId → re-verify
+   f. Only after PASS → run /simplify to polish
+   g. Move to next task
 ```
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
@@ -266,6 +267,33 @@ Subagent containment rules are enforced automatically via agent prompts and hook
 
 ---
 
+## Phase 3.5: BLOCKED.md Resolution
+
+After EVERY pm-implementer run, check if `.powermode/projects/<slug>/BLOCKED.md` exists. If it does, the implementer hit missing prerequisites and stopped.
+
+**Do NOT skip to verification. Do NOT start the next task. Resolve the blocker first.**
+
+### Resolution Flow
+
+1. **Read** BLOCKED.md — understand exactly what's missing
+2. **Assess** — use pm-explorer to check: does the missing piece exist elsewhere? Was it planned but not built yet? Is it in another feature's task list?
+3. **Present options** to the user via AskUserQuestion:
+   - **Build it now** — implement the prerequisite inline (quick, if it's small)
+   - **Create a task PRD** — if it's substantial, create a proper task PRD in the right feature folder, then implement it through the normal cycle
+   - **Reorder tasks** — if a later task was supposed to create this, swap execution order
+   - **User provides guidance** — they may know something you don't
+4. **Implement** the resolution (via pm-implementer, following the full cycle including verification)
+5. **Delete** BLOCKED.md
+6. **Retry** the original task that was blocked
+
+### Rules
+
+- The blocked task's BLOCKED.md is the source of truth — don't guess what's missing
+- If the prerequisite is in another feature, check if that feature has a task for it. If so, execute that task first.
+- If building the prerequisite creates new BLOCKED.md → you've hit a dependency chain. Resolve recursively, but stop after 3 levels deep and ask the user.
+
+---
+
 ## Phase 4: Verification (USE pm-verifier!)
 
 **NOTHING is "done" without running pm-verifier. NO EXCEPTIONS.**
@@ -359,6 +387,7 @@ Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], p
 | "How does X work?" | Explore, explain |
 | Multiple interpretations | Ask ONE question |
 | Fix keeps failing | Stop after 3, consult pm-oracle |
+| BLOCKED.md exists | Resolve prerequisite first (Phase 3.5) |
 | Task complete | Show verification evidence |
 | Complex project | Use `/pm-plan` command |
 | Parallel implementation (3+ tasks) | `/powermode` auto-detects team mode availability |
