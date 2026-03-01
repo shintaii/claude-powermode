@@ -177,14 +177,9 @@ When starting or completing a task PRD within a project:
    - Update the project-level `updated` timestamp
 2. Also update the feature README table status as before
 
-### Commit After Each Task PRD
+### Do NOT Commit
 
-After completing a task PRD (status set to `Done`, all changes verified):
-1. Stage all changed files related to this task
-2. Commit with message format: `<feature-slug>: <brief description of what was implemented>`
-   - Example: `auth-middleware: Add JWT validation and token refresh logic`
-   - Example: `user-profile: Implement avatar upload with S3 storage`
-3. Do NOT push — just commit locally
+The implementer does NOT commit. The orchestrator (powermode) commits after the full cycle completes: implement → verify → simplify → commit. This ensures simplify can still see and polish the changes.
 
 ## When to Stop and Ask
 

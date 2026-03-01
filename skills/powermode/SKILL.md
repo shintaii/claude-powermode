@@ -47,8 +47,11 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 1. EXPLORE with pm-explorer (parallel)
 2. IMPLEMENT with pm-implementer
 3. VERIFY with pm-verifier
-4. SIMPLIFY with /simplify (after PASS)
+4. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
+5. COMMIT — git add + git commit. The orchestrator commits, NOT the implementer.
 ```
+
+**You are NOT done after verification. Steps 4 and 5 are MANDATORY. Do NOT stop after verifier PASS.**
 
 ### For Complex Tasks (3+ steps)
 ```
@@ -63,9 +66,12 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    c. CHECK for BLOCKED.md — if exists, resolve it (Phase 3.5) before continuing
    d. VERIFY with pm-verifier — MANDATORY, no exceptions
    e. If FAIL → resume implementer via agentId → re-verify
-   f. Only after PASS → run /simplify to polish
-   g. Move to next task
+   f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
+   g. COMMIT — git add + git commit: `<feature-slug>: <description>`
+   h. Move to next task
 ```
+
+**Steps f and g are NOT optional. The task is incomplete until the commit exists.**
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
 without running pm-verifier first will be BLOCKED.
@@ -334,9 +340,9 @@ Task(resume="a1b2c3d", prompt="Failed verification: {verifier findings}")
 3. **CONSULT** pm-oracle for root cause analysis
 4. **ASK** user if still stuck
 
-### Post-Verification Polish
+## Phase 5: Simplify (MANDATORY after PASS — do NOT skip)
 
-After pm-verifier returns **PASS**, run the built-in `/simplify` skill:
+**After pm-verifier returns PASS, you MUST run simplify. This is NOT optional.**
 
 ```
 Skill(skill="simplify")
@@ -344,7 +350,23 @@ Skill(skill="simplify")
 
 This spawns 3 parallel review agents (code reuse, quality, efficiency) and applies fixes.
 Do NOT re-verify after simplify — it's a polish step, not a structural change.
-If `/simplify` makes changes, they'll be included in the next commit or amend the task commit.
+
+**If you skip this step, the workflow is incomplete.**
+
+---
+
+## Phase 6: Commit (MANDATORY — orchestrator responsibility)
+
+**After simplify completes, the orchestrator MUST commit. This is NOT optional.**
+
+```
+git add <changed files> && git commit -m "<feature-slug>: <description>"
+```
+
+The implementer does NOT commit — this ensures simplify can see and polish uncommitted changes.
+Do NOT push — just commit locally.
+
+**If you stop without committing, the work is lost on the next session. The task is NOT done until the commit exists.**
 
 ---
 
@@ -388,7 +410,7 @@ Task(subagent_type="powermode:pm-implementer", load_skills=["frontend-ui-ux"], p
 | Multiple interpretations | Ask ONE question |
 | Fix keeps failing | Stop after 3, consult pm-oracle |
 | BLOCKED.md exists | Resolve prerequisite first (Phase 3.5) |
-| Task complete | Show verification evidence |
+| Task complete | Verify → Simplify → Commit (all 3 mandatory) |
 | Complex project | Use `/pm-plan` command |
 | Parallel implementation (3+ tasks) | `/powermode` auto-detects team mode availability |
 
