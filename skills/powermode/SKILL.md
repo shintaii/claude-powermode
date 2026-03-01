@@ -363,10 +363,14 @@ Do NOT re-verify after simplify — it's a polish step, not a structural change.
 git add <changed files> && git commit -m "<feature-slug>: <description>"
 ```
 
-The implementer does NOT commit — this ensures simplify can see and polish uncommitted changes.
-Do NOT push — just commit locally.
+After committing, **delete the completion flag**:
+```
+rm .powermode/pending-completion.json
+```
 
-**If you stop without committing, the work is lost on the next session. The task is NOT done until the commit exists.**
+The stop hook will BLOCK exit until this flag is cleared. The implementer does NOT commit — this ensures simplify can see and polish uncommitted changes. Do NOT push — just commit locally.
+
+**If you stop without committing, the stop hook will block you. The task is NOT done until the commit exists and the flag is cleared.**
 
 ---
 
