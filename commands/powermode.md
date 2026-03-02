@@ -57,7 +57,8 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 1. Read the task PRD
 2. Implement via `pm-implementer` subagent
 3. Verify via `pm-verifier` subagent
-4. Done — stop and report result
+4. Run `Skill(skill="simplify")` — MANDATORY after PASS
+5. Done — stop and report result
 
 **Feature Scope** (feature directory):
 1. Read the feature README to get task list and dependency order
@@ -192,6 +193,24 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 ")
 ```
 
+### Handling Verification Results
+
+- **PASS** → Run `Skill(skill="simplify")`, then continue to next task (or stop if single-task scope).
+- **FAIL** → Pause and present blockers to user.
+- **PASS WITH NOTES** → Auto-fix cycle:
+  1. Resume the `pm-implementer` (using its `agentId`) with the verifier's notes as fix instructions:
+     ```
+     Task(resume="<implementer-agentId>", prompt="
+       The verifier found issues that need fixing. Address each one:
+
+       <paste verifier notes/findings here>
+
+       Fix these issues, then commit.
+     ")
+     ```
+  2. Re-verify once with `pm-verifier`.
+  3. After re-verify: accept the result regardless of verdict (PASS or PASS WITH NOTES). Do NOT loop again — a second round of notes means the remaining items are minor enough to ship.
+
 After verification, check the **scope** (Task/Feature/Project) to decide whether to continue or stop. Only auto-continue for Feature and Project scopes. Only pause if verification fails and needs user input.
 
 ---
@@ -281,6 +300,10 @@ After all tasks complete:
      and tests that validate mocked behavior. Any stub = BLOCKER.
    ")
    ```
+   Handle the verdict using the same rules as Path A:
+   - **PASS** → run `Skill(skill="simplify")`, then proceed to shutdown.
+   - **FAIL** → pause for user.
+   - **PASS WITH NOTES** → spawn a `pm-implementer` subagent with the notes as fix instructions, re-verify once, then accept.
 
 3. **Shutdown teammates**:
    ```

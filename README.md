@@ -220,7 +220,7 @@ These run automatically — you don't invoke them:
 - **PRD enforcement** blocks stop when referenced PRDs were not updated
 - **Verification enforcement** blocks new pm-implementer calls until pm-verifier has run
 - **Auto-commit** implementer commits after each task PRD completion (local only, no push)
-- **Post-verify polish** `/simplify` runs automatically after verification PASS (3 parallel review agents: code reuse, quality, efficiency)
+- **Post-verify polish** `/simplify` is called by the orchestrator after verification PASS (3 parallel review agents: code reuse, quality, efficiency)
 
 ---
 

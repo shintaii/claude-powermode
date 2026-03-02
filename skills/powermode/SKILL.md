@@ -48,10 +48,9 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 2. IMPLEMENT with pm-implementer
 3. VERIFY with pm-verifier
 4. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
-5. COMMIT — git add + git commit. The orchestrator commits, NOT the implementer.
 ```
 
-**You are NOT done after verification. Steps 4 and 5 are MANDATORY. Do NOT stop after verifier PASS.**
+**You are NOT done after verification. Step 4 is MANDATORY. Do NOT stop after verifier PASS.**
 
 ### For Complex Tasks (3+ steps)
 ```
@@ -67,11 +66,10 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    d. VERIFY with pm-verifier — MANDATORY, no exceptions
    e. If FAIL → resume implementer via agentId → re-verify
    f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
-   g. COMMIT — git add + git commit: `<feature-slug>: <description>`
-   h. Move to next task
+   g. Move to next task
 ```
 
-**Steps f and g are NOT optional. The task is incomplete until the commit exists.**
+**Step f is NOT optional. The task is incomplete until simplify has run.**
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
 without running pm-verifier first will be BLOCKED.
@@ -352,25 +350,6 @@ This spawns 3 parallel review agents (code reuse, quality, efficiency) and appli
 Do NOT re-verify after simplify — it's a polish step, not a structural change.
 
 **If you skip this step, the workflow is incomplete.**
-
----
-
-## Phase 6: Commit (MANDATORY — orchestrator responsibility)
-
-**After simplify completes, the orchestrator MUST commit. This is NOT optional.**
-
-```
-git add <changed files> && git commit -m "<feature-slug>: <description>"
-```
-
-After committing, **delete the completion flag**:
-```
-rm .powermode/pending-completion.json
-```
-
-The stop hook will BLOCK exit until this flag is cleared. The implementer does NOT commit — this ensures simplify can see and polish uncommitted changes. Do NOT push — just commit locally.
-
-**If you stop without committing, the stop hook will block you. The task is NOT done until the commit exists and the flag is cleared.**
 
 ---
 

@@ -177,9 +177,15 @@ When starting or completing a task PRD within a project:
    - Update the project-level `updated` timestamp
 2. Also update the feature README table status as before
 
-### Do NOT Commit
+### Commit After Implementation
 
-The implementer does NOT commit. The orchestrator (powermode) commits after the full cycle completes: implement → verify → simplify → commit. This ensures simplify can still see and polish the changes.
+After completing the implementation, commit your changes:
+
+```
+git add <changed files> && git commit -m "<feature-slug>: <description>"
+```
+
+Do NOT push — just commit locally.
 
 ## When to Stop and Ask
 

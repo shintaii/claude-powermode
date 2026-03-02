@@ -206,12 +206,11 @@ def main():
     folders_missing_readme = sorted(modified_prd_folders - modified_prd_readmes)
     projects_missing_status = sorted(modified_project_dirs - status_json_updated)
     pending_verification = (state_dir / "pending-verification.json").exists()
-    pending_completion = (state_dir / "pending-completion.json").exists()
 
     # Check for BLOCKED.md in any project
     blocked_files = sorted(state_dir.glob("projects/*/BLOCKED.md"))
 
-    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status or pending_verification or pending_completion or blocked_files:
+    if incomplete or missing_prd_updates or folders_missing_readme or projects_missing_status or pending_verification or blocked_files:
         attempt = increment_attempt(state_dir, session_id)
 
         if attempt >= MAX_BLOCK_ATTEMPTS:
@@ -226,8 +225,6 @@ def main():
                 parts.append(f"{len(projects_missing_status)} project status.json not updated")
             if pending_verification:
                 parts.append("verification not run after implementation")
-            if pending_completion:
-                parts.append("simplify + commit not run after verification")
             if blocked_files:
                 slugs = [f.parent.name for f in blocked_files]
                 parts.append(f"BLOCKED.md exists in: {', '.join(slugs)}")
@@ -283,12 +280,6 @@ def main():
                 action_parts.append(
                     "Run pm-verifier on the implementation, then /simplify: "
                     "Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
-                )
-            if pending_completion:
-                issue_parts.append("simplify + commit pending")
-                action_parts.append(
-                    "Run Skill(skill=\"simplify\"), then git add + git commit. "
-                    "Delete .powermode/pending-completion.json after committing"
                 )
             if blocked_files:
                 slugs = [f.parent.name for f in blocked_files]

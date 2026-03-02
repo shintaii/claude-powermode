@@ -23,7 +23,7 @@ def main():
         input_data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, IOError):
         # Safe default for both event types
-        print(json.dumps({"decision": "approve", "reason": "Parse error, allowing"}))
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStop", "additionalContext": "Parse error, allowing"}}))
         sys.exit(0)
 
     hook_event = input_data.get("hook_event_name", "")
@@ -76,33 +76,31 @@ def main():
         except (IOError, OSError):
             pass
 
-        # Signal that verification is needed — but NOT if we're in the
-        # post-verify phase (simplify may spawn an implementer for fixes).
-        # pending-completion.json means verifier already passed.
-        pending_completion = powermode_dir / "pending-completion.json"
-        if not pending_completion.exists():
-            pending_file = powermode_dir / "pending-verification.json"
-            try:
-                pending_file.write_text(json.dumps({
-                    "agent_id": agent_id,
-                    "awaiting_verifier": True,
-                }))
-            except (IOError, OSError):
-                pass
+        # Signal that verification is needed
+        pending_file = powermode_dir / "pending-verification.json"
+        try:
+            pending_file.write_text(json.dumps({
+                "agent_id": agent_id,
+                "awaiting_verifier": True,
+            }))
+        except (IOError, OSError):
+            pass
 
-            print(json.dumps({
-                "decision": "approve",
-                "reason": f"Implementer session cleaned up (agent_id={agent_id}). Verification pending.",
-            }))
-        else:
-            print(json.dumps({
-                "decision": "approve",
-                "reason": f"Implementer session cleaned up (agent_id={agent_id}). Post-verify phase — skipping re-verification.",
-            }))
+        print(json.dumps({
+            "hookSpecificOutput": {
+                "hookEventName": "SubagentStop",
+                "additionalContext": (
+                    "[POWER MODE] Implementer finished. "
+                    "You MUST now run pm-verifier before doing anything else. "
+                    "Do NOT verify manually — delegate to: "
+                    "Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
+                ),
+            }
+        }))
 
     else:
         # Unknown event - safe default
-        print(json.dumps({"decision": "approve", "reason": "Unknown event, allowing"}))
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStop", "additionalContext": "Unknown event, allowing"}}))
 
     sys.exit(0)
 

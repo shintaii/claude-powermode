@@ -3,7 +3,7 @@
 
 After pm-verifier completes:
 - Clears pending-verification (unblocks next implementer)
-- Sets pending-completion (enforces simplify + commit before session ends)
+- Injects reminder to run simplify via additionalContext
 
 Fires on: SubagentStop (powermode:pm-verifier)
 """
@@ -17,26 +17,28 @@ def main():
     try:
         input_data = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, IOError):
-        print(json.dumps({"decision": "approve", "reason": "Parse error, allowing"}))
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStop", "additionalContext": "Parse error, allowing"}}))
         sys.exit(0)
 
     cwd = input_data.get("cwd", ".")
     state_dir = Path(cwd) / ".powermode"
     pending_verification = state_dir / "pending-verification.json"
-    pending_completion = state_dir / "pending-completion.json"
 
     try:
         if pending_verification.exists():
             pending_verification.unlink()
-            # Set pending-completion to enforce simplify + commit
-            state_dir.mkdir(parents=True, exist_ok=True)
-            pending_completion.write_text(json.dumps({"awaiting": "simplify+commit"}))
     except (IOError, OSError):
         pass
 
     print(json.dumps({
-        "decision": "approve",
-        "reason": "Verification complete. Pending completion set (simplify + commit required).",
+        "hookSpecificOutput": {
+            "hookEventName": "SubagentStop",
+            "additionalContext": (
+                "[POWER MODE] Verification complete. "
+                "Run Skill(skill='simplify') now — this is MANDATORY after verification PASS. "
+                "Do NOT skip simplify."
+            ),
+        }
     }))
     sys.exit(0)
 
@@ -45,5 +47,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception:
-        print(json.dumps({"decision": "approve", "reason": "Error, allowing"}))
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "SubagentStop", "additionalContext": "Error, allowing"}}))
     sys.exit(0)
