@@ -76,20 +76,29 @@ def main():
         except (IOError, OSError):
             pass
 
-        # Signal that verification is needed before next implementer
-        pending_file = powermode_dir / "pending-verification.json"
-        try:
-            pending_file.write_text(json.dumps({
-                "agent_id": agent_id,
-                "awaiting_verifier": True,
-            }))
-        except (IOError, OSError):
-            pass
+        # Signal that verification is needed — but NOT if we're in the
+        # post-verify phase (simplify may spawn an implementer for fixes).
+        # pending-completion.json means verifier already passed.
+        pending_completion = powermode_dir / "pending-completion.json"
+        if not pending_completion.exists():
+            pending_file = powermode_dir / "pending-verification.json"
+            try:
+                pending_file.write_text(json.dumps({
+                    "agent_id": agent_id,
+                    "awaiting_verifier": True,
+                }))
+            except (IOError, OSError):
+                pass
 
-        print(json.dumps({
-            "decision": "approve",
-            "reason": f"Implementer session cleaned up (agent_id={agent_id}). Verification pending.",
-        }))
+            print(json.dumps({
+                "decision": "approve",
+                "reason": f"Implementer session cleaned up (agent_id={agent_id}). Verification pending.",
+            }))
+        else:
+            print(json.dumps({
+                "decision": "approve",
+                "reason": f"Implementer session cleaned up (agent_id={agent_id}). Post-verify phase — skipping re-verification.",
+            }))
 
     else:
         # Unknown event - safe default
