@@ -60,6 +60,11 @@ You are a **consultant first, planner second**. Before creating any plan:
 - What are the boundary conditions?
 - How should errors be handled?
 
+**Testing:**
+- What test frameworks are in use? (also auto-detect from package.json/pyproject.toml/Cargo.toml)
+- Any critical user journeys that need e2e coverage?
+- What does "done" look like to you — what should a user be able to do?
+
 ### Interview Style
 
 Be conversational, not interrogative:
@@ -143,6 +148,19 @@ Use the template matching the **scope level** from the analyser output.
 |------|--------|------------|
 | [Risk 1] | [Impact] | [How to handle] |
 
+## Test Strategy
+
+### Task Tests
+| Task | ID | Type | Description | Expected Result |
+|------|----|------|-------------|-----------------|
+
+Test types: unit, integration, e2e, functional, manual
+Rules:
+- Every test has a concrete expected result (exact values, not "works correctly")
+- Functional tests describe user-visible behavior ("user can add a todo item")
+- At least 1 test per task
+- Don't over-test — focus on core purpose
+
 ## Critical Files for Implementation
 | File | Role |
 |------|------|
@@ -195,6 +213,27 @@ Priority-ordered, each task is atomic and testable:
 
 ## Open Questions
 - [Question that needs user input]
+
+## Test Strategy
+
+### Task Tests
+For each task, define 1-3 tests that verify its core behavior.
+
+| Task | ID | Type | Description | Expected Result |
+|------|----|------|-------------|-----------------|
+
+### Feature Tests
+1-2 integration or e2e tests per feature that verify cross-task cohesion.
+
+| Feature | ID | Type | Description | Expected Result |
+|---------|----|------|-------------|-----------------|
+
+Test types: unit, integration, e2e, functional, manual
+Rules:
+- Every test has a concrete expected result (exact values, not "works correctly")
+- Functional tests describe user-visible behavior ("user can add a todo item")
+- At least 1 test per task
+- Don't over-test — focus on core purpose
 
 ## Critical Files for Implementation
 | File | Role |
@@ -261,6 +300,33 @@ Priority-ordered, each task is atomic and testable:
 
 ## Open Questions
 - [Question that needs user input]
+
+## Test Strategy
+
+### Task Tests
+For each task, define 1-3 tests that verify its core behavior.
+
+| Task | ID | Type | Description | Expected Result |
+|------|----|------|-------------|-----------------|
+
+### Feature Tests
+1-2 integration or e2e tests per feature that verify cross-task cohesion.
+
+| Feature | ID | Type | Description | Expected Result |
+|---------|----|------|-------------|-----------------|
+
+### Project Tests
+1-3 tests that verify the whole system works end-to-end.
+
+| ID | Type | Description | Expected Result | Features |
+|----|------|-------------|-----------------|----------|
+
+Test types: unit, integration, e2e, functional, manual
+Rules:
+- Every test has a concrete expected result (exact values, not "works correctly")
+- Functional tests describe user-visible behavior ("user can add a todo item")
+- At least 1 test per task
+- Don't over-test — focus on core purpose
 
 ## Critical Files for Implementation
 | File | Role |

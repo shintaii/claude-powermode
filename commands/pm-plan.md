@@ -215,6 +215,46 @@ Mark feature structures todo completed.
 
 Jump to **PRD WRITING** section below, targeting feature folders.
 
+#### Step 7: Review Tests with User
+
+TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+
+Mark todo as in_progress.
+
+Read all task PRDs just written. Extract every `## Tests` section.
+Also read feature READMEs for feature-level test ideas.
+Read project.md for project-level test ideas.
+
+Present a consolidated test summary to the user using AskUserQuestion:
+
+"Here are the tests I've defined for your project:
+
+**Task Tests** (verify individual work):
+[grouped by feature, show each task's tests from ## Tests sections]
+
+**Feature Tests** (verify feature works as a whole):
+[feature-level tests — suggest integration tests for cross-task behavior]
+
+**Project Tests** (verify everything works together):
+[project-level tests — suggest e2e tests for critical user journeys]"
+
+Options:
+- Approve tests as-is
+- I want to add/change tests (tell me which)
+- Add more functional/e2e tests
+- Simplify — fewer tests
+
+If user wants changes:
+1. Update the relevant PRD files (## Tests sections)
+2. Update feature READMEs (add/update ## Feature Tests section)
+3. Update project.md (add/update ## Project Tests section)
+
+If user adds feature-level or project-level tests, write them to:
+- Feature tests → feature README under `## Feature Tests` section
+- Project tests → project.md under `## Project Tests` section
+
+Mark todo completed.
+
 ---
 
 ### SCOPE: Feature (2-5 tasks, single domain)
@@ -263,6 +303,37 @@ Same as Project scope Step 3 but review as feature-level plan.
 
 Then create the feature folder and jump to **PRD WRITING** section.
 
+#### Step 5: Review Tests with User
+
+TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+
+Mark todo as in_progress.
+
+Read all task PRDs just written. Extract every `## Tests` section.
+Also read the feature README for feature-level test ideas.
+
+Present a consolidated test summary to the user using AskUserQuestion:
+
+"Here are the tests I've defined for this feature:
+
+**Task Tests** (verify individual work):
+[show each task's tests from ## Tests sections]
+
+**Feature Tests** (verify feature works as a whole):
+[feature-level tests — suggest integration tests for cross-task behavior]"
+
+Options:
+- Approve tests as-is
+- I want to add/change tests (tell me which)
+- Add more functional/e2e tests
+- Simplify — fewer tests
+
+If user wants changes:
+1. Update the relevant PRD files (## Tests sections)
+2. Update feature README (add/update ## Feature Tests section)
+
+Mark todo completed.
+
 ---
 
 ### SCOPE: Task (single PRD)
@@ -309,6 +380,30 @@ Same as Project scope Step 3 but review as task-level plan.
 - Write single task PRD
 
 Jump to **PRD WRITING** section.
+
+#### Step 5: Review Tests with User
+
+TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+
+Mark todo as in_progress.
+
+Read the task PRD just written. Extract the `## Tests` section.
+
+Present the tests to the user using AskUserQuestion:
+
+"Here are the tests I've defined for this task:
+
+**Tests:**
+[show the task's tests from ## Tests section]"
+
+Options:
+- Approve tests as-is
+- I want to add/change tests (tell me which)
+- Simplify — fewer tests
+
+If user wants changes, update the PRD's ## Tests section.
+
+Mark todo completed.
 
 ---
 
@@ -548,7 +643,7 @@ Task(subagent_type="general-purpose", prompt="
 
   APPROVED PLAN: [include plan]
 
-  Include: scope, requirements, acceptance criteria, test focus, dependencies
+  Include: scope, requirements, acceptance criteria, tests (structured ## Tests table), dependencies
 
   CRITICAL PRD RULES:
   - Start the PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
@@ -558,6 +653,12 @@ Task(subagent_type="general-purpose", prompt="
   - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
+  - Include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - Test IDs: T1, T2, T3... (task-scoped)
+  - Minimum 1 test per task PRD
+  - Include both technical tests (unit/integration) AND functional tests (user-visible behavior)
+  - Every test needs a concrete expected result with exact values
+  - Test types: unit, integration, e2e, functional, manual
 ", description="Write PRD")
 ```
 
@@ -572,7 +673,7 @@ Task(subagent_type="general-purpose", prompt="
   - 01-<title>.md: <scope>
   - 02-<title>.md: <scope>
 
-  Each PRD must include: scope, requirements, acceptance criteria, test focus, dependencies
+  Each PRD must include: scope, requirements, acceptance criteria, tests (structured ## Tests table), dependencies
 
   CRITICAL PRD RULES:
   - Start every PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
@@ -582,6 +683,12 @@ Task(subagent_type="general-purpose", prompt="
   - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
+  - Include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - Test IDs: T1, T2, T3... (task-scoped)
+  - Minimum 1 test per task PRD
+  - Include both technical tests (unit/integration) AND functional tests (user-visible behavior)
+  - Every test needs a concrete expected result with exact values
+  - Test types: unit, integration, e2e, functional, manual
 
   APPROVED PLAN: [include relevant sections]
 ", description="Write PRDs 01-02")

@@ -118,6 +118,21 @@ Scan every task description and PRD content for language that invites stubbing:
 - Default/fallback values without specifying where they're defined and how they're accessed (e.g., "default 30" without saying which config, constant, or DB column holds it)
 - Dependencies referenced by task number ("Depends on Task 01") instead of concrete codebase artifacts
 
+### 6. TEST COVERAGE - Are tests defined and meaningful?
+
+**Check:**
+- Does every task PRD have a `## Tests` section with a table?
+- Does every test have a concrete expected result (not "works correctly")?
+- Is there a mix of test types (not all unit, not all e2e)?
+- Do feature-level tests exist for Feature/Project scope plans?
+- Are functional tests present (user-visible behavior, not just technical)?
+
+**Red Flags:**
+- Missing `## Tests` section in any task PRD
+- Vague expected results: "works correctly", "returns data", "handles errors"
+- No functional tests — only technical unit tests
+- Feature with 3+ tasks but no integration/e2e test
+
 ## Review Output Format
 
 ```markdown

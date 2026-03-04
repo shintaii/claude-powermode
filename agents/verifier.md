@@ -103,6 +103,28 @@ Stubs check that functions are real. This step checks that they're **reachable**
 
 **Any unwired component = BLOCKER.** Code that can't be reached can't work.
 
+### 4d. Defined Test Verification
+
+If the task has a PRD with a `## Tests` section, verify each defined test:
+
+| Test Type | How to Verify |
+|-----------|---------------|
+| unit | Run the specific test file/case, check it passes |
+| integration | Run the integration test, check it passes |
+| e2e | Run the e2e test (Playwright/Cypress), check it passes |
+| functional | Trace the code path and verify the behavior works. If a test file exists, run it. |
+| manual | Flag as "NEEDS MANUAL VERIFICATION" — cannot automate |
+
+Verdicts per test:
+- Test FAILS → BLOCKER
+- Test NOT FOUND (test file doesn't exist yet) → MAJOR (implementer should have written it)
+- Test PASS → clear
+- Test is "manual" type → INFO (flag for user)
+
+Also check feature-level tests (from README `## Feature Tests`) when verifying
+the last task in a feature. Check project-level tests (from `project.md ## Project Tests`)
+when verifying the last feature in a project.
+
 ### 5. Pattern Verification
 - Confirm code follows existing patterns
 - Check naming conventions
@@ -190,6 +212,11 @@ Scan changed files for unnecessary AI-generated comments. Flag:
 |---|-------------|--------|----------|
 | 1 | [What could break] | CLEAR / FOUND | [How verified] |
 | 2 | [What could break] | CLEAR / FOUND | [How verified] |
+
+### Defined Tests
+| ID | Description | Type | Status | Evidence |
+|----|-------------|------|--------|----------|
+| T1 | [from PRD] | unit | PASS/FAIL/NOT FOUND | [test output or code trace] |
 
 ### Verdict
 **PASS** / **FAIL** / **PASS WITH NOTES**
