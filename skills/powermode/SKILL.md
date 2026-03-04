@@ -47,10 +47,10 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
 1. EXPLORE with pm-explorer (parallel)
 2. IMPLEMENT with pm-implementer
 3. VERIFY with pm-verifier
-4. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
+4. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after verification completes (any verdict). Do NOT skip.
 ```
 
-**You are NOT done after verification. Step 4 is MANDATORY. Do NOT stop after verifier PASS.**
+**You are NOT done after verification. Step 4 is MANDATORY. Do NOT stop after verification.**
 
 ### For Complex Tasks (3+ steps)
 ```
@@ -65,11 +65,11 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    c. CHECK for BLOCKED.md — if exists, resolve it (Phase 3.5) before continuing
    d. VERIFY with pm-verifier — MANDATORY, no exceptions
    e. If FAIL → resume implementer via agentId → re-verify
-   f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after PASS. Do NOT skip.
+   f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after verification completes. Do NOT skip.
    g. Move to next task
 ```
 
-**Step f is NOT optional. The task is incomplete until simplify has run.**
+**Step f is NOT optional. Run simplify after PASS, after PASS WITH NOTES fix cycle, and after FAIL fix cycle. The task is incomplete until simplify has run.**
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
 without running pm-verifier first will be BLOCKED.
@@ -338,9 +338,9 @@ Task(resume="a1b2c3d", prompt="Failed verification: {verifier findings}")
 3. **CONSULT** pm-oracle for root cause analysis
 4. **ASK** user if still stuck
 
-## Phase 5: Simplify (MANDATORY after PASS — do NOT skip)
+## Phase 5: Simplify (MANDATORY after verification — do NOT skip)
 
-**After pm-verifier returns PASS, you MUST run simplify. This is NOT optional.**
+**After verification completes (PASS, or after PASS WITH NOTES/FAIL fix cycles), you MUST run simplify. This is NOT optional.**
 
 ```
 Skill(skill="simplify")

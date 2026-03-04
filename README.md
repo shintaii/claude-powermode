@@ -113,7 +113,7 @@ a. EXPLORE with pm-explorer (if needed)
 b. IMPLEMENT with pm-implementer → auto-commits, returns agentId
 c. VERIFY with pm-verifier — MANDATORY, enforced by hook
 d. If FAIL → resume implementer via agentId → re-verify (max 3 attempts)
-e. After PASS → /simplify for code quality polish
+e. After verification → /simplify for code quality polish
 f. Move to next task
 ```
 
@@ -220,7 +220,7 @@ These run automatically — you don't invoke them:
 - **PRD enforcement** blocks stop when referenced PRDs were not updated
 - **Verification enforcement** blocks new pm-implementer calls until pm-verifier has run
 - **Auto-commit** implementer commits after each task PRD completion (local only, no push)
-- **Post-verify polish** `/simplify` is called by the orchestrator after verification PASS (3 parallel review agents: code reuse, quality, efficiency)
+- **Post-verify polish** `/simplify` is called by the orchestrator after verification completes — any verdict (PASS, or after PASS WITH NOTES/FAIL fix cycles). 3 parallel review agents: code reuse, quality, efficiency
 
 ---
 

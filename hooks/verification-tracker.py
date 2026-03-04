@@ -35,7 +35,7 @@ def main():
             "hookEventName": "SubagentStop",
             "additionalContext": (
                 "[POWER MODE] Verification complete. "
-                "Run Skill(skill='simplify') now — this is MANDATORY after verification PASS. "
+                "Run Skill(skill='simplify') now — this is MANDATORY after verification completes. "
                 "Do NOT skip simplify."
             ),
         }
