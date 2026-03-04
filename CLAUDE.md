@@ -93,6 +93,31 @@ plugin-dev:skill-reviewer    # Review specific implementations
 - **Decision/issue logging**: Implementer and verifier log decisions and issues to project files.
 - **Backward compatibility**: Old `.powermode/prds/` paths continue to work alongside new `/projects/` structure.
 
+## RALPH Loop (External Orchestrator)
+
+RALPH runs **outside** Claude Code — a bash loop that spawns fresh sessions per task, avoiding context window degradation on large projects.
+
+```bash
+# Setup
+ln -s <plugin-path>/scripts/ralph/ralph.sh /usr/local/bin/ralph
+
+# Plan: idea → project with PRDs
+ralph plan "Build a payment system" --slug payments
+
+# Implement: PRD-by-PRD in fresh sessions
+ralph implement payments
+
+# Verify: iterative verify + simplify
+ralph verify payments
+
+# Status: check progress
+ralph status payments
+```
+
+**Key design:** Scripts invoke existing commands (`/powermode`, `/pm-plan`) rather than reimplementing workflow logic. Each session gets `--dangerously-skip-permissions --no-session-persistence`. Resumability is free — loop reads `status.json` each iteration.
+
+**Files:** `scripts/ralph/` — see `scripts/ralph/README.md` for full docs.
+
 ## Plugin Development Skills
 
 Use these skills when modifying this plugin:
