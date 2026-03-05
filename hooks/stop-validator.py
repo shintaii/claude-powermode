@@ -163,9 +163,13 @@ def main():
                                 ):
                                     folder = os.path.dirname(normalized)
                                     basename = os.path.basename(normalized).lower()
+                                    is_feature_dir = "/features/" in norm_lower or "\\features\\" in norm_lower
                                     if basename == "readme.md":
                                         modified_prd_readmes.add(folder)
-                                    else:
+                                    elif is_feature_dir and tool_name in {"Edit", "ApplyPatch", "apply_patch"}:
+                                        # Only track Edit (modifying existing PRDs), not Write (creating new ones)
+                                        # During planning, PRDs are created with Write — no README check needed
+                                        # During implementation, PRD edits are rare but should trigger the check
                                         modified_prd_folders.add(folder)
 
                             # Track status.json updates for project dirs
