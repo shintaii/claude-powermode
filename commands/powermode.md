@@ -66,7 +66,8 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
    - Delegate to `pm-implementer` subagent (keeps main context clean)
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
-3. After 5 tasks OR last task in feature: **STOP and report progress**
+3. If all feature tasks are now done: run `pm-verifier` with the feature README's `## Feature Tests` section
+4. After 5 tasks OR last task in feature: **STOP and report progress**
    - Show: completed X of Y tasks, next pending task path
    - User decides whether to continue with another `/powermode` invocation
 
@@ -75,7 +76,8 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 2. For each feature with pending tasks, up to **5 tasks total across features**:
    - Work through pending tasks (same as Feature Scope above)
    - The 5-task limit is cumulative across features
-3. After 5 tasks OR last task in project: **STOP and report progress**
+3. If all project tasks are now done: run `pm-verifier` with `project.md`'s `## Project Tests` section
+4. After 5 tasks OR last task in project: **STOP and report progress**
    - Show: completed X of Y tasks across N features, next pending task path
    - User decides whether to continue with another `/powermode` invocation
 
@@ -164,6 +166,7 @@ Task(subagent_type="powermode:pm-implementer", prompt="
   Read and implement this task PRD: <path to single .md file>
 
   This is a standalone implementation task. Focus only on what this PRD asks for.
+  Implement and run all tests from the PRD's ## Tests section.
 
   CRITICAL: Every function must contain real, working logic.
   No stubs, no TODOs, no placeholders, no empty bodies.
@@ -186,7 +189,8 @@ After each implementation task, verify with `pm-verifier`:
 ```
 Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the implementation of <task PRD path>.
-  Read the PRD for requirements, then check: builds, tests pass, no regressions.
+  Read the PRD. Verify each test ID (T1, T2...) from the ## Tests table passes.
+  Check: builds, tests pass, no regressions.
 
   CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
   and tests that validate mocked behavior. Any stub = BLOCKER.
@@ -295,7 +299,8 @@ After all tasks complete:
    ```
    Task(subagent_type="powermode:pm-verifier", prompt="
      Verify the implementation of <task PRD path>.
-     Read the PRD for requirements, then check: builds, tests pass, no regressions.
+     Read the PRD. Verify each test ID (T1, T2...) from the ## Tests table passes.
+     Check: builds, tests pass, no regressions.
 
      CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
      and tests that validate mocked behavior. Any stub = BLOCKER.
