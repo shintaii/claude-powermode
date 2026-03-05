@@ -25,7 +25,7 @@ done
 parse_common_args "${TEMP_ARGS[@]}"
 
 if [[ ${#POSITIONAL_ARGS[@]} -lt 1 ]]; then
-    log_error "Usage: ralph verify <project-slug> [--scope task|feature|project] [--feature X] [--max-iters N]"
+    log_error "Usage: ralph verify <project-slug> [--scope feature|project] [--feature X] [--max-iters N]"
     exit 1
 fi
 
@@ -41,16 +41,24 @@ SESSION_START_TIME=$(date +%s)
 init_log "verify" "$slug"
 
 # ── Auto-detect scope ──────────────────────────────────────────────────────
+# Task-level verification is handled by powermode during implementation.
+# Ralph verify only runs at feature or project level (cross-cutting checks).
 if [[ -z "$SCOPE" ]]; then
-    done_count=$(count_done_tasks "$project_dir")
-    if [[ $done_count -le 3 ]]; then
-        SCOPE="task"
-    elif [[ $done_count -le 10 ]]; then
+    # Count features to decide
+    feature_count=0
+    for fd in "$project_dir"/features/*/; do
+        [[ -d "$fd" ]] && feature_count=$((feature_count + 1))
+    done
+    if [[ $feature_count -le 3 ]]; then
         SCOPE="feature"
     else
         SCOPE="project"
     fi
-    log_info "Auto-detected scope: $SCOPE ($done_count done tasks)"
+    log_info "Auto-detected scope: $SCOPE ($feature_count features)"
+elif [[ "$SCOPE" == "task" ]]; then
+    log_warn "Task-level verification is already done by powermode during implementation."
+    log_warn "Use --scope feature or --scope project for cross-cutting verification."
+    SCOPE="feature"
 fi
 
 IFS='|' read -r status total done _ _ <<< "$(read_project_status "$project_dir")"
@@ -65,25 +73,6 @@ echo ""
 UNITS=()
 
 case "$SCOPE" in
-    task)
-        for feature_dir in "$project_dir"/features/*/; do
-            [[ -d "$feature_dir" ]] || continue
-            feature_name=$(basename "$feature_dir")
-            if [[ -n "$FEATURE_FILTER" && "$feature_name" != *"$FEATURE_FILTER"* ]]; then
-                continue
-            fi
-            for task_file in "$feature_dir"/*.md; do
-                [[ -f "$task_file" ]] || continue
-                [[ "$(basename "$task_file")" == "README.md" ]] && continue
-                [[ "$(basename "$task_file")" == "NOTES.md" ]] && continue
-                task_base=$(basename "$task_file" .md)
-                # Only verify done tasks
-                if is_task_done "$project_dir" "$feature_name" "$task_base" 2>/dev/null; then
-                    UNITS+=("$feature_name/$task_base|$task_file|task")
-                fi
-            done
-        done
-        ;;
     feature)
         for feature_dir in "$project_dir"/features/*/; do
             [[ -d "$feature_dir" ]] || continue
@@ -126,7 +115,8 @@ for unit_entry in "${UNITS[@]}"; do
 
         # ── VERIFY session ──────────────────────────────────────────────
         prompt=$(build_verify_prompt "$unit_name" "$unit_path" "$unit_scope")
-        verify_flags=("--model" "$VERIFY_MODEL" "--max-turns" "25" "--max-budget-usd" "3.00")
+        system_context=$(build_system_context "$project_dir" "verify" "$unit_name")
+        verify_flags=("--model" "$VERIFY_MODEL" "--max-turns" "25" "--max-budget-usd" "3.00" "--append-system-prompt" "$system_context")
 
         if run_claude_session "$prompt" "${verify_flags[@]}"; then
             log_success "Verify pass $verify_iter ($(format_session_stats))"
@@ -168,7 +158,8 @@ else:
                 # ── FIX session ─────────────────────────────────────────
                 log_run "Fix session (model: $FIX_MODEL)"
                 fix_prompt=$(build_fix_prompt "$unit_name" "$last_verify_output")
-                fix_flags=("--model" "$FIX_MODEL" "--max-turns" "30" "--max-budget-usd" "5.00")
+                fix_context=$(build_system_context "$project_dir" "fix" "$unit_name")
+                fix_flags=("--model" "$FIX_MODEL" "--max-turns" "30" "--max-budget-usd" "5.00" "--append-system-prompt" "$fix_context")
 
                 if run_claude_session "$fix_prompt" "${fix_flags[@]}"; then
                     log_success "Fix applied ($(format_session_stats))"
@@ -190,7 +181,8 @@ else:
     # ── SIMPLIFY session ────────────────────────────────────────────────
     log_run "Simplify: $unit_name"
     simplify_prompt=$(build_simplify_prompt "$unit_name")
-    simplify_flags=("--model" "$VERIFY_MODEL" "--max-turns" "15" "--max-budget-usd" "2.00")
+    simplify_context=$(build_system_context "$project_dir" "simplify" "$unit_name")
+    simplify_flags=("--model" "$VERIFY_MODEL" "--max-turns" "15" "--max-budget-usd" "2.00" "--append-system-prompt" "$simplify_context")
 
     if run_claude_session "$simplify_prompt" "${simplify_flags[@]}"; then
         log_success "Simplify ($(format_session_stats))"
@@ -204,7 +196,8 @@ else:
     # ── FINAL VERIFY (regression check) ─────────────────────────────────
     log_run "Final verify (regression check): $unit_name"
     prompt=$(build_verify_prompt "$unit_name" "$unit_path" "$unit_scope")
-    final_flags=("--model" "$VERIFY_MODEL" "--max-turns" "20" "--max-budget-usd" "2.00")
+    final_context=$(build_system_context "$project_dir" "verify" "$unit_name")
+    final_flags=("--model" "$VERIFY_MODEL" "--max-turns" "20" "--max-budget-usd" "2.00" "--append-system-prompt" "$final_context")
 
     if run_claude_session "$prompt" "${final_flags[@]}"; then
         final_verdict=$(python3 -c "

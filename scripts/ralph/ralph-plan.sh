@@ -78,7 +78,8 @@ for prd_path in "${prd_files[@]}"; do
     log_run "Review $reviewed/${#prd_files[@]}: $prd_rel"
 
     prompt=$(build_prd_review_prompt "$project_dir" "$prd_path" "$GOAL")
-    review_flags=("--model" "$REVIEW_MODEL" "--max-turns" "15" "--max-budget-usd" "$BUDGET")
+    review_context=$(build_system_context "$project_dir" "plan" "$prd_rel")
+    review_flags=("--model" "$REVIEW_MODEL" "--max-turns" "15" "--max-budget-usd" "$BUDGET" "--append-system-prompt" "$review_context")
 
     if run_claude_session "$prompt" "${review_flags[@]}"; then
         log_success "$prd_rel ($(format_session_stats))"

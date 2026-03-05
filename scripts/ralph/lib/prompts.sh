@@ -1,6 +1,90 @@
 #!/usr/bin/env bash
 # lib/prompts.sh — Prompt templates for each RALPH session type
 
+# ── System prompt context injection ────────────────────────────────────────
+# Builds --append-system-prompt content with project state awareness
+
+build_system_context() {
+    local project_dir="$1"
+    local session_type="$2"  # plan|implement|verify|fix|simplify
+    local task_info="${3:-}"  # e.g., "01-cli-todo-core/02-core-module"
+
+    local context=""
+
+    # Project structure awareness
+    context+="You are running inside a RALPH automated session (type: $session_type)."$'\n'
+    context+="This is a non-interactive session — complete your work fully, then stop."$'\n'
+    context+="Do not use ToolSearch — the /powermode skill is already available."$'\n'
+    context+=""$'\n'
+
+    # Status.json location and update instructions
+    if [[ -f "$project_dir/status.json" ]]; then
+        context+="PROJECT STATE:"$'\n'
+        context+="- status.json: $project_dir/status.json"$'\n'
+        context+="- Project dir: $project_dir"$'\n'
+
+        # Include current status summary
+        local status_summary
+        status_summary=$(python3 -c "
+import json
+with open('$project_dir/status.json') as f:
+    data = json.load(f)
+features = data.get('features', {})
+for fk in sorted(features.keys()):
+    f = features[fk]
+    tasks = f.get('tasks', {})
+    done = sum(1 for v in tasks.values() if v == 'done')
+    total = len(tasks)
+    print(f'  {fk}: {done}/{total} done')
+    for tk in sorted(tasks.keys()):
+        print(f'    {tk}: {tasks[tk]}')
+" 2>/dev/null || echo "  (could not read)")
+        context+="$status_summary"$'\n'
+        context+=""$'\n'
+    fi
+
+    # Session-type specific instructions
+    case "$session_type" in
+        implement)
+            context+="VERIFICATION IS MANDATORY. The full cycle must complete:"$'\n'
+            context+="1. Implement the task (delegate to pm-implementer)"$'\n'
+            context+="2. Verify with pm-verifier — if FAIL or PASS WITH NOTES, fix and re-verify (max 3 attempts)"$'\n'
+            context+="3. Run /simplify after verification passes"$'\n'
+            context+="4. Update the task status to 'Done' in the feature README table"$'\n'
+            context+="5. Update status.json — set the task status to 'done' and increment tasks_done"$'\n'
+            context+="6. Commit all changes including status.json"$'\n'
+            context+="Do NOT mark a task as done if tests fail or verification fails."$'\n'
+            if [[ -n "$task_info" ]]; then
+                context+=""$'\n'
+                context+="You are implementing task: $task_info"$'\n'
+            fi
+            ;;
+        verify)
+            context+="Output your verdict as exactly one of: VERDICT: PASS / VERDICT: FAIL / VERDICT: PASS WITH NOTES"$'\n'
+            ;;
+        fix)
+            context+="Fix BLOCKER and MAJOR issues only. Run tests after fixing. Commit fixes."$'\n'
+            ;;
+    esac
+
+    # Include decisions.md if it exists
+    if [[ -f "$project_dir/decisions.md" ]]; then
+        context+=""$'\n'
+        context+="PRIOR DECISIONS (read $project_dir/decisions.md for full context):"$'\n'
+        # Include last 10 lines as preview
+        context+="$(tail -10 "$project_dir/decisions.md" 2>/dev/null)"$'\n'
+    fi
+
+    # Include issues.md if it exists
+    if [[ -f "$project_dir/issues.md" ]]; then
+        context+=""$'\n'
+        context+="KNOWN ISSUES (read $project_dir/issues.md for full context):"$'\n'
+        context+="$(tail -10 "$project_dir/issues.md" 2>/dev/null)"$'\n'
+    fi
+
+    echo "$context"
+}
+
 # ── Planning prompts ────────────────────────────────────────────────────────
 
 build_plan_prompt() {

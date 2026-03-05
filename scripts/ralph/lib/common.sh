@@ -42,6 +42,7 @@ log_run()     { echo -e "  ${CYAN}[RUN]${RESET}   $*"; }
 
 # ── Verbosity ───────────────────────────────────────────────────────────────
 RALPH_VERBOSE="${RALPH_VERBOSE:-0}"
+RALPH_LIVE="${RALPH_LIVE:-0}"
 
 # ── Cost tracking ───────────────────────────────────────────────────────────
 TOTAL_COST=0
@@ -116,12 +117,14 @@ run_claude_session() {
 import json, sys, time, os
 
 verbose = os.environ.get('RALPH_VERBOSE', '0') == '1'
+live = os.environ.get('RALPH_LIVE', '0') == '1'
 tool_count = 0
 result_data = {}
 start = time.time()
 in_tool = False
 current_tool = ''
 text_buffer = ''
+live_needs_newline = False  # track if live text needs a newline before next tool line
 DIM = '\033[2m'
 CYAN = '\033[0;36m'
 RESET = '\033[0m'
@@ -130,6 +133,13 @@ def timestamp():
     elapsed = int(time.time() - start)
     mins, secs = divmod(elapsed, 60)
     return f'{mins}m{secs:02d}s' if mins else f'{secs}s'
+
+def flush_live_newline():
+    global live_needs_newline
+    if live_needs_newline:
+        sys.stderr.write(f'{RESET}\n')
+        sys.stderr.flush()
+        live_needs_newline = False
 
 for line in sys.stdin:
     line = line.strip()
@@ -150,27 +160,42 @@ for line in sys.stdin:
         if inner_type == 'content_block_start':
             block = inner.get('content_block', {})
             if block.get('type') == 'tool_use':
-                # Flush any buffered text
+                # Flush any buffered text (verbose mode)
                 if verbose and text_buffer.strip():
                     for tl in text_buffer.strip().split('\n'):
                         print(f'          {DIM}{tl}{RESET}', file=sys.stderr)
                     text_buffer = ''
+                # End live text block if active
+                flush_live_newline()
                 current_tool = block.get('name', '?')
                 tool_count += 1
                 in_tool = True
                 print(f'\r          \u21b3 [{tool_count}] {current_tool} ({timestamp()}){\" \" * 20}', end='', flush=True, file=sys.stderr)
             elif block.get('type') == 'text':
                 in_tool = False
+                if live:
+                    # Start a new dimmed text block
+                    sys.stderr.write(f'\n          {DIM}')
+                    sys.stderr.flush()
 
         elif inner_type == 'content_block_delta':
             delta = inner.get('delta', {})
             if delta.get('type') == 'text_delta' and not in_tool:
-                if verbose:
-                    text_buffer += delta.get('text', '')
+                text = delta.get('text', '')
+                if live and text:
+                    # Stream text directly — indent newlines
+                    indented = text.replace('\n', f'\n          ')
+                    sys.stderr.write(indented)
+                    sys.stderr.flush()
+                    live_needs_newline = True
+                elif verbose:
+                    text_buffer += text
 
         elif inner_type == 'content_block_stop':
             if in_tool:
                 in_tool = False
+            elif live:
+                flush_live_newline()
 
         continue
 
@@ -182,6 +207,7 @@ for line in sys.stdin:
                 if not isinstance(block, dict):
                     continue
                 if block.get('type') == 'tool_use':
+                    flush_live_newline()
                     tool_name = block.get('name', '?')
                     tool_count += 1
                     print(f'\r          \u21b3 [{tool_count}] {tool_name} ({timestamp()}){\" \" * 20}', end='', flush=True, file=sys.stderr)
@@ -189,7 +215,6 @@ for line in sys.stdin:
                     if verbose:
                         inp = block.get('input', {})
                         if isinstance(inp, dict):
-                            # Show key details based on tool type
                             if tool_name in ('Read', 'Glob', 'Grep'):
                                 path = inp.get('file_path', inp.get('pattern', inp.get('path', '')))
                                 if path:
@@ -204,7 +229,7 @@ for line in sys.stdin:
                                     short = cmd[:80] + ('...' if len(cmd) > 80 else '')
                                     print(f'\n          {DIM}  $ {short}{RESET}', end='', flush=True, file=sys.stderr)
                 elif block.get('type') == 'text':
-                    if verbose:
+                    if verbose and not live:
                         text = block.get('text', '')
                         if text.strip():
                             for tl in text.strip().split('\n')[:5]:
@@ -215,8 +240,9 @@ for line in sys.stdin:
     # Capture the last event as result
     result_data = event
 
-# Flush remaining text
-if verbose and text_buffer.strip():
+# Flush remaining
+flush_live_newline()
+if verbose and not live and text_buffer.strip():
     for tl in text_buffer.strip().split('\n'):
         print(f'          {DIM}{tl}{RESET}', file=sys.stderr)
 
@@ -441,6 +467,7 @@ parse_common_args() {
             --budget)   RALPH_BUDGET="$2"; shift 2 ;;
             --max-iters) RALPH_MAX_ITERS="$2"; shift 2 ;;
             --verbose|-v) RALPH_VERBOSE=1; export RALPH_VERBOSE; shift ;;
+            --live|-l) RALPH_LIVE=1; export RALPH_LIVE; shift ;;
             *)          POSITIONAL_ARGS+=("$1"); shift ;;
         esac
     done

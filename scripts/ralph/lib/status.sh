@@ -176,6 +176,67 @@ print(count)
 "
 }
 
+# ── Sync README status → status.json ───────────────────────────────────────
+# Reads the feature README table and updates status.json for any tasks
+# marked "Done" in README but not in status.json (drift repair)
+sync_readme_to_status() {
+    local project_dir="$1"
+    local feature="$2"
+    local feature_dir="$project_dir/features/$feature"
+    local readme="$feature_dir/README.md"
+    local status_file="$project_dir/status.json"
+
+    [[ -f "$readme" ]] || return 1
+    [[ -f "$status_file" ]] || return 1
+
+    python3 -c "
+import json, re
+
+with open('$readme') as f:
+    content = f.read()
+
+with open('$status_file') as f:
+    data = json.load(f)
+
+feat = data.get('features', {}).get('$feature', {})
+tasks = feat.get('tasks', {})
+
+changed = False
+for line in content.split('\n'):
+    line = line.strip()
+    if not line.startswith('|'):
+        continue
+    cells = [c.strip() for c in line.split('|')[1:-1]]
+    if len(cells) < 6:
+        continue
+    try:
+        num = int(cells[0])
+    except ValueError:
+        continue
+
+    file_name = cells[1].strip()
+    readme_status = cells[5].strip().lower()
+    # Derive task key from file name (e.g., '01-project-setup.md' → '01-project-setup')
+    task_key = file_name.replace('.md', '')
+
+    if readme_status == 'done' and tasks.get(task_key) != 'done':
+        tasks[task_key] = 'done'
+        changed = True
+
+if changed:
+    # Update counts
+    done_count = sum(1 for v in tasks.values() if v == 'done')
+    feat['tasks_done'] = done_count
+    feat['tasks'] = tasks
+    data['features']['$feature'] = feat
+    with open('$status_file', 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f'synced')
+else:
+    print('ok')
+"
+}
+
 # ── Check if specific task is done ──────────────────────────────────────────
 is_task_done() {
     local project_dir="$1"

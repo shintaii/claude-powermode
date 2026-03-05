@@ -119,7 +119,8 @@ with open('$feature_dir/README.md') as f:
     log_run "Iteration $iteration: $local_next_feat/$local_next_task ($(format_duration $elapsed) elapsed)"
 
     prompt=$(build_implement_prompt "$local_task_prd")
-    impl_flags=("--model" "$MODEL" "--max-turns" "50" "--max-budget-usd" "$BUDGET")
+    system_context=$(build_system_context "$project_dir" "implement" "$local_next_feat/$local_next_task")
+    impl_flags=("--model" "$MODEL" "--max-turns" "50" "--max-budget-usd" "$BUDGET" "--append-system-prompt" "$system_context")
 
     if run_claude_session "$prompt" "${impl_flags[@]}"; then
         log_success "$local_next_feat/$local_next_task ($(format_session_stats))"
@@ -141,7 +142,15 @@ with open('$feature_dir/README.md') as f:
         IFS='|' read -r _ _ updated_done _ _ <<< "$(read_project_status "$project_dir")"
         log_success "Task marked done ($updated_done/$total total)"
     else
-        log_warn "Task not marked done in status.json — may need manual check"
+        # Drift repair: README may say Done but status.json wasn't updated
+        sync_result=$(sync_readme_to_status "$project_dir" "$local_next_feat" 2>/dev/null || echo "error")
+        if [[ "$sync_result" == "synced" ]] && is_task_done "$project_dir" "$local_next_feat" "$task_base"; then
+            tasks_done=$((tasks_done + 1))
+            IFS='|' read -r _ _ updated_done _ _ <<< "$(read_project_status "$project_dir")"
+            log_success "Task done (synced from README) ($updated_done/$total total)"
+        else
+            log_warn "Task not marked done — may need manual check"
+        fi
     fi
 
     # Check if blockers appeared during implementation
