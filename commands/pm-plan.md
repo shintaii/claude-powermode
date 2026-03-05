@@ -60,6 +60,33 @@ Task(subagent_type="powermode:pm-analyser", prompt="
 
 Mark Analyser todo completed. If blocking questions found, ask the user first.
 
+### Step 1.5: Define Success Criteria
+
+Before creating tasks, ask the user to define what success looks like. This drives test generation and keeps the plan grounded in real outcomes.
+
+Using AskUserQuestion, present the analyser's scope and feature/task breakdown, then ask:
+
+"Before we plan the tasks, let's define what success looks like.
+
+**Scope detected:** [Project / Feature / Task]
+**Key pieces:** [list features or task areas from analyser output]
+
+For each piece, what are the expected inputs and outputs?
+- What data/action goes in?
+- What result, state change, or behavior comes out?
+- Any edge cases that must work?
+
+You can answer per-piece, or describe overall outcomes — I'll use this to define tests before writing the PRDs."
+
+**Options:**
+- The plan captures it — proceed with AI-derived tests
+- Let me define outcomes (free text)
+- Skip — add tests after
+
+Store the user's response as **SUCCESS_CRITERIA** and pass it into the Powerplanner prompt below.
+
+If user chooses "Skip", SUCCESS_CRITERIA = "(none — derive from plan)".
+
 **Now create remaining todos based on the scope level from Analyser output:**
 
 ---
@@ -87,9 +114,13 @@ Task(subagent_type="powermode:pm-powerplanner", prompt="
   ANALYSER OUTPUT:
   [Include full analyser output including scope classification and feature list]
 
+  SUCCESS CRITERIA (user-defined inputs/outputs):
+  [Include SUCCESS_CRITERIA from Step 1.5]
+
   Use the Project-Level Plan template.
   Decompose into features, each with task PRDs.
   Define cross-feature dependencies and implementation order.
+  Use the SUCCESS CRITERIA to write concrete test assertions in each task PRD's ## Tests section.
   Interview the user if requirements are unclear.
   Explore the codebase to understand constraints.
 ")
@@ -215,19 +246,17 @@ Mark feature structures todo completed.
 
 Jump to **PRD WRITING** section below, targeting feature folders.
 
-#### Step 7: Review Tests with User
+#### Step 7: Confirm Tests with User
 
-TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+TaskCreate: subject="Confirm tests with user", description="Test confirmation", activeForm="Confirming tests"
 
 Mark todo as in_progress.
 
 Read all task PRDs just written. Extract every `## Tests` section.
-Also read feature READMEs for feature-level test ideas.
-Read project.md for project-level test ideas.
 
 Present a consolidated test summary to the user using AskUserQuestion:
 
-"Here are the tests I've defined for your project:
+"Here are the tests defined for your project (informed by your success criteria):
 
 **Task Tests** (verify individual work):
 [grouped by feature, show each task's tests from ## Tests sections]
@@ -236,22 +265,20 @@ Present a consolidated test summary to the user using AskUserQuestion:
 [feature-level tests — suggest integration tests for cross-task behavior]
 
 **Project Tests** (verify everything works together):
-[project-level tests — suggest e2e tests for critical user journeys]"
+[project-level tests — suggest e2e tests for critical user journeys]
+
+Test stubs have been scaffolded to: [list test file paths]"
 
 Options:
-- Approve tests as-is
+- Looks good — ready to implement
 - I want to add/change tests (tell me which)
-- Add more functional/e2e tests
 - Simplify — fewer tests
 
 If user wants changes:
 1. Update the relevant PRD files (## Tests sections)
 2. Update feature READMEs (add/update ## Feature Tests section)
 3. Update project.md (add/update ## Project Tests section)
-
-If user adds feature-level or project-level tests, write them to:
-- Feature tests → feature README under `## Feature Tests` section
-- Project tests → project.md under `## Project Tests` section
+4. Update scaffolded test stub files to match
 
 Mark todo completed.
 
@@ -280,8 +307,12 @@ Task(subagent_type="powermode:pm-powerplanner", prompt="
   ANALYSER OUTPUT:
   [Include full analyser output]
 
+  SUCCESS CRITERIA (user-defined inputs/outputs):
+  [Include SUCCESS_CRITERIA from Step 1.5]
+
   Use the Feature-Level Plan template.
   Define task PRDs with dependency order.
+  Use the SUCCESS CRITERIA to write concrete test assertions in each task PRD's ## Tests section.
   Interview the user if requirements are unclear.
   Explore the codebase to understand constraints.
 ")
@@ -303,34 +334,35 @@ Same as Project scope Step 3 but review as feature-level plan.
 
 Then create the feature folder and jump to **PRD WRITING** section.
 
-#### Step 5: Review Tests with User
+#### Step 5: Confirm Tests with User
 
-TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+TaskCreate: subject="Confirm tests with user", description="Test confirmation", activeForm="Confirming tests"
 
 Mark todo as in_progress.
 
 Read all task PRDs just written. Extract every `## Tests` section.
-Also read the feature README for feature-level test ideas.
 
 Present a consolidated test summary to the user using AskUserQuestion:
 
-"Here are the tests I've defined for this feature:
+"Here are the tests defined for this feature (informed by your success criteria):
 
 **Task Tests** (verify individual work):
 [show each task's tests from ## Tests sections]
 
 **Feature Tests** (verify feature works as a whole):
-[feature-level tests — suggest integration tests for cross-task behavior]"
+[feature-level tests — suggest integration tests for cross-task behavior]
+
+Test stubs have been scaffolded to: [list test file paths]"
 
 Options:
-- Approve tests as-is
+- Looks good — ready to implement
 - I want to add/change tests (tell me which)
-- Add more functional/e2e tests
 - Simplify — fewer tests
 
 If user wants changes:
 1. Update the relevant PRD files (## Tests sections)
 2. Update feature README (add/update ## Feature Tests section)
+3. Update scaffolded test stub files to match
 
 Mark todo completed.
 
@@ -357,8 +389,12 @@ Task(subagent_type="powermode:pm-powerplanner", prompt="
   ANALYSER OUTPUT:
   [Include full analyser output]
 
+  SUCCESS CRITERIA (user-defined inputs/outputs):
+  [Include SUCCESS_CRITERIA from Step 1.5]
+
   Use the Task-Level Plan template.
   This is a single-responsibility task.
+  Use the SUCCESS CRITERIA to write concrete test assertions in the ## Tests section.
   Interview the user if requirements are unclear.
   Explore the codebase to understand constraints.
 ")
@@ -381,9 +417,9 @@ Same as Project scope Step 3 but review as task-level plan.
 
 Jump to **PRD WRITING** section.
 
-#### Step 5: Review Tests with User
+#### Step 5: Confirm Tests with User
 
-TaskCreate: subject="Review tests with user", description="Interactive test review", activeForm="Reviewing tests"
+TaskCreate: subject="Confirm tests with user", description="Test confirmation", activeForm="Confirming tests"
 
 Mark todo as in_progress.
 
@@ -391,17 +427,21 @@ Read the task PRD just written. Extract the `## Tests` section.
 
 Present the tests to the user using AskUserQuestion:
 
-"Here are the tests I've defined for this task:
+"Here are the tests defined for this task (informed by your success criteria):
 
 **Tests:**
-[show the task's tests from ## Tests section]"
+[show the task's tests from ## Tests section]
+
+Test stubs have been scaffolded to: [list test file paths]"
 
 Options:
-- Approve tests as-is
+- Looks good — ready to implement
 - I want to add/change tests (tell me which)
 - Simplify — fewer tests
 
-If user wants changes, update the PRD's ## Tests section.
+If user wants changes:
+1. Update the PRD's ## Tests section
+2. Update scaffolded test stub files to match
 
 Mark todo completed.
 
@@ -716,10 +756,44 @@ Mark PRD writing todo completed.
 
 **Update index.json** project entry status to "ready".
 
+### Scaffold Test Files
+
+Delegate test scaffolding to a sub-agent:
+
+```
+Task(subagent_type="general-purpose", prompt="
+  Scaffold failing test stubs for the PRDs just written.
+
+  STEP 1: Detect test framework
+  Check these files (read whichever exist):
+  - package.json → look for jest, vitest, mocha in devDependencies/scripts
+  - requirements.txt or pyproject.toml → look for pytest
+  - go.mod → Go standard testing
+  - pom.xml or build.gradle → JUnit
+  If no framework detected, skip scaffolding and report 'no framework detected'.
+
+  STEP 2: Read PRD tests
+  Read all ## Tests sections from these PRDs:
+  [list all PRD file paths just written]
+
+  STEP 3: Generate stub files
+  For each PRD, create ONE test stub file:
+  - File name mirrors the PRD: 01-<task>.test.js / test_01_<task>.py / etc.
+  - Location: test directory used by the project (check existing test files for conventions)
+  - Each test in the PRD's ## Tests table → one failing stub (no implementation — assert false or skip body)
+  - Use the Test ID (T1, T2...) as the test name
+  - Include the expected result from the PRD as a comment above each stub
+  - Import/reference the module being tested (path TBD — note it as TODO in the file)
+
+  Report: which test files were created, which framework was used, or why scaffolding was skipped.
+", description="Scaffold test stubs")
+```
+
 Present:
 1. List all created PRD files with paths
-2. Show the project structure tree
-3. Explain the split rationale (if split)
-4. Suggest next command:
+2. List scaffolded test files (or note if skipped)
+3. Show the project structure tree
+4. Explain the split rationale (if split)
+5. Suggest next command:
    - `/powermode @.powermode/projects/<project-slug>/features/<NN-feature-slug>/README.md` to implement a feature
    - `/powermode @.powermode/projects/<project-slug>/project.md` to implement the full project (auto-detects team mode if available)
