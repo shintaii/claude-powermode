@@ -83,7 +83,7 @@ while [[ $iteration -lt $MAX_ITERS ]]; do
             continue
         fi
 
-        pending=$(get_pending_tasks_ordered "$feature_dir")
+        pending=$(get_pending_tasks_ordered "$feature_dir" || true)
         while IFS= read -r task_file; do
             [[ -z "$task_file" ]] && continue
 

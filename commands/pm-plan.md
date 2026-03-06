@@ -156,7 +156,7 @@ Mark Planreviewer todo completed when OKAY.
 
 Mark scaffold todo as in_progress.
 
-Determine project slug (from analyser suggestion or plan). If adding to existing project, skip scaffold creation.
+Determine project slug (from analyser suggestion or plan). If re-planning an existing project, preserve `decisions.md` and `issues.md` but update `project.md` and reset `status.json` features to match the new plan. If adding a feature to an existing project, skip scaffold creation.
 
 **Create `.powermode/projects/<project-slug>/` with:**
 
@@ -205,6 +205,30 @@ Mark scaffold todo completed.
 #### Step 5: Create Feature Structures
 
 Mark feature structures todo as in_progress.
+
+**Clean up stale feature directories (re-plan scenario):**
+
+If `.powermode/projects/<project-slug>/features/` already exists and contains directories:
+
+1. List existing feature directories
+2. Compare against the new plan's feature list
+3. Identify **orphaned directories** — directories that don't match any feature in the new plan
+4. If orphans found, present them to the user using AskUserQuestion:
+
+"Found existing feature directories that aren't in the new plan:
+- `04-webhooks/` (not in new plan)
+- `05-simulation/` (not in new plan)
+
+These appear to be leftovers from a previous plan."
+
+Options:
+- Delete orphaned directories (recommended)
+- Keep them (I'll clean up manually)
+- Let me review each one
+
+If deleting, remove the orphaned directories AND their entries from `status.json`.
+
+**Also clean up stale entries in `status.json`:** Remove any feature keys from `status.json` that reference directories no longer present (or no longer in the plan).
 
 For each feature in the plan, create:
 - `.powermode/projects/<project-slug>/features/<NN-feature-slug>/README.md`
