@@ -453,12 +453,13 @@ You have a source document (spec, issue, RFC, etc.) to transform into implementa
 
 ### Create Workflow Todos
 
-**YOU MUST create these 4 todos NOW using TaskCreate:**
+**YOU MUST create these 5 todos NOW using TaskCreate:**
 
 1. TaskCreate: subject="Research codebase", description="Explore codebase for context", activeForm="Researching codebase"
 2. TaskCreate: subject="Analyse document", description="Analyse doc for PRD splitting + scope classification", activeForm="Analysing document"
-3. TaskCreate: subject="Plan PRD split", description="Determine split strategy", activeForm="Planning PRD split"
-4. TaskCreate: subject="Write PRD files", description="Write PRDs from document", activeForm="Writing PRDs"
+3. TaskCreate: subject="Define success criteria", description="Capture expected inputs/outputs from user before planning", activeForm="Defining success criteria"
+4. TaskCreate: subject="Plan PRD split", description="Determine split strategy", activeForm="Planning PRD split"
+5. TaskCreate: subject="Write PRD files", description="Write PRDs from document", activeForm="Writing PRDs"
 
 ### Step 1: Research
 
@@ -514,6 +515,35 @@ Task(subagent_type="powermode:pm-analyser", prompt="
 
 Mark analyse todo completed.
 
+### Step 2.5: Define Success Criteria
+
+Mark success criteria todo as in_progress.
+
+Using AskUserQuestion, present the analyser's scope and feature/task breakdown, then ask:
+
+"Before we plan the tasks, let's define what success looks like.
+
+**Scope detected:** [Project / Feature / Task]
+**Key pieces:** [list features or task areas from analyser output]
+
+For each piece, what are the expected inputs and outputs?
+- What data/action goes in?
+- What result, state change, or behavior comes out?
+- Any edge cases that must work?
+
+You can answer per-piece, or describe overall outcomes — I'll use this to define tests before writing the PRDs."
+
+**Options:**
+- The doc captures it — proceed with AI-derived tests
+- Let me define outcomes (free text)
+- Skip — add tests after
+
+Store the user's response as **SUCCESS_CRITERIA** and pass it into the Powerplanner prompt below.
+
+If user chooses "The doc captures it" or "Skip", SUCCESS_CRITERIA = "(none — derive from document)".
+
+Mark success criteria todo completed.
+
 ### Step 3: Plan Split & Review
 
 Mark plan todo as in_progress. Plan the split using the scope-appropriate template:
@@ -522,7 +552,9 @@ Mark plan todo as in_progress. Plan the split using the scope-appropriate templa
 Task(subagent_type="powermode:pm-powerplanner", prompt="
   Create a PRD split strategy:
   ANALYSER OUTPUT: [analyser findings including scope level]
+  SUCCESS CRITERIA (user-defined inputs/outputs): [Include SUCCESS_CRITERIA from Step 2.5]
   Determine: scope level, features (if project), task PRDs per feature, dependency order
+  Use the SUCCESS CRITERIA to write concrete test assertions in each task PRD's ## Tests section.
   Use the appropriate plan template for the scope level.
 ")
 ```
