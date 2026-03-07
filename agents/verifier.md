@@ -53,10 +53,11 @@ Write this list BEFORE running diagnostics. Then use it as your verification tar
 - Check for compilation errors
 - Verify no new warnings introduced
 
-### 3. Test Verification
-- Run relevant tests
-- Check for failures or regressions
-- Note any skipped tests
+### 3. Test Verification (sanity check)
+- Run relevant tests ONCE as an independent sanity check
+- If tests pass: move on (implementer already confirmed this)
+- If tests fail: this is a BLOCKER — implementer claimed green but tests are red
+- Do NOT spend time analyzing test coverage or writing new tests — that's pm-test-writer's job
 
 ### 4. Requirement Verification
 - Compare implementation to requirements
@@ -105,21 +106,16 @@ Stubs check that functions are real. This step checks that they're **reachable**
 
 ### 4d. Defined Test Verification
 
-If the task has a PRD with a `## Tests` section, verify each defined test:
+If the task has a PRD with a `## Tests` section, verify each defined test exists and passes:
 
-| Test Type | How to Verify |
-|-----------|---------------|
-| unit | Run the specific test file/case, check it passes |
-| integration | Run the integration test, check it passes |
-| e2e | Run the e2e test (Playwright/Cypress), check it passes |
-| functional | Trace the code path and verify the behavior works. If a test file exists, run it. |
-| manual | Flag as "NEEDS MANUAL VERIFICATION" — cannot automate |
+| Verdict | Meaning |
+|---------|---------|
+| Test PASSES → clear | pm-test-writer wrote it, implementer made it green |
+| Test FAILS → BLOCKER | Implementer didn't make this test pass |
+| Test NOT FOUND → BLOCKER | pm-test-writer should have created it — flag as gap |
+| Test is "manual" type → INFO | Flag for user, cannot automate |
 
-Verdicts per test:
-- Test FAILS → BLOCKER
-- Test NOT FOUND (test file doesn't exist yet) → MAJOR (implementer should have written it)
-- Test PASS → clear
-- Test is "manual" type → INFO (flag for user)
+Do NOT re-run every test individually if the test suite already passed in step 3. Just verify the test files exist and map to PRD Test IDs.
 
 Also check feature-level tests (from README `## Feature Tests`) when verifying
 the last task in a feature. Check project-level tests (from `project.md ## Project Tests`)

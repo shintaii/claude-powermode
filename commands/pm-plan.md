@@ -812,13 +812,17 @@ Mark PRD writing todo completed.
 
 **Update index.json** project entry status to "ready".
 
-### Scaffold Test Files
+### Scaffold Test Files (Optional Stubs)
+
+**Note:** Real test files are written by `pm-test-writer` at implementation time, not during planning.
+This step creates minimal stubs so the user can preview test structure. They will be overwritten by `pm-test-writer`.
 
 Delegate test scaffolding to a sub-agent:
 
 ```
 Task(subagent_type="general-purpose", prompt="
-  Scaffold failing test stubs for the PRDs just written.
+  Scaffold minimal test stubs for the PRDs just written.
+  These are PLACEHOLDERS — pm-test-writer will write real tests before implementation.
 
   STEP 1: Detect test framework
   Check these files (read whichever exist):
@@ -836,10 +840,8 @@ Task(subagent_type="general-purpose", prompt="
   For each PRD, create ONE test stub file:
   - File name mirrors the PRD: 01-<task>.test.js / test_01_<task>.py / etc.
   - Location: test directory used by the project (check existing test files for conventions)
-  - Each test in the PRD's ## Tests table → one failing stub (no implementation — assert false or skip body)
+  - Each test in the PRD's ## Tests table → one stub with test name and TODO comment
   - Use the Test ID (T1, T2...) as the test name
-  - Include the expected result from the PRD as a comment above each stub
-  - Import/reference the module being tested (path TBD — note it as TODO in the file)
 
   Report: which test files were created, which framework was used, or why scaffolding was skipped.
 ", description="Scaffold test stubs")

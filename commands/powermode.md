@@ -55,15 +55,17 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 
 **Task Scope** (single `.md` file):
 1. Read the task PRD
-2. Implement via `pm-implementer` subagent
-3. Verify via `pm-verifier` subagent
-4. Run `Skill(skill="simplify")` — MANDATORY after verification completes
-5. Done — stop and report result
+2. Write failing tests via `pm-test-writer` subagent
+3. Implement via `pm-implementer` subagent (makes tests pass)
+4. Verify via `pm-verifier` subagent
+5. Run `Skill(skill="simplify")` — MANDATORY after verification completes
+6. Done — stop and report result
 
 **Feature Scope** (feature directory):
 1. Read the feature README to get task list and dependency order
 2. For each pending task in the feature (in order), up to **5 tasks max per session**:
-   - Delegate to `pm-implementer` subagent (keeps main context clean)
+   - Write failing tests via `pm-test-writer` subagent
+   - Implement via `pm-implementer` subagent (makes tests pass)
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
 3. If all feature tasks are now done: run `pm-verifier` with the feature README's `## Feature Tests` section
@@ -110,12 +112,13 @@ For project scope with 3+ independent tasks across features, consider team mode 
 | `pm-powerplanner` | Opus | Strategic planning with interview mode |
 | `pm-planreviewer` | Sonnet | Plan review loop - iterates until quality bar met |
 
-### Implementation & Verification
+### Testing, Implementation & Verification
 | Agent | Model | Use For |
 |-------|-------|---------|
+| `pm-test-writer` | Sonnet | Write failing tests from PRD before implementation |
 | `pm-oracle` | Opus | Architecture, debugging, deep reasoning |
-| `pm-implementer` | Opus | Focused code implementation |
-| `pm-verifier` | Sonnet | Quality verification with evidence |
+| `pm-implementer` | Opus | Focused code implementation (makes tests pass) |
+| `pm-verifier` | Sonnet | Quality gates: stubs, wiring, compliance, simplicity |
 
 ## Commands
 
@@ -160,14 +163,28 @@ After exploration and planning, before writing any code:
 
 ## Path A: Subagent Workflow (Sequential)
 
-Use `pm-implementer` for focused, sequential implementation:
+### Step 1: Write Failing Tests
+
+Before implementation, write tests from the PRD:
+
+```
+Task(subagent_type="powermode:pm-test-writer", prompt="
+  Write failing tests for this task PRD: <path to single .md file>
+
+  Read the PRD's ## Tests section. Write real, runnable test files that fail.
+  Detect the project's test framework and follow existing conventions.
+  Run the tests to confirm they all fail. Commit the test files.
+")
+```
+
+### Step 2: Implement (Make Tests Pass)
 
 ```
 Task(subagent_type="powermode:pm-implementer", prompt="
   Read and implement this task PRD: <path to single .md file>
 
-  This is a standalone implementation task. Focus only on what this PRD asks for.
-  Implement and run all tests from the PRD's ## Tests section.
+  Test files have already been written and committed. Your job is to make them pass.
+  Do NOT modify any test files — they are read-only.
 
   CRITICAL: Every function must contain real, working logic.
   No stubs, no TODOs, no placeholders, no empty bodies.
@@ -175,13 +192,13 @@ Task(subagent_type="powermode:pm-implementer", prompt="
 ")
 ```
 
-**Context isolation rules — NEVER include in the implementer prompt:**
+**Context isolation rules — NEVER include in test-writer or implementer prompts:**
 - Total task count ("task 3 of 15")
 - Feature-level context ("this feature has 8 tasks")
 - List of other tasks in the feature
 - Project-level scope information
 
-The orchestrator tracks progress. The implementer sees one job.
+The orchestrator tracks progress. Each subagent sees one job.
 
 Each `pm-implementer` run commits after completing its task PRD (format: `<feature-slug>: <description>`).
 
@@ -190,11 +207,15 @@ After each implementation task, verify with `pm-verifier`:
 ```
 Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the implementation of <task PRD path>.
-  Read the PRD. Verify each test ID (T1, T2...) from the ## Tests table passes.
-  Check: builds, tests pass, no regressions.
 
-  CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
-  and tests that validate mocked behavior. Any stub = BLOCKER.
+  Tests were written by pm-test-writer, code by pm-implementer.
+  Run tests once as sanity check. Then focus on quality gates:
+  - Stub/placeholder detection (any TODO/FIXME/empty body = BLOCKER)
+  - Wiring verification (is new code reachable from entry points?)
+  - CLAUDE.md compliance (did we over-engineer? follow conventions?)
+  - Simplicity review (was there a simpler approach?)
+  - Comment audit (unnecessary AI-generated comments?)
+  - Check test files exist for each PRD Test ID
 ")
 ```
 
@@ -231,7 +252,22 @@ Use when the user opts for team mode with 3+ independent tasks.
 TeamCreate(team_name="pm-<NN-feature-slug>", description="<goal summary>")
 ```
 
-### Phase 2: Create Tasks
+### Phase 2: Write Tests First (Sequential)
+
+Before spawning teammates, write failing tests for ALL tasks sequentially.
+Tests must exist before any implementation starts:
+
+```
+For each task PRD:
+  Task(subagent_type="powermode:pm-test-writer", prompt="
+    Write failing tests for this task PRD: <path to single .md file>
+    Read the PRD's ## Tests section. Write real, runnable test files that fail.
+    Detect the project's test framework and follow existing conventions.
+    Run the tests to confirm they all fail. Commit the test files.
+  ")
+```
+
+### Phase 3: Create Tasks
 
 Create tasks for the shared task list. Each task should:
 - Own specific files (no overlap between tasks)
@@ -244,12 +280,13 @@ TaskCreate(subject="Implement <task-slug>", description="Read and implement PRD:
 
 Set dependencies where needed:
 ```
-TaskUpdate(taskId="3", addBlockedBy=["1"])  // Tests wait for implementation
+TaskUpdate(taskId="3", addBlockedBy=["1"])
 ```
 
-### Phase 3: Spawn Teammates
+### Phase 4: Spawn Teammates
 
 Spawn implementation teammates. Each gets assigned a single task PRD.
+Test files already exist — teammates make them pass.
 
 ```
 Task(
@@ -258,7 +295,8 @@ Task(
   name="impl-1",
   prompt="Read and implement this task PRD: <path to single .md file>
 
-  This is a standalone implementation task. Focus only on what this PRD asks for.
+  Test files have already been written and committed. Your job is to make them pass.
+  Do NOT modify any test files — they are read-only.
 
   CRITICAL: Every function must contain real, working logic.
   No stubs, no TODOs, no placeholders, no empty bodies.
@@ -277,7 +315,7 @@ Task(
 - Each teammate should own **different files** to avoid conflicts
 - One teammate per PRD — assign by including the PRD path directly in the prompt
 
-### Phase 4: Monitor & Coordinate
+### Phase 5: Monitor & Coordinate
 
 As team lead, your job is coordination:
 
@@ -291,7 +329,7 @@ Messages from teammates arrive automatically. Respond with:
 SendMessage(type="message", recipient="impl-1", content="...", summary="...")
 ```
 
-### Phase 5: Verify & Cleanup
+### Phase 6: Verify & Cleanup
 
 After all tasks complete:
 
@@ -300,11 +338,15 @@ After all tasks complete:
    ```
    Task(subagent_type="powermode:pm-verifier", prompt="
      Verify the implementation of <task PRD path>.
-     Read the PRD. Verify each test ID (T1, T2...) from the ## Tests table passes.
-     Check: builds, tests pass, no regressions.
 
-     CRITICAL: Scan for stubs, TODOs, placeholders, empty function bodies,
-     and tests that validate mocked behavior. Any stub = BLOCKER.
+     Tests were written by pm-test-writer, code by pm-implementer.
+     Run tests once as sanity check. Then focus on quality gates:
+     - Stub/placeholder detection (any TODO/FIXME/empty body = BLOCKER)
+     - Wiring verification (is new code reachable from entry points?)
+     - CLAUDE.md compliance (did we over-engineer? follow conventions?)
+     - Simplicity review (was there a simpler approach?)
+     - Comment audit (unnecessary AI-generated comments?)
+     - Check test files exist for each PRD Test ID
    ")
    ```
    Handle the verdict using the same rules as Path A:

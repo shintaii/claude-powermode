@@ -24,7 +24,9 @@ slug="${POSITIONAL_ARGS[0]}"
 project_dir=$(get_project_path "$slug") || { log_error "Project '$slug' not found"; exit 1; }
 
 MODEL="${RALPH_MODEL:-${RALPH_IMPLEMENT_MODEL:-opus}}"
+TEST_MODEL="${RALPH_TEST_MODEL:-sonnet}"
 BUDGET="${RALPH_BUDGET:-${RALPH_MAX_BUDGET:-10.00}}"
+TEST_BUDGET="${RALPH_TEST_BUDGET:-2.00}"
 MAX_ITERS="${RALPH_MAX_ITERS:-${RALPH_MAX_ITERATIONS:-50}}"
 FEATURE_FILTER="${RALPH_FEATURE:-}"
 
@@ -39,7 +41,7 @@ echo -e "  Status: $done/$total done ($status)"
 if [[ -n "$FEATURE_FILTER" ]]; then
     echo -e "  Filter: feature=$FEATURE_FILTER"
 fi
-echo -e "  ${DIM}Model: $MODEL | Budget: \$$BUDGET/session | Max: $MAX_ITERS iterations${RESET}"
+echo -e "  ${DIM}Impl: $MODEL (\$$BUDGET) | Tests: $TEST_MODEL (\$$TEST_BUDGET) | Max: $MAX_ITERS iterations${RESET}"
 echo ""
 
 # ── Main loop ───────────────────────────────────────────────────────────────
@@ -123,8 +125,25 @@ with open('$feature_dir/README.md') as f:
         break
     fi
 
-    # 3. Run implementation session
-    log_run "Iteration $iteration: $local_next_feat/$local_next_task ($(format_duration $elapsed) elapsed)"
+    # 3a. Run test-write session (write failing tests from PRD)
+    log_run "Iteration $iteration: $local_next_feat/$local_next_task — writing tests ($(format_duration $elapsed) elapsed)"
+
+    test_prompt=$(build_test_write_prompt "$local_task_prd")
+    test_context=$(build_system_context "$project_dir" "test-write" "$local_next_feat/$local_next_task")
+    test_flags=("--model" "$TEST_MODEL" "--max-turns" "25" "--max-budget-usd" "$TEST_BUDGET" "--append-system-prompt" "$test_context")
+
+    if run_claude_session "$test_prompt" "${test_flags[@]}"; then
+        log_success "Tests written ($(format_session_stats))"
+        append_log "Iteration $iteration test-write ($local_next_feat/$local_next_task): cost=$CLAUDE_COST duration=${CLAUDE_DURATION}s error=false"
+    else
+        log_error "Test-write failed: $CLAUDE_ERROR"
+        append_log "Iteration $iteration test-write ($local_next_feat/$local_next_task): cost=$CLAUDE_COST duration=${CLAUDE_DURATION}s error=true"
+        tasks_failed=$((tasks_failed + 1))
+        continue
+    fi
+
+    # 3b. Run implementation session (make tests pass)
+    log_run "Iteration $iteration: $local_next_feat/$local_next_task — implementing ($(format_duration $elapsed) elapsed)"
 
     prompt=$(build_implement_prompt "$local_task_prd")
     system_context=$(build_system_context "$project_dir" "implement" "$local_next_feat/$local_next_task")

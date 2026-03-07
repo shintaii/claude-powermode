@@ -45,14 +45,32 @@ for fk in sorted(features.keys()):
 
     # Session-type specific instructions
     case "$session_type" in
+        test-write)
+            context+="You are writing FAILING TESTS from a PRD. This is a test-first session."$'\n'
+            context+="RULES:"$'\n'
+            context+="- You write test files ONLY. You may NOT write production/source code."$'\n'
+            context+="- Every test must FAIL when run. If a test passes, investigate why."$'\n'
+            context+="- Each test maps to a Test ID from the PRD's ## Tests table."$'\n'
+            context+="- Use real assertions with exact expected values. No placeholder assertions."$'\n'
+            context+="- Detect the project's test framework and follow existing conventions."$'\n'
+            context+="- Run the tests to confirm they fail. Fix syntax errors only."$'\n'
+            context+="- Commit test files when done."$'\n'
+            if [[ -n "$task_info" ]]; then
+                context+=""$'\n'
+                context+="You are writing tests for task: $task_info"$'\n'
+            fi
+            ;;
         implement)
-            context+="VERIFICATION IS MANDATORY. The full cycle must complete:"$'\n'
-            context+="1. Implement the task (delegate to pm-implementer)"$'\n'
-            context+="2. Verify with pm-verifier — if FAIL or PASS WITH NOTES, fix and re-verify (max 3 attempts)"$'\n'
-            context+="3. Run /simplify after verification passes"$'\n'
-            context+="4. Update the task status to 'Done' in the feature README table"$'\n'
-            context+="5. Update status.json — set the task status to 'done' and increment tasks_done"$'\n'
-            context+="6. Commit all changes including status.json"$'\n'
+            context+="THE FULL TDD CYCLE MUST COMPLETE:"$'\n'
+            context+="1. Test files already exist (written by test-write session). Do NOT modify them."$'\n'
+            context+="2. Implement the task (delegate to pm-implementer) — make tests pass"$'\n'
+            context+="3. Verify with pm-verifier — if FAIL or PASS WITH NOTES, fix and re-verify (max 3 attempts)"$'\n'
+            context+="4. Run /simplify after verification passes"$'\n'
+            context+="5. Update the task status to 'Done' in the feature README table"$'\n'
+            context+="6. Update status.json — set the task status to 'done' and increment tasks_done"$'\n'
+            context+="7. Commit all changes including status.json"$'\n'
+            context+=""$'\n'
+            context+="CRITICAL: Test files are READ-ONLY. Do NOT create, modify, or delete test files."$'\n'
             context+="Do NOT mark a task as done if tests fail or verification fails."$'\n'
             if [[ -n "$task_info" ]]; then
                 context+=""$'\n'
@@ -61,9 +79,17 @@ for fk in sorted(features.keys()):
             ;;
         verify)
             context+="Output your verdict as exactly one of: VERDICT: PASS / VERDICT: FAIL / VERDICT: PASS WITH NOTES"$'\n'
+            context+="Tests were written by pm-test-writer, code by pm-implementer."$'\n'
+            context+="Run tests once as sanity check. Focus on quality gates:"$'\n'
+            context+="- Stub/placeholder detection"$'\n'
+            context+="- Wiring verification (is new code reachable?)"$'\n'
+            context+="- CLAUDE.md compliance"$'\n'
+            context+="- Simplicity review"$'\n'
+            context+="- Comment audit"$'\n'
             ;;
         fix)
             context+="Fix BLOCKER and MAJOR issues only. Run tests after fixing. Commit fixes."$'\n'
+            context+="CRITICAL: Do NOT modify test files. Only fix production code."$'\n'
             ;;
     esac
 
@@ -151,6 +177,21 @@ If changes are needed:
 - Commit your changes
 
 If the PRD is good as-is, just confirm with a brief summary of what it covers.
+EOF
+}
+
+# ── Test writing prompts ───────────────────────────────────────────────────
+
+build_test_write_prompt() {
+    local task_prd_path="$1"
+    cat <<EOF
+Read this task PRD and write failing tests: @$task_prd_path
+
+Use the pm-test-writer agent to create real, runnable test files from the PRD's ## Tests section.
+Detect the project's test framework. Write one test per Test ID. Run them to confirm they all fail.
+Commit the test files.
+
+Do NOT write any production code. Only test files.
 EOF
 }
 
