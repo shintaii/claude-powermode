@@ -47,11 +47,19 @@ iteration=0
 tasks_done=0
 tasks_failed=0
 
-while [[ $iteration -lt $MAX_ITERS ]]; do
+while [[ $iteration -lt $MAX_ITERS && $RALPH_INTERRUPTED -eq 0 ]]; do
     iteration=$((iteration + 1))
     elapsed=0
     if [[ -n "$SESSION_START_TIME" ]]; then
         elapsed=$(( $(date +%s) - SESSION_START_TIME ))
+    fi
+
+    # 0. Check stop file
+    if [[ -f ".ralph-stop" ]]; then
+        rm -f ".ralph-stop"
+        log_warn "Stop file detected — halting"
+        append_log "Iteration $iteration: stopped via .ralph-stop"
+        break
     fi
 
     # 1. Check blockers

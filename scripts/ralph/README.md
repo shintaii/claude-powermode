@@ -83,6 +83,16 @@ Task-level verification is handled by powermode during implementation — ralph 
 | `RALPH_VERBOSE` | 0 | Set to 1 for verbose output |
 | `RALPH_LIVE` | 0 | Set to 1 to stream Claude output live |
 
+## Stopping a Running Loop
+
+| Method | How |
+|--------|-----|
+| **Ctrl+C** | Sends SIGINT — kills current session, exits cleanly |
+| **Stop file** | `touch .ralph-stop` — checked between sessions, clean exit |
+| **Kill from another terminal** | `kill $(cat .ralph-pid)` — sends SIGTERM |
+
+The `.ralph-pid` file is created on start and cleaned up on exit.
+
 ## Logs
 
 Stored in `.powermode/ralph/`:

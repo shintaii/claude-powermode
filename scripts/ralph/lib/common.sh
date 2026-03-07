@@ -5,24 +5,42 @@ set -euo pipefail
 
 # ── Ctrl+C handling ─────────────────────────────────────────────────────────
 RALPH_INTERRUPTED=0
+RALPH_PIPE_PID=""
+RALPH_PID_FILE=""
 
 _ralph_cleanup() {
     RALPH_INTERRUPTED=1
     echo "" >&2
     echo -e "  \033[1;33m[STOP]\033[0m  Interrupted — progress saved in status.json" >&2
     echo -e "         Resume with the same command to continue." >&2
-    # Kill all child processes recursively
-    local children
-    children=$(jobs -p 2>/dev/null)
-    if [[ -n "$children" ]]; then
-        kill $children 2>/dev/null || true
+    # Kill the tracked pipeline subshell and all its children
+    if [[ -n "$RALPH_PIPE_PID" ]]; then
+        # Kill the subshell's children first (claude, python3), then the subshell
+        pkill -TERM -P "$RALPH_PIPE_PID" 2>/dev/null || true
+        kill -TERM "$RALPH_PIPE_PID" 2>/dev/null || true
+        sleep 0.3
+        pkill -KILL -P "$RALPH_PIPE_PID" 2>/dev/null || true
+        kill -KILL "$RALPH_PIPE_PID" 2>/dev/null || true
     fi
-    # Also kill by process group
-    kill -- -$$ 2>/dev/null || true
+    # Kill any remaining descendants
+    pkill -TERM -P $$ 2>/dev/null || true
+    sleep 0.2
+    pkill -KILL -P $$ 2>/dev/null || true
+    # Clean up PID file
+    rm -f "$RALPH_PID_FILE" 2>/dev/null
     exit 130
 }
 
 trap _ralph_cleanup INT TERM
+
+# Write PID file so ralph can be killed from another terminal: kill $(cat .ralph-pid)
+RALPH_PID_FILE=".ralph-pid"
+echo $$ > "$RALPH_PID_FILE"
+
+_ralph_exit_cleanup() {
+    rm -f "$RALPH_PID_FILE" 2>/dev/null
+}
+trap _ralph_exit_cleanup EXIT
 
 # ── Colors ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -106,6 +124,9 @@ run_claude_session() {
     tmp_output=$(mktemp)
     local exit_code=0
 
+    # Run pipeline in background subshell so we can monitor and kill it.
+    # The subshell traps SIGTERM for clean shutdown.
+    (
     claude -p \
         --output-format stream-json \
         --verbose \
@@ -251,7 +272,29 @@ if tool_count > 0:
     print('', file=sys.stderr)
 
 json.dump(result_data, sys.stdout)
-" > "$tmp_output" || exit_code=$?
+" > "$tmp_output"
+    ) &
+    RALPH_PIPE_PID=$!
+
+    # Poll instead of `wait` — bash 3.2 (macOS) doesn't interrupt wait on SIGINT.
+    # Use `read -t 1` which IS interruptible by signals (unlike sleep).
+    # Also check for .ralph-stop file each iteration.
+    while kill -0 "$RALPH_PIPE_PID" 2>/dev/null; do
+        if [[ -f ".ralph-stop" ]]; then
+            rm -f ".ralph-stop"
+            echo -e "  \033[1;33m[STOP]\033[0m  Stop file detected — killing session" >&2
+            pkill -TERM -P "$RALPH_PIPE_PID" 2>/dev/null || true
+            kill -TERM "$RALPH_PIPE_PID" 2>/dev/null || true
+            sleep 0.5
+            pkill -KILL -P "$RALPH_PIPE_PID" 2>/dev/null || true
+            kill -KILL "$RALPH_PIPE_PID" 2>/dev/null || true
+            RALPH_INTERRUPTED=1
+            break
+        fi
+        read -t 1 < /dev/null 2>/dev/null || true
+    done
+    wait "$RALPH_PIPE_PID" 2>/dev/null || exit_code=$?
+    RALPH_PIPE_PID=""
 
     local end_ts
     end_ts=$(date +%s)

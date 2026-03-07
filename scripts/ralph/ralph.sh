@@ -31,6 +31,10 @@ usage() {
     echo "  --verbose, -v           Show prompts and truncated Claude output"
     echo "  --live, -l              Stream Claude's output in real-time (like interactive mode)"
     echo ""
+    echo -e "${BOLD}Stopping:${RESET}"
+    echo "  Ctrl+C                  Stop after current session finishes cleanup"
+    echo "  kill \$(cat .ralph-pid)  Kill from another terminal"
+    echo ""
     echo -e "${BOLD}Setup:${RESET}"
     echo "  ln -s <plugin-path>/scripts/ralph/ralph.sh /usr/local/bin/ralph"
 }
