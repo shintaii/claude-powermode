@@ -100,7 +100,7 @@ pending = [r for r in rows if r['status'].lower() in ('pending', 'in progress')]
 # Topological sort by dependencies
 def deps_of(row):
     d = row['deps'].strip()
-    if d.lower() == 'none' or d == '':
+    if d.lower().startswith('none') or d == '':
         return []
     return [int(x.strip()) for x in d.split(',') if x.strip().isdigit()]
 
@@ -135,7 +135,7 @@ check_deps_met() {
     local feature="$2"
     local deps_string="$3"
 
-    if [[ -z "$deps_string" || "$deps_string" == "None" || "$deps_string" == "none" ]]; then
+    if [[ -z "$deps_string" || "$deps_string" == None* || "$deps_string" == none* ]]; then
         return 0
     fi
 
