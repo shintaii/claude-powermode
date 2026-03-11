@@ -129,6 +129,7 @@ For project scope with 3+ independent tasks across features, consider team mode 
 | `/pm-export [project-slug]` | Export project documentation to a folder |
 | `/pm-issues [project-slug]` | Review open issues, convert to new task PRDs |
 | `/pm-tests [prd/feature/slug]` | Review or add tests to existing PRDs, then verify |
+| `/pm-clean [slug\|all]` | Archive and remove completed projects |
 
 ## Workflow
 
