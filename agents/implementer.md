@@ -1,7 +1,7 @@
 ---
 name: pm-implementer
 description: Use this agent for focused code implementation tasks. Delegate specific, well-defined implementation work after exploration is complete. Best for single-responsibility tasks with clear requirements.
-model: opus
+model: sonnet
 color: green
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"]
 hooks:

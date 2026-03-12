@@ -82,7 +82,7 @@ plugin-dev:skill-reviewer    # Review specific implementations
 | pm-planreviewer | sonnet | Plan review loop |
 | pm-oracle | opus | Architecture decisions |
 | pm-test-writer | sonnet | Write failing tests from PRD before implementation |
-| pm-implementer | opus | Code changes (makes tests pass, test files read-only) |
+| pm-implementer | sonnet | Code changes (makes tests pass, test files read-only) |
 | pm-verifier | sonnet | Quality gates: stubs, wiring, compliance, simplicity |
 
 ## Key Behaviors
