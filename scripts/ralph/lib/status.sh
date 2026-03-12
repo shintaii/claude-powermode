@@ -307,7 +307,7 @@ if changed:
         json.dump(data, f, indent=2)
     print(f'synced')
 else:
-    print('ok')
+    pass
 "
 }
 
