@@ -44,6 +44,16 @@ fi
 echo -e "  ${DIM}Impl: $MODEL (\$$BUDGET) | Tests: $TEST_MODEL (\$$TEST_BUDGET) | Max: $MAX_ITERS iterations${RESET}"
 echo ""
 
+# ── Pre-loop drift repair ──────────────────────────────────────────────────
+# Sync README → status.json before starting, so completed tasks aren't re-attempted
+for feature_dir in "$project_dir"/features/*/; do
+    [[ -d "$feature_dir" ]] || continue
+    feature_name=$(basename "$feature_dir")
+    sync_readme_to_status "$project_dir" "$feature_name" 2>/dev/null || true
+done
+# Re-read status after sync
+IFS='|' read -r status total done next_feat next_task <<< "$(read_project_status "$project_dir")"
+
 # ── Main loop ───────────────────────────────────────────────────────────────
 iteration=0
 tasks_done=0

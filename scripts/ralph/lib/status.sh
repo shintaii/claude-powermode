@@ -94,17 +94,34 @@ for line in content.split('\n'):
         'status': cells[5]
     })
 
-# Filter to pending/in_progress tasks
-pending = [r for r in rows if r['status'].lower() in ('pending', 'in progress')]
+# Filter to pending/in_progress tasks (fuzzy match — handles emoji prefixes, extra whitespace, etc.)
+def is_pending(status):
+    s = status.lower().strip()
+    return 'pending' in s or 'progress' in s
+
+def is_done(status):
+    s = status.lower().strip()
+    return 'done' in s or 'complete' in s
+
+pending = [r for r in rows if is_pending(r['status'])]
 
 # Topological sort by dependencies
 def deps_of(row):
     d = row['deps'].strip()
     if d.lower().startswith('none') or d == '':
         return []
-    return [int(x.strip()) for x in d.split(',') if x.strip().isdigit()]
+    # Only return intra-feature deps (plain numbers) for topo sort
+    # Cross-feature deps (e.g. '03-sync:01') are checked separately by check_deps_met
+    result = []
+    for part in d.split(','):
+        part = part.strip()
+        if ':' in part:
+            continue  # Skip cross-feature refs for topo sort
+        if part.isdigit():
+            result.append(int(part))
+    return result
 
-done_nums = {r['num'] for r in rows if r['status'].lower() == 'done'}
+done_nums = {r['num'] for r in rows if is_done(r['status'])}
 ordered = []
 remaining = list(pending)
 max_iters = len(remaining) + 1
@@ -140,25 +157,82 @@ check_deps_met() {
     fi
 
     python3 -c "
-import json, sys
+import json, re, sys
 
 with open('$project_dir/status.json') as f:
     data = json.load(f)
 
-feat = data.get('features', {}).get('$feature', {})
-tasks = feat.get('tasks', {})
+all_features = data.get('features', {})
+current_tasks = all_features.get('$feature', {}).get('tasks', {})
 
-deps = [d.strip() for d in '$deps_string'.split(',') if d.strip()]
-for dep in deps:
-    # dep is a number like '01' — find matching task key
-    matched = False
+def find_feature(prefix):
+    \"\"\"Resolve a feature prefix like '03-sync' to the full key '03-syncback-business-keys'.\"\"\"
+    for key in all_features:
+        if key == prefix or key.startswith(prefix):
+            return key
+    return None
+
+def is_task_done_in_feature(feat_key, task_num):
+    \"\"\"Check if task_num (e.g. '01') is done in the given feature.\"\"\"
+    tasks = all_features.get(feat_key, {}).get('tasks', {})
     for task_key, task_status in tasks.items():
-        if task_key.startswith(dep.zfill(2)):
-            if task_status == 'done':
-                matched = True
-            break
-    if not matched:
+        if task_key.startswith(task_num):
+            return task_status == 'done'
+    return False
+
+# Parse deps — supports formats:
+#   '01'              → task 01 in current feature
+#   '01,02,03'        → tasks 01,02,03 in current feature
+#   '03-sync:01'      → task 01 in feature matching '03-sync'
+#   '01-flatten:01, 02-api:01' → cross-feature refs
+raw_deps = [d.strip() for d in '$deps_string'.split(',') if d.strip()]
+
+# Re-join and re-split to handle '02-api:01,02,03' (tasks 01,02,03 in feature 02-api)
+# Strategy: scan left-to-right, track current feature context
+parsed = []
+current_feat_ref = None
+for d in raw_deps:
+    d = d.strip()
+    if not d:
+        continue
+    if ':' in d:
+        # Cross-feature ref: 'feature-prefix:task-num'
+        feat_part, task_part = d.rsplit(':', 1)
+        current_feat_ref = feat_part.strip()
+        m = re.search(r'(\d+)', task_part)
+        if m:
+            parsed.append((current_feat_ref, m.group(1).zfill(2)))
+    else:
+        # Plain number — belongs to current_feat_ref if set by previous ':' entry, else current feature
+        m = re.search(r'(\d+)', d)
+        if m:
+            parsed.append((current_feat_ref, m.group(1).zfill(2)))
+
+for feat_ref, task_num in parsed:
+    if feat_ref:
+        # Cross-feature dep — resolve prefix to full feature key
+        feat_key = find_feature(feat_ref)
+        if feat_key and is_task_done_in_feature(feat_key, task_num):
+            continue
+        # Try with number prefix only (e.g. '02' from '02-api')
+        m = re.match(r'(\d+)', feat_ref)
+        if m:
+            feat_key = find_feature(m.group(1).zfill(2))
+            if feat_key and is_task_done_in_feature(feat_key, task_num):
+                continue
         sys.exit(1)
+    else:
+        # Intra-feature dep
+        if is_task_done_in_feature('$feature', task_num):
+            continue
+        # Fallback: search all features
+        found = False
+        for fk in all_features:
+            if is_task_done_in_feature(fk, task_num):
+                found = True
+                break
+        if not found:
+            sys.exit(1)
 sys.exit(0)
 "
 }
@@ -219,7 +293,7 @@ for line in content.split('\n'):
     # Derive task key from file name (e.g., '01-project-setup.md' → '01-project-setup')
     task_key = file_name.replace('.md', '')
 
-    if readme_status == 'done' and tasks.get(task_key) != 'done':
+    if ('done' in readme_status or 'complete' in readme_status) and tasks.get(task_key) != 'done':
         tasks[task_key] = 'done'
         changed = True
 
