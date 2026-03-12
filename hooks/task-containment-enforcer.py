@@ -133,15 +133,17 @@ def main():
     if "pm-implementer" in subagent_type and not is_resume:
         pending_file = Path(cwd) / ".powermode" / "pending-verification.json"
         if pending_file.exists():
+            deny_reason = (
+                "[BLOCKED] Verification pending. You MUST run pm-verifier on the "
+                "previous implementer's changes before starting a new implementer. "
+                "Use: Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
+            )
             print(json.dumps({
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",
                     "permissionDecision": "deny",
-                    "additionalContext": (
-                        "[BLOCKED] Verification pending. You MUST run pm-verifier on the "
-                        "previous implementer's changes before starting a new implementer. "
-                        "Use: Task(subagent_type=\"powermode:pm-verifier\", prompt=\"Verify...\")"
-                    ),
+                    "permissionDecisionReason": deny_reason,
+                    "additionalContext": deny_reason,
                     "updatedInput": {**tool_input},
                 }
             }))

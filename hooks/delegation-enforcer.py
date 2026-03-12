@@ -184,15 +184,17 @@ def main():
             }
         }))
     else:
+        block_reason = BLOCK_MSG.format(
+            attempt=attempt_count,
+            threshold=ESCAPE_THRESHOLD,
+            remaining=ESCAPE_THRESHOLD - attempt_count
+        ).strip()
         print(json.dumps({
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "deny",
-                "additionalContext": BLOCK_MSG.format(
-                    attempt=attempt_count,
-                    threshold=ESCAPE_THRESHOLD,
-                    remaining=ESCAPE_THRESHOLD - attempt_count
-                ).strip(),
+                "permissionDecisionReason": block_reason,
+                "additionalContext": block_reason,
                 "updatedInput": {**tool_input},
             }
         }))

@@ -50,11 +50,14 @@ claude plugin list | grep -A3 powermode
 
 ### Output Schemas (critical)
 - **PostToolUse/UserPromptSubmit/SessionStart**: `{"continue": true, "hookSpecificOutput": {"hookEventName": "<event>", "additionalContext": "..."}}`
-- **PreToolUse**: `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow", "updatedInput": {...}}}`
+- **PreToolUse**: `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "allow|deny|ask", "permissionDecisionReason": "...", "updatedInput": {...}}}`
 - **Stop**: `{"decision": "approve|block", "reason": "..."}`
 - **PostToolUseFailure**: `{"continue": true, "hookSpecificOutput": {"hookEventName": "PostToolUseFailure", "additionalContext": "..."}}`
 - Always output valid JSON on ALL code paths (including early returns and errors)
 - Always `sys.exit(0)` - never crash or block on errors
+
+### Hook Input Fields
+All hook inputs include `agent_id` and `agent_type` when firing inside a subagent. Use `agent_type` to distinguish subagent vs orchestrator behavior (e.g., stop-validator skips checks for `powermode:*` subagents).
 
 ### Common Pitfalls
 - **Duplicate hooks file**: Do NOT add `"hooks": "./hooks/hooks.json"` to plugin.json - it auto-loads
@@ -84,7 +87,7 @@ plugin-dev:skill-reviewer    # Review specific implementations
 
 ## Key Behaviors
 
-- **Stop hook**: Blocks exit if todos pending/in_progress. Escape hatch after 3 attempts.
+- **Stop hook**: Blocks exit if todos pending/in_progress. Escape hatch after 3 attempts. Agent-aware: subagents (`agent_type` starting with `powermode:`) always pass — todo/verification checks only apply to the main orchestrator.
 - **PRD enforcement**: Blocks stop if referenced PRD files weren't updated. Recognizes both `/prds/` and `/projects/` paths.
 - **Context tracking**: Writes `.powermode/context-state.json` with tool counts and token estimates.
 - **Session recovery**: Saves/restores state on PreCompact/SessionEnd/SessionStart. Includes active project context.

@@ -105,10 +105,16 @@ def main():
     cwd = input_data.get("cwd", os.getcwd())
     session_id = input_data.get("session_id", "unknown")
     transcript_path = input_data.get("transcript_path", "")
+    agent_type = input_data.get("agent_type", "")
     state_dir = Path(cwd) / ".powermode"
 
     if not is_powermode_active(cwd, session_id):
         print(json.dumps({"decision": "approve"}))
+        return
+
+    # Subagents can always stop — todos and verification belong to the orchestrator
+    if agent_type and agent_type.startswith("powermode:"):
+        print(json.dumps({"decision": "approve", "reason": f"Subagent {agent_type} — stop allowed"}))
         return
 
     pending_todos = []
