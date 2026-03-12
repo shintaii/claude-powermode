@@ -241,10 +241,12 @@ README format:
 
 ## Task PRDs
 
-| # | File | Domain | Test Focus | Dependencies | Status |
-|---|------|--------|-----------|--------------|--------|
-| 1 | 01-<task>.md | [area] | [test focus] | None | Pending |
-| 2 | 02-<task>.md | [area] | [test focus] | 01 | Pending |
+| # | File | Domain | TDD | Test Focus | Dependencies | Status |
+|---|------|--------|-----|-----------|--------------|--------|
+| 1 | 01-<task>.md | [area] | yes | [test focus] | None | Pending |
+| 2 | 02-<task>.md | [area] | no | — | 01 | Pending |
+
+TDD classification: `yes` (default) or `no` (cleanup, removal, config-only, docs, rename/move tasks).
 ```
 
 Update `status.json` with feature entries:
@@ -743,15 +745,17 @@ Task(subagent_type="general-purpose", prompt="
 
   CRITICAL PRD RULES:
   - Start the PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
+  - Add a '## Metadata' section with 'tdd: yes' or 'tdd: no' based on the plan's TDD classification for this task. Tasks marked tdd: no skip automated test writing (cleanup, removal, config, docs, rename tasks).
   - Describe type definitions as specs (prose/tables) — do NOT reference other task PRDs
   - No fenced code blocks — PRDs are functional specs, not implementation code
   - Test assertions must include exact expected values (not 'has items' but 'has exactly 1 item with code X')
   - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
-  - Include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - If tdd: yes, include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - If tdd: no, omit the ## Tests section (or include only manual verification steps)
   - Test IDs: T1, T2, T3... (task-scoped)
-  - Minimum 1 test per task PRD
+  - Minimum 1 test per task PRD (when tdd: yes)
   - Include both technical tests (unit/integration) AND functional tests (user-visible behavior)
   - Every test needs a concrete expected result with exact values
   - Test types: unit, integration, e2e, functional, manual
@@ -769,19 +773,21 @@ Task(subagent_type="general-purpose", prompt="
   - 01-<title>.md: <scope>
   - 02-<title>.md: <scope>
 
-  Each PRD must include: scope, requirements, acceptance criteria, tests (structured ## Tests table), dependencies
+  Each PRD must include: scope, requirements, acceptance criteria, tests (structured ## Tests table unless tdd: no), dependencies
 
   CRITICAL PRD RULES:
   - Start every PRD with '## Implementation Rules' anti-stub header (every function = real logic, no stubs/TODOs/placeholders, tests assert real computed values, if a dependency doesn't exist STOP and create BLOCKED.md in project root)
+  - Add a '## Metadata' section with 'tdd: yes' or 'tdd: no' based on the plan's TDD classification for this task. Tasks marked tdd: no skip automated test writing (cleanup, removal, config, docs, rename tasks).
   - Describe type definitions as specs (prose/tables) — do NOT reference other task PRDs
   - No fenced code blocks — PRDs are functional specs, not implementation code
   - Test assertions must include exact expected values (not 'has items' but 'has exactly 1 item with code X')
   - Include anti-stub canary test: grep for TODO/FIXME/NotImplemented/stub/mock/noop on all changed files, assert zero matches
   - NEVER use language that permits stubbing ('can be stubbed', 'implement later')
   - Each PRD must be fully implementable standalone
-  - Include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - If tdd: yes, include a ## Tests section with a markdown table: | ID | Type | Description | Expected Result |
+  - If tdd: no, omit the ## Tests section (or include only manual verification steps)
   - Test IDs: T1, T2, T3... (task-scoped)
-  - Minimum 1 test per task PRD
+  - Minimum 1 test per task PRD (when tdd: yes)
   - Include both technical tests (unit/integration) AND functional tests (user-visible behavior)
   - Every test needs a concrete expected result with exact values
   - Test types: unit, integration, e2e, functional, manual

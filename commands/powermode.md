@@ -55,8 +55,10 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 
 **Task Scope** (single `.md` file):
 1. Read the task PRD
-2. Write failing tests via `pm-test-writer` subagent
-3. Implement via `pm-implementer` subagent (makes tests pass)
+2. Check the PRD's `## Metadata` section for `tdd:` value
+   - If `tdd: yes` (or no Metadata section — default is yes): Write failing tests via `pm-test-writer` subagent
+   - If `tdd: no`: Skip test writing, go straight to implementation
+3. Implement via `pm-implementer` subagent (makes tests pass, or just implements if no tests)
 4. Verify via `pm-verifier` subagent
 5. Run `Skill(skill="simplify")` — MANDATORY after verification completes
 6. Done — stop and report result
@@ -64,8 +66,10 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 **Feature Scope** (feature directory):
 1. Read the feature README to get task list and dependency order
 2. For each pending task in the feature (in order), up to **5 tasks max per session**:
-   - Write failing tests via `pm-test-writer` subagent
-   - Implement via `pm-implementer` subagent (makes tests pass)
+   - Read the task PRD and check `## Metadata` for `tdd:` value
+   - If `tdd: yes` (or no Metadata section): Write failing tests via `pm-test-writer` subagent
+   - If `tdd: no`: Skip test writing
+   - Implement via `pm-implementer` subagent
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
 3. If all feature tasks are now done: run `pm-verifier` with the feature README's `## Feature Tests` section
@@ -164,9 +168,11 @@ After exploration and planning, before writing any code:
 
 ## Path A: Subagent Workflow (Sequential)
 
-### Step 1: Write Failing Tests
+### Step 1: Write Failing Tests (if TDD applies)
 
-Before implementation, write tests from the PRD:
+Read the task PRD. Check the `## Metadata` section for `tdd:` value.
+
+**If `tdd: yes` (or no Metadata section — default is yes):**
 
 ```
 Task(subagent_type="powermode:pm-test-writer", prompt="
@@ -178,7 +184,9 @@ Task(subagent_type="powermode:pm-test-writer", prompt="
 ")
 ```
 
-### Step 2: Implement (Make Tests Pass)
+**If `tdd: no`:** Skip this step entirely. Proceed to implementation.
+
+### Step 2: Implement (Make Tests Pass, or Just Implement if No Tests)
 
 ```
 Task(subagent_type="powermode:pm-implementer", prompt="
@@ -209,14 +217,15 @@ After each implementation task, verify with `pm-verifier`:
 Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the implementation of <task PRD path>.
 
-  Tests were written by pm-test-writer, code by pm-implementer.
-  Run tests once as sanity check. Then focus on quality gates:
+  Verify the implementation. Check the PRD's ## Metadata for tdd: value.
+  If tdd: yes (or no Metadata section): tests were written by pm-test-writer — run them as sanity check and check test files exist for each PRD Test ID.
+  If tdd: no: no automated tests expected — skip test checks.
+  Then focus on quality gates:
   - Stub/placeholder detection (any TODO/FIXME/empty body = BLOCKER)
   - Wiring verification (is new code reachable from entry points?)
   - CLAUDE.md compliance (did we over-engineer? follow conventions?)
   - Simplicity review (was there a simpler approach?)
   - Comment audit (unnecessary AI-generated comments?)
-  - Check test files exist for each PRD Test ID
 ")
 ```
 
@@ -253,13 +262,13 @@ Use when the user opts for team mode with 3+ independent tasks.
 TeamCreate(team_name="pm-<NN-feature-slug>", description="<goal summary>")
 ```
 
-### Phase 2: Write Tests First (Sequential)
+### Phase 2: Write Tests First (Sequential, TDD tasks only)
 
-Before spawning teammates, write failing tests for ALL tasks sequentially.
-Tests must exist before any implementation starts:
+Before spawning teammates, write failing tests for tasks where TDD applies.
+Read each task PRD's `## Metadata` section — skip tasks with `tdd: no`.
 
 ```
-For each task PRD:
+For each task PRD where tdd: yes (or no Metadata section):
   Task(subagent_type="powermode:pm-test-writer", prompt="
     Write failing tests for this task PRD: <path to single .md file>
     Read the PRD's ## Tests section. Write real, runnable test files that fail.
@@ -340,14 +349,15 @@ After all tasks complete:
    Task(subagent_type="powermode:pm-verifier", prompt="
      Verify the implementation of <task PRD path>.
 
-     Tests were written by pm-test-writer, code by pm-implementer.
-     Run tests once as sanity check. Then focus on quality gates:
+     Verify the implementation. Check the PRD's ## Metadata for tdd: value.
+     If tdd: yes (or no Metadata section): tests were written by pm-test-writer — run them as sanity check and check test files exist for each PRD Test ID.
+     If tdd: no: no automated tests expected — skip test checks.
+     Then focus on quality gates:
      - Stub/placeholder detection (any TODO/FIXME/empty body = BLOCKER)
      - Wiring verification (is new code reachable from entry points?)
      - CLAUDE.md compliance (did we over-engineer? follow conventions?)
      - Simplicity review (was there a simpler approach?)
      - Comment audit (unnecessary AI-generated comments?)
-     - Check test files exist for each PRD Test ID
    ")
    ```
    Handle the verdict using the same rules as Path A:

@@ -201,10 +201,19 @@ Rules:
 ## Task PRDs
 Priority-ordered, each task is atomic and testable:
 
-| # | Task PRD | Domain | Dependencies | Description |
-|---|----------|--------|-------------|-------------|
-| 01 | [task-slug] | [area] | None | [What it does] |
-| 02 | [task-slug] | [area] | 01 | [What it does] |
+| # | Task PRD | Domain | TDD | Dependencies | Description |
+|---|----------|--------|-----|-------------|-------------|
+| 01 | [task-slug] | [area] | yes | None | [What it does] |
+| 02 | [task-slug] | [area] | no | 01 | [What it does] |
+
+### TDD Classification
+Mark each task `tdd: yes` (default) or `tdd: no`. Tasks that should skip TDD:
+- **Cleanup/removal** — deleting dead code, removing deprecated files, dropping unused dependencies
+- **Config-only** — changing environment variables, feature flags, CI config
+- **Documentation** — updating READMEs, comments, docs
+- **Move/rename** — relocating files or renaming without behavior change
+
+When in doubt, default to `tdd: yes`. The user confirms during plan review.
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
