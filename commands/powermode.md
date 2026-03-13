@@ -72,7 +72,7 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
    - Implement via `pm-implementer` subagent
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
-3. If all feature tasks are now done: run `pm-verifier` with the feature README's `## Feature Tests` section
+3. If all feature tasks are now done: run UAT verification (see **UAT Verification** section below)
 4. After 5 tasks OR last task in feature: **STOP and report progress**
    - Show: completed X of Y tasks, next pending task path
    - User decides whether to continue with another `/powermode` invocation
@@ -82,7 +82,7 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 2. For each feature with pending tasks, up to **5 tasks total across features**:
    - Work through pending tasks (same as Feature Scope above)
    - The 5-task limit is cumulative across features
-3. If all project tasks are now done: run `pm-verifier` with `project.md`'s `## Project Tests` section
+3. If all project tasks are now done: run UAT verification (see **UAT Verification** section below)
 4. After 5 tasks OR last task in project: **STOP and report progress**
    - Show: completed X of Y tasks across N features, next pending task path
    - User decides whether to continue with another `/powermode` invocation
@@ -98,6 +98,86 @@ The main orchestrator should stay lean. **Delegate all heavy work to subagents:*
 - This keeps main context available for coordinating many tasks across a feature or project
 
 For project scope with 3+ independent tasks across features, consider team mode (see Smart Execution below).
+
+### UAT Verification (Feature/Project scope only)
+
+After all tasks in a feature or project are verified, check for UAT scenarios:
+
+1. **Check if `.powermode/projects/<slug>/UAT_SCENARIOS.md` exists.** If not: skip UAT (not all projects need it).
+
+2. **If exists, run the forward pass:**
+
+```
+fixes_applied = 0
+
+result = Task(subagent_type="powermode:pm-uat-runner", prompt="
+  Execute UAT scenarios from: .powermode/projects/<slug>/UAT_SCENARIOS.md
+  Run cleanup first. Execute scenarios sequentially from 1.1.
+
+  ON FAILURE:
+  - Stop and report: VERDICT: FAIL, scenario, step, expected vs actual, screenshot
+  - Do NOT continue to next scenario
+")
+```
+
+3. **On failure — fix and retry loop:**
+
+```
+while result is FAIL:
+  fixes_applied += 1
+
+  // Fix the failing scenario
+  Task(subagent_type="powermode:pm-implementer", prompt="
+    UAT scenario failed. Fix the implementation.
+    FAILURE: [scenario, step, expected vs actual, screenshot description]
+    Fix the root cause. Do NOT modify UAT_SCENARIOS.md. Commit the fix.
+  ")
+
+  // Evaluate fix scope — does this fix impact earlier (already-passed) scenarios?
+  // BREAKING (restart from 1.1): auth changes, data model changes, layout/routing changes,
+  //   shared component changes, API contract changes
+  // ISOLATED (continue forward): single-page fix, CSS tweak, copy change,
+  //   feature-specific logic fix that doesn't touch shared code
+
+  if fix is BREAKING:
+    result = Task(subagent_type="powermode:pm-uat-runner", prompt="
+      Execute ALL UAT scenarios from: .powermode/projects/<slug>/UAT_SCENARIOS.md
+      Run cleanup first. Start from scenario 1.1.
+    ")
+  else:
+    result = Task(subagent_type="powermode:pm-uat-runner", prompt="
+      Execute UAT scenarios from: .powermode/projects/<slug>/UAT_SCENARIOS.md
+      Run cleanup first. Start from scenario <next_scenario_after_failed>.
+    ")
+```
+
+4. **Regression run (only if fixes were applied):**
+
+```
+if fixes_applied > 0:
+  regression = Task(subagent_type="powermode:pm-uat-runner", prompt="
+    REGRESSION RUN: Execute ALL UAT scenarios from scratch.
+    .powermode/projects/<slug>/UAT_SCENARIOS.md
+    Run cleanup first. Execute ALL scenarios from 1.1.
+    Report VERDICT: PASS or VERDICT: FAIL.
+  ")
+
+  if regression FAIL:
+    // One more fix + final regression (max 2 regression runs)
+    Task(subagent_type="powermode:pm-implementer", prompt="
+      Regression failure. Fix: [details]. Commit.
+    ")
+    final = Task(subagent_type="powermode:pm-uat-runner", prompt="
+      FINAL REGRESSION: Execute ALL scenarios from 1.1.
+    ")
+    if final FAIL:
+      Report remaining failures to user. Stop.
+```
+
+**Scope triggers:**
+- Feature scope: UAT runs after all feature tasks verified
+- Project scope: UAT runs after all project features verified
+- Task scope: no UAT
 
 ---
 
@@ -123,6 +203,7 @@ For project scope with 3+ independent tasks across features, consider team mode 
 | `pm-oracle` | Opus | Architecture, debugging, deep reasoning |
 | `pm-implementer` | Opus | Focused code implementation (makes tests pass) |
 | `pm-verifier` | Sonnet | Quality gates: stubs, wiring, compliance, simplicity |
+| `pm-uat-runner` | Sonnet | UAT via Playwright — user journey verification |
 
 ## Commands
 

@@ -23,16 +23,15 @@ Parse `$ARGUMENTS`:
 
 **Task scope:** Read the PRD file. Extract the `## Tests` table.
 
-**Feature scope:** Read all task PRDs in the feature folder (skip README.md, NOTES.md). Extract `## Tests` from each. Also read the feature README for any `## Feature Tests` section.
+**Feature scope:** Read all task PRDs in the feature folder (skip README.md, NOTES.md). Extract `## Tests` from each.
 
 **Project scope:** Delegate to pm-explorer:
 ```
 Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
   Read all task PRDs under .powermode/projects/<slug>/features/.
   For each PRD, extract the full ## Tests table.
-  Also read each feature README for ## Feature Tests sections.
-  Also read project.md for ## Project Tests section.
-  Return a structured summary grouped by feature.
+  Also read .powermode/projects/<slug>/UAT_SCENARIOS.md if it exists.
+  Return a structured summary grouped by feature, plus UAT scenarios.
 ")
 ```
 
@@ -51,19 +50,19 @@ Here are the current tests for <target>:
   02-signup.md:
   | T1 | integration | Register new user | User created in DB, email sent |
 
-  Feature Tests (## Feature Tests in README):
-  [none defined]
-
 **[Feature: 02-dashboard]**
   ...
+
+**UAT Scenarios** (from UAT_SCENARIOS.md, if exists):
+  [list scenario IDs and titles, or "No UAT scenarios defined"]
 ```
 
 Options:
 - Approve as-is — run verifier now
 - Add tests to specific PRD(s) — tell me which
 - Change existing tests — tell me which
-- Add feature-level tests
-- Add project-level tests
+- Add/change UAT scenarios
+- Remove UAT (not a web app)
 - Simplify — remove redundant tests
 
 ## Step 4: Apply Changes (if requested)
@@ -81,8 +80,7 @@ Task(subagent_type="general-purpose", prompt="
   - Test IDs: T1, T2, T3... (task-scoped)
   - Every test needs a concrete expected result with exact values
   - Test types: unit, integration, e2e, functional, manual
-  - Feature tests go in the feature README under ## Feature Tests
-  - Project tests go in project.md under ## Project Tests
+  - UAT scenario changes go in UAT_SCENARIOS.md (same project folder)
 ")
 ```
 
@@ -105,7 +103,6 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 Task(subagent_type="powermode:pm-verifier", prompt="
   Verify the feature at <feature folder path>.
   Read each task PRD. Verify each test ID from each ## Tests table passes.
-  Also verify ## Feature Tests from the feature README.
   Check: builds, tests pass, no regressions.
   CRITICAL: Any stub = BLOCKER.
 ")
@@ -116,8 +113,6 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 Task(subagent_type="powermode:pm-verifier", prompt="
   Verify all features of project <slug>.
   For each feature: read task PRDs and verify ## Tests tables.
-  Also verify ## Feature Tests in each feature README.
-  Also verify ## Project Tests in project.md.
   Check: builds, tests pass, no regressions.
   CRITICAL: Any stub = BLOCKER.
 ")

@@ -84,6 +84,7 @@ plugin-dev:skill-reviewer    # Review specific implementations
 | pm-test-writer | sonnet | Write failing tests from PRD before implementation |
 | pm-implementer | sonnet | Code changes (makes tests pass, test files read-only) |
 | pm-verifier | sonnet | Quality gates: stubs, wiring, compliance, simplicity |
+| pm-uat-runner | sonnet | UAT via Playwright — user journey verification |
 
 ## Key Behaviors
 
@@ -95,6 +96,7 @@ plugin-dev:skill-reviewer    # Review specific implementations
 - **PRD maker**: Delegates PRD writing to sub-agents sequentially (max 2 per batch).
 - **Agent teams**: `/powermode` automatically detects `TeamCreate` availability and offers team mode for 3+ independent tasks.
 - **Decision/issue logging**: Implementer and verifier log decisions and issues to project files.
+- **UAT testing**: Feature/project scopes generate `UAT_SCENARIOS.md` during planning. After all tasks verified, `pm-uat-runner` executes scenarios via Playwright MCP with fix-and-retry loop. Task scope skips UAT.
 - **Backward compatibility**: Old `.powermode/prds/` paths continue to work alongside new `/projects/` structure.
 
 ## RALPH Loop (External Orchestrator)

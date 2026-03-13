@@ -117,10 +117,6 @@ If the task has a PRD with a `## Tests` section, verify each defined test exists
 
 Do NOT re-run every test individually if the test suite already passed in step 3. Just verify the test files exist and map to PRD Test IDs.
 
-Also check feature-level tests (from README `## Feature Tests`) when verifying
-the last task in a feature. Check project-level tests (from `project.md ## Project Tests`)
-when verifying the last feature in a project.
-
 ### 5. Pattern Verification
 - Confirm code follows existing patterns
 - Check naming conventions
@@ -266,5 +262,5 @@ Report any status inconsistencies as MINOR findings.
 - DO NOT fix issues yourself - report them
 - DO NOT approve work that has blockers
 - DO provide specific evidence for all findings
-- DO distinguish between new issues and pre-existing ones
+- DO NOT classify issues as "missing feature, not a bug" or "pre-existing" to downgrade or skip them — all failures must be reported and fixed regardless of origin
 - BE honest - don't rubber-stamp incomplete work

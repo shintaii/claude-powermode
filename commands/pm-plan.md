@@ -272,6 +272,64 @@ Mark feature structures todo completed.
 
 Jump to **PRD WRITING** section below, targeting feature folders.
 
+#### Step 6.5: Generate UAT Scenarios
+
+TaskCreate: subject="Generate UAT scenarios", description="Create UAT_SCENARIOS.md for user-perspective testing", activeForm="Generating UAT scenarios"
+
+Mark todo as in_progress.
+
+Delegate UAT scenario generation to a sub-agent:
+
+```
+Task(subagent_type="general-purpose", prompt="
+  Generate UAT scenarios for this project.
+
+  PROJECT: <project-slug>
+  PROJECT PATH: .powermode/projects/<project-slug>/
+  PLAN: [include the approved plan with features and tasks]
+
+  STEP 1: Detect platform
+  Check these files to determine the app platform:
+  - package.json → web app (look for next, nuxt, react, vue, angular, vite)
+  - Podfile or .xcodeproj → iOS
+  - build.gradle or AndroidManifest.xml → Android
+  - If no web framework found, report 'no web platform detected' and STOP
+
+  Only 'web (playwright)' is supported in v1. If not a web app, STOP and report.
+
+  STEP 2: Detect base URL
+  Check for base URL in:
+  - package.json scripts (dev/start commands)
+  - .env, .env.local, .env.development files
+  - nuxt.config.ts/js, next.config.js, vite.config.ts
+  - Default to http://localhost:3000 if unclear
+
+  STEP 3: Detect cleanup method
+  Look for:
+  - Admin panel routes (e.g., /admin, /admin/reset)
+  - Database seed/reset scripts in package.json
+  - API endpoints for test data reset
+  - If nothing found, use a generic 'navigate to home page' cleanup
+
+  STEP 4: Write UAT_SCENARIOS.md
+  Write to: .powermode/projects/<project-slug>/UAT_SCENARIOS.md
+
+  Format:
+  - ## Platform: web (playwright)
+  - ## Environment: base URL, admin URL if applicable, test credentials if known
+  - ## Pre-run Cleanup: steps to reset state
+  - Per feature: 3-5 scenarios (happy paths + critical error paths)
+  - Each scenario has numbered steps with Action and Expected Result columns
+  - Cross-Feature Journeys section at the end for end-to-end user flows
+  - Scenario numbering: <feature#>.<scenario#> (e.g., 1.1, 1.2, 2.1)
+  - Cross-feature journeys: P.1, P.2, etc.
+
+  Keep scenarios concrete and specific — exact URLs, form field names, button text, expected messages.
+", description="Generate UAT scenarios")
+```
+
+Mark todo completed.
+
 #### Step 7: Confirm Tests with User
 
 TaskCreate: subject="Confirm tests with user", description="Test confirmation", activeForm="Confirming tests"
@@ -279,6 +337,7 @@ TaskCreate: subject="Confirm tests with user", description="Test confirmation", 
 Mark todo as in_progress.
 
 Read all task PRDs just written. Extract every `## Tests` section.
+Read `UAT_SCENARIOS.md` if it was generated in Step 6.5.
 
 Present a consolidated test summary to the user using AskUserQuestion:
 
@@ -287,23 +346,22 @@ Present a consolidated test summary to the user using AskUserQuestion:
 **Task Tests** (verify individual work):
 [grouped by feature, show each task's tests from ## Tests sections]
 
-**Feature Tests** (verify feature works as a whole):
-[feature-level tests — suggest integration tests for cross-task behavior]
-
-**Project Tests** (verify everything works together):
-[project-level tests — suggest e2e tests for critical user journeys]
+**UAT Scenarios** (user perspective verification):
+[summary of scenarios from UAT_SCENARIOS.md — list scenario IDs and titles]
 
 Test stubs have been scaffolded to: [list test file paths]"
 
 Options:
 - Looks good — ready to implement
 - I want to add/change tests (tell me which)
+- Add/change UAT scenarios
+- Remove UAT (not a web app)
 - Simplify — fewer tests
 
 If user wants changes:
 1. Update the relevant PRD files (## Tests sections)
-2. Update feature READMEs (add/update ## Feature Tests section)
-3. Update project.md (add/update ## Project Tests section)
+2. If UAT changes: update UAT_SCENARIOS.md
+3. If remove UAT: delete UAT_SCENARIOS.md
 4. Update scaffolded test stub files to match
 
 Mark todo completed.
@@ -360,6 +418,16 @@ Same as Project scope Step 3 but review as feature-level plan.
 
 Then create the feature folder and jump to **PRD WRITING** section.
 
+#### Step 4.5: Generate UAT Scenarios
+
+TaskCreate: subject="Generate UAT scenarios", description="Create UAT_SCENARIOS.md for user-perspective testing", activeForm="Generating UAT scenarios"
+
+Mark todo as in_progress.
+
+Delegate UAT scenario generation to a sub-agent (same approach as Project scope Step 6.5 above, but scoped to this feature only — 3-5 scenarios, no cross-feature journeys).
+
+Mark todo completed.
+
 #### Step 5: Confirm Tests with User
 
 TaskCreate: subject="Confirm tests with user", description="Test confirmation", activeForm="Confirming tests"
@@ -367,6 +435,7 @@ TaskCreate: subject="Confirm tests with user", description="Test confirmation", 
 Mark todo as in_progress.
 
 Read all task PRDs just written. Extract every `## Tests` section.
+Read `UAT_SCENARIOS.md` if it was generated in Step 4.5.
 
 Present a consolidated test summary to the user using AskUserQuestion:
 
@@ -375,20 +444,23 @@ Present a consolidated test summary to the user using AskUserQuestion:
 **Task Tests** (verify individual work):
 [show each task's tests from ## Tests sections]
 
-**Feature Tests** (verify feature works as a whole):
-[feature-level tests — suggest integration tests for cross-task behavior]
+**UAT Scenarios** (user perspective verification):
+[summary of scenarios from UAT_SCENARIOS.md — list scenario IDs and titles]
 
 Test stubs have been scaffolded to: [list test file paths]"
 
 Options:
 - Looks good — ready to implement
 - I want to add/change tests (tell me which)
+- Add/change UAT scenarios
+- Remove UAT (not a web app)
 - Simplify — fewer tests
 
 If user wants changes:
 1. Update the relevant PRD files (## Tests sections)
-2. Update feature README (add/update ## Feature Tests section)
-3. Update scaffolded test stub files to match
+2. If UAT changes: update UAT_SCENARIOS.md
+3. If remove UAT: delete UAT_SCENARIOS.md
+4. Update scaffolded test stub files to match
 
 Mark todo completed.
 

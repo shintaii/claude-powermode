@@ -85,6 +85,7 @@ Before writing any code, verify that every prerequisite listed in the PRD actual
 ## Code Standards
 
 **NEVER:**
+- Classify issues as "missing feature, not a bug" or "pre-existing" to skip them — if something is broken or missing, fix it
 - Use `as any` or type suppressions
 - Leave empty catch blocks
 - Create, modify, or delete test files (they are read-only — written by pm-test-writer)

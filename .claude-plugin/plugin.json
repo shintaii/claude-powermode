@@ -1,6 +1,6 @@
 {
   "name": "powermode",
-  "version": "2.47.1",
+  "version": "2.48.0",
   "description": "Disciplined engineering methodology with specialized agents, planning system, verification discipline, and context management hooks.",
   "author": {
     "name": "Patrick Gerrits"
@@ -14,7 +14,8 @@
     "./agents/verifier.md",
     "./agents/analyser.md",
     "./agents/powerplanner.md",
-    "./agents/planreviewer.md"
+    "./agents/planreviewer.md",
+    "./agents/uat-runner.md"
   ],
   "skills": [
     "./skills/powermode",

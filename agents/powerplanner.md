@@ -231,11 +231,12 @@ For each task, define 1-3 tests that verify its core behavior.
 | Task | ID | Type | Description | Expected Result |
 |------|----|------|-------------|-----------------|
 
-### Feature Tests
-1-2 integration or e2e tests per feature that verify cross-task cohesion.
+### UAT Strategy
+Describe 3-5 user journeys that should be tested from the user's perspective.
+Focus on happy paths and critical error scenarios.
 
-| Feature | ID | Type | Description | Expected Result |
-|---------|----|------|-------------|-----------------|
+| # | Journey | Key Steps | Expected Outcome |
+|---|---------|-----------|-----------------|
 
 Test types: unit, integration, e2e, functional, manual
 Rules:
@@ -318,17 +319,12 @@ For each task, define 1-3 tests that verify its core behavior.
 | Task | ID | Type | Description | Expected Result |
 |------|----|------|-------------|-----------------|
 
-### Feature Tests
-1-2 integration or e2e tests per feature that verify cross-task cohesion.
+### UAT Strategy
+Describe 3-5 user journeys that should be tested from the user's perspective.
+Focus on happy paths, critical error scenarios, and cross-feature journeys.
 
-| Feature | ID | Type | Description | Expected Result |
-|---------|----|------|-------------|-----------------|
-
-### Project Tests
-1-3 tests that verify the whole system works end-to-end.
-
-| ID | Type | Description | Expected Result | Features |
-|----|------|-------------|-----------------|----------|
+| # | Journey | Key Steps | Expected Outcome |
+|---|---------|-----------|-----------------|
 
 Test types: unit, integration, e2e, functional, manual
 Rules:
