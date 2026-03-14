@@ -35,6 +35,7 @@ claude plugin update powermode@claude-powermode
 | Doubt about current progress | Check alignment with plan | `/pm-checkpoint` |
 | Want project dashboard | See status of all features/tasks | `/pm-status` |
 | Need to re-verify recent changes | Manual verification run | `/pm-review` |
+| Want a second opinion on code | Codex (GPT-5.4) code review | `/pm-codex-review` |
 
 ---
 
@@ -83,6 +84,25 @@ Copies all project markdown files to a user-specified folder, preserving structu
 
 Lists open issues tracked in project `issues.md` files. Can convert issues to new task PRDs.
 
+### `/pm-codex-review` - Second-Opinion Code Review
+
+Runs OpenAI's Codex CLI (GPT-5.4) as an independent reviewer, then optionally feeds findings to pm-implementer.
+
+| Usage | What it reviews |
+|-------|----------------|
+| `/pm-codex-review` | All uncommitted changes |
+| `/pm-codex-review staged` | Only staged changes |
+| `/pm-codex-review pr` | Current branch's PR |
+| `/pm-codex-review pr 42` | PR #42 |
+| `/pm-codex-review commit abc123` | Specific commit (any git ref) |
+| `/pm-codex-review branch` | All commits since `main` |
+| `/pm-codex-review branch develop` | All commits since `develop` |
+| `/pm-codex-review src/foo.py` | Specific files |
+
+Flags: `--model <model>`, `--effort <level>`. Free-text after the mode is treated as additional review instructions.
+
+Requires [Codex CLI](https://github.com/openai/codex) (`npm install -g @openai/codex`).
+
 ### `/pm-uiux` - UI/UX Review & Build
 
 Comprehensive UI/UX review, audit, and implementation using the powermode workflow. Reviews existing interfaces or builds new ones.
@@ -99,8 +119,9 @@ Comprehensive UI/UX review, audit, and implementation using the powermode workfl
 | **pm-powerplanner** | Opus | Strategic planning, comprehensive work plans |
 | **pm-planreviewer** | Sonnet | Plan review, iterates until quality bar met |
 | **pm-oracle** | Opus | Architecture decisions, deep reasoning, stuck debugging |
-| **pm-implementer** | Opus | Focused code implementation (auto-commits per task) |
+| **pm-implementer** | Sonnet | Focused code implementation (auto-commits per task) |
 | **pm-verifier** | Sonnet | Quality verification with evidence |
+| **pm-uat-runner** | Sonnet | UAT via Playwright MCP — browser-based user journey tests |
 
 ---
 
@@ -120,6 +141,14 @@ f. Move to next task
 **Verification is hook-enforced:** starting a new pm-implementer without running pm-verifier first is automatically BLOCKED. Resume calls (fix cycles) bypass this check.
 
 **After 3 consecutive verification failures:** stop → revert → consult pm-oracle → ask user.
+
+### TDD Classification
+
+The planner classifies each task as needing tests or not. Cleanup, config, and docs tasks skip the test-writer step automatically.
+
+### UAT (Feature/Project Scope)
+
+For feature and project scopes, planning generates `UAT_SCENARIOS.md` with browser-based user journey tests. After all tasks pass verification, `pm-uat-runner` executes scenarios via Playwright MCP with a fix-and-retry loop. Task-scoped work skips UAT.
 
 ---
 
@@ -208,6 +237,10 @@ These run automatically — you don't invoke them:
 | **Subagent context** | Injects role reminders when any pm-* agent spawns |
 | **PRD index injector** | Auto-injects PRD structure when `@` references are used |
 | **Keyword detector** | Detects powermode-related keywords and activates workflow |
+| **Failure accountability** | Forces investigation of test/build failures — prevents dismissing as "pre-existing" |
+| **Post-compact reset** | Resets context-state.json after compaction to avoid stale token warnings |
+| **Task completion guard** | Blocks task completion if uncommitted changes or TODO/stub patterns remain |
+| **Teammate idle guard** | Forces teammates with uncommitted changes to commit before going idle |
 
 ---
 
@@ -221,6 +254,8 @@ These run automatically — you don't invoke them:
 - **Verification enforcement** blocks new pm-implementer calls until pm-verifier has run
 - **Auto-commit** implementer commits after each task PRD completion (local only, no push)
 - **Post-verify polish** `/simplify` is called by the orchestrator after verification completes — any verdict (PASS, or after PASS WITH NOTES/FAIL fix cycles). 3 parallel review agents: code reuse, quality, efficiency
+- **Agent-aware hooks** hooks check `agent_type` to distinguish subagent vs orchestrator — subagents (`powermode:*`) bypass stop/todo checks
+- **Context limits** optimized for Opus 4.6 1M context window (warns at 500K tokens)
 
 ---
 

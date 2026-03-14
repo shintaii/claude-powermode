@@ -17,11 +17,20 @@ $ARGUMENTS
 ## Parse Arguments
 
 Extract from `$ARGUMENTS`:
-- **Files**: Any file paths listed (e.g., `src/foo.py src/bar.ts`)
+
+**Review mode** (first positional word determines mode):
+- `pr [number]` — Review a pull request. If number given, review that PR. If omitted, review the current branch's PR.
+- `commit <ref>` — Review a specific commit (hash, branch name, HEAD~2, etc.)
+- `branch [base]` — Review all commits on current branch since diverging from base (default: `main`)
+- `staged` — Review only staged (cached) changes
+- `<file paths>` — Review specific files (e.g., `src/foo.py src/bar.ts`)
+- *(no mode/no args)* — Review all uncommitted changes (staged + unstaged), same as before
+
+**Flags** (can be combined with any mode):
 - **--model**: Override model (default: `gpt-5.4`). MUST always be passed to codex via `-c model=`
 - **--effort**: Override reasoning effort (default: `high`)
 
-If no files and no flags, default to reviewing all uncommitted changes.
+**Free-text instructions**: Any remaining text after mode and flags is treated as additional review instructions appended to the review prompt (e.g., `/pm-codex-review staged focus on error handling`).
 
 ## Step 1: Check Prerequisites
 
@@ -42,20 +51,43 @@ Then configure your API key in ~/.codex/config.toml:
 
 ## Step 2: Gather Changes
 
-**If specific files were provided:**
-- Read the content of each specified file
-- Also run `git diff -- <files>` to get the diff for those files
+Based on the detected mode:
 
-**If no files provided:**
+### Mode: `pr [number]`
+- If a PR number is given: `gh pr diff <number>`
+- If no number: `gh pr diff` (uses current branch's PR)
+- If the `gh` command fails, display the error and stop (e.g., "No PR found for current branch").
+- Also run `gh pr view [number] --json title,body` to include PR context in the review prompt.
+
+### Mode: `commit <ref>`
+- Run `git diff <ref>^..<ref>` to get the diff for that commit
+- Run `git log -1 --format="%H %s" <ref>` to get the commit message
+- If the ref is invalid, display the error and stop.
+
+### Mode: `branch [base]`
+- Run `git diff <base>...HEAD` (default base: `main`)
+- Run `git log --oneline <base>..HEAD` to list commits being reviewed
+- If no commits found, display: "No commits found between `<base>` and HEAD." and stop.
+
+### Mode: `staged`
+- Run `git diff --cached --name-only` to find staged files
+- If no staged changes, display: "No staged changes found. Stage files with `git add` first." and stop.
+- Run `git diff --cached` to get the diff
+
+### Mode: specific files
+- Read the content of each specified file
+- Also run `git diff -- <files>` and `git diff --cached -- <files>` to get diffs
+
+### Mode: default (no args)
 - Run `git diff --name-only` and `git diff --cached --name-only` to find changed files
-- If no changes found, display: "No uncommitted changes found. Pass specific file paths to review existing files (e.g., `/pm-codex-review src/foo.py`)." and stop.
+- If no changes found, display: "No uncommitted changes found. Try: `/pm-codex-review pr`, `/pm-codex-review commit HEAD`, or pass file paths." and stop.
 - Run `git diff` and `git diff --cached` to get the full diff
 
-Store the diff content and list of changed files.
+Store the diff content and list of changed/reviewed files.
 
 ## Step 3: Build Review Prompt
 
-Construct this prompt (replace `<DIFF_CONTENT>` with the actual diff):
+Construct this prompt (replace placeholders with actual content):
 
 ```
 Review the following code changes. For each finding, provide:
@@ -66,6 +98,22 @@ Review the following code changes. For each finding, provide:
 - Suggested fix
 
 Focus on: bugs, logic errors, security vulnerabilities, race conditions, performance issues, and code quality problems. Do NOT flag style preferences or nitpicks.
+
+<If PR mode and PR context was fetched:>
+## PR Context
+Title: <PR title>
+Description: <PR body>
+</If>
+
+<If commit mode:>
+## Commit
+<commit hash and message>
+</If>
+
+<If free-text instructions were provided:>
+## Additional Instructions
+<free-text instructions>
+</If>
 
 ---
 
@@ -102,6 +150,7 @@ Display to the user:
 ```
 ## Codex Review (GPT-5.4)
 
+**Mode:** <mode used (pr #N / commit abc123 / branch main..HEAD / staged / files / uncommitted)>
 **Files reviewed:** <list of files>
 **Model:** <model used>
 
