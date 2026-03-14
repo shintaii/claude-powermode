@@ -683,7 +683,7 @@ For each PRD, evaluate against these rules:
 | Rule | Flag if... |
 |------|-----------|
 | **Domain boundary** | PRD touches more than one area of the codebase |
-| **Size** | PRD would require ~120k+ tokens of implementation work |
+| **Size** | PRD would require ~250k+ tokens of implementation work |
 | **Testability** | PRD cannot be verified with focused tests |
 | **Dependency clarity** | PRD has unclear or circular dependencies |
 
@@ -698,7 +698,7 @@ Task(subagent_type="powermode:pm-analyser", prompt="
 
   For each PRD, evaluate:
   1. Does it cross domain boundaries? (should be split)
-  2. Is it too large for one implementation session? (~120k token limit)
+  2. Is it too large for one implementation session? (~250k token limit)
   3. Can it be tested with focused tests?
   4. Are dependencies between PRDs clear?
 
@@ -800,7 +800,7 @@ Before writing PRDs, ensure the project structure exists:
 Split into multiple task PRDs if:
 1. **Testable chunk**: cannot be tested with 1+ focused tests
 2. **Domain boundary**: touches more than one area of the codebase
-3. **Size**: a single PRD would exceed ~120k tokens of work
+3. **Size**: a single PRD would exceed ~250k tokens of work
 
 ### Delegate Writing
 
@@ -837,7 +837,7 @@ Task(subagent_type="general-purpose", prompt="
 **If 2+ task PRDs needed:**
 
 First create the feature folder and README index yourself (brief, just the structure).
-Then delegate writing in batches of max 2 PRDs per Task:
+Then delegate writing in batches of max 3 PRDs per Task:
 
 ```
 Task(subagent_type="general-purpose", prompt="

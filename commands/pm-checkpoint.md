@@ -16,7 +16,7 @@ Read the context state file to assess token usage:
 Read file: {cwd}/.powermode/context-state.json
 
 If exists, report:
-- Estimated tokens: X (~Y% of 200K limit)
+- Estimated tokens: X (~Y% of 500K limit)
 - Tool calls this session: N
 - Modified files: [list]
 

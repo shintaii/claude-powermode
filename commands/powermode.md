@@ -65,7 +65,7 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
 
 **Feature Scope** (feature directory):
 1. Read the feature README to get task list and dependency order
-2. For each pending task in the feature (in order), up to **5 tasks max per session**:
+2. For each pending task in the feature (in order), up to **8 tasks max per session**:
    - Read the task PRD and check `## Metadata` for `tdd:` value
    - If `tdd: yes` (or no Metadata section): Write failing tests via `pm-test-writer` subagent
    - If `tdd: no`: Skip test writing
@@ -73,17 +73,17 @@ Task(subagent_type="powermode:pm-explorer", model="haiku", prompt="
    - Verify via `pm-verifier` subagent
    - Auto-continue to next task — do NOT ask for confirmation
 3. If all feature tasks are now done: run UAT verification (see **UAT Verification** section below)
-4. After 5 tasks OR last task in feature: **STOP and report progress**
+4. After 8 tasks OR last task in feature: **STOP and report progress**
    - Show: completed X of Y tasks, next pending task path
    - User decides whether to continue with another `/powermode` invocation
 
 **Project Scope** (project slug):
 1. Read the project status to get feature order
-2. For each feature with pending tasks, up to **5 tasks total across features**:
+2. For each feature with pending tasks, up to **8 tasks total across features**:
    - Work through pending tasks (same as Feature Scope above)
-   - The 5-task limit is cumulative across features
+   - The 8-task limit is cumulative across features
 3. If all project tasks are now done: run UAT verification (see **UAT Verification** section below)
-4. After 5 tasks OR last task in project: **STOP and report progress**
+4. After 8 tasks OR last task in project: **STOP and report progress**
    - Show: completed X of Y tasks across N features, next pending task path
    - User decides whether to continue with another `/powermode` invocation
 
@@ -489,7 +489,7 @@ Task(resume="a1b2c3d", prompt="Fix: ...")
 - **Exploration hygiene** - Use Grep/Read tools (with offsets for large files); avoid Bash find/grep
 - **PRD index first** - If a PRD folder has an index/README, read it first and honor dependency order
 - **PRD status tracking** - After completing a PRD, update its status to `Done` in the folder's README.md
-- **Batch limit** - Max 5 tasks per session. Stop and report after 5, let user decide to continue
+- **Batch limit** - Max 8 tasks per session. Stop and report after 8, let user decide to continue
 - **Context isolation** - Implementer sees ONE task PRD only. Never expose task counts, feature scope, or project scope to implementer subagents
 - **No architect triggers** - Never tell implementer "this is task N of M" or show the full task list
 

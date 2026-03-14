@@ -231,9 +231,9 @@ Your context window is LIMITED. To prevent context rot:
 **Hard Limits:**
 | Resource | Limit | Action if Exceeded |
 |----------|-------|-------------------|
-| Tool calls | 30 max | Stop, summarize progress, return |
-| File reads | 15 max | Stop, report what you found |
-| Total turns | 25 max | Summarize and return results |
+| Tool calls | 50 max | Stop, summarize progress, return |
+| File reads | 25 max | Stop, report what you found |
+| Total turns | 40 max | Summarize and return results |
 
 **Mandatory Behaviors:**
 1. Start with 1-sentence goal statement

@@ -90,10 +90,10 @@ plugin-dev:skill-reviewer    # Review specific implementations
 
 - **Stop hook**: Blocks exit if todos pending/in_progress. Escape hatch after 3 attempts. Agent-aware: subagents (`agent_type` starting with `powermode:`) always pass — todo/verification checks only apply to the main orchestrator.
 - **PRD enforcement**: Blocks stop if referenced PRD files weren't updated. Recognizes both `/prds/` and `/projects/` paths.
-- **Context tracking**: Writes `.powermode/context-state.json` with tool counts and token estimates.
+- **Context tracking**: Writes `.powermode/context-state.json` with tool counts and token estimates. Limit: 500K tokens (optimized for Opus 4.6 1M context).
 - **Session recovery**: Saves/restores state on PreCompact/SessionEnd/SessionStart. Includes active project context.
 - **Hierarchical planning**: `/pm-plan` classifies scope (Project/Feature/Task) and creates appropriate structure in `.powermode/projects/`.
-- **PRD maker**: Delegates PRD writing to sub-agents sequentially (max 2 per batch).
+- **PRD maker**: Delegates PRD writing to sub-agents sequentially (max 3 per batch).
 - **Agent teams**: `/powermode` automatically detects `TeamCreate` availability and offers team mode for 3+ independent tasks.
 - **Decision/issue logging**: Implementer and verifier log decisions and issues to project files.
 - **UAT testing**: Feature/project scopes generate `UAT_SCENARIOS.md` during planning. After all tasks verified, `pm-uat-runner` executes scenarios via Playwright MCP with fix-and-retry loop. Task scope skips UAT.
