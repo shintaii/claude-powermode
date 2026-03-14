@@ -119,7 +119,7 @@ Comprehensive UI/UX review, audit, and implementation using the powermode workfl
 | **pm-powerplanner** | Opus | Strategic planning, comprehensive work plans |
 | **pm-planreviewer** | Sonnet | Plan review, iterates until quality bar met |
 | **pm-oracle** | Opus | Architecture decisions, deep reasoning, stuck debugging |
-| **pm-implementer** | Sonnet | Focused code implementation (auto-commits per task) |
+| **pm-implementer** | Opus | Focused code implementation (auto-commits per task) |
 | **pm-verifier** | Sonnet | Quality verification with evidence |
 | **pm-uat-runner** | Sonnet | UAT via Playwright MCP — browser-based user journey tests |
 
