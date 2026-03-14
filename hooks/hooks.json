@@ -1,5 +1,5 @@
 {
-  "description": "Power Mode hooks v2.7.1 - SubagentStart/Stop lifecycle, agent-scoped hooks, prompt-based hooks",
+  "description": "Power Mode hooks v2.8.0 - PostCompact reset, TaskCompleted guard, TeammateIdle commit enforcement",
   "hooks": {
     "PreToolUse": [
       {
@@ -177,6 +177,39 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/subagent-context-injector.py\"",
             "timeout": 3
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/post-compact-handler.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task-completion-guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/teammate-idle-guard.py\"",
+            "timeout": 5
           }
         ]
       }

@@ -18,7 +18,7 @@ $ARGUMENTS
 
 Extract from `$ARGUMENTS`:
 - **Files**: Any file paths listed (e.g., `src/foo.py src/bar.ts`)
-- **--model**: Override model (default: `gpt-5.4`)
+- **--model**: Override model (default: `gpt-5.4`). MUST always be passed to codex via `-c model=`
 - **--effort**: Override reasoning effort (default: `high`)
 
 If no files and no flags, default to reviewing all uncommitted changes.
@@ -79,20 +79,18 @@ Generate a unique output file path:
 REVIEW_FILE="/tmp/codex-review-$(date +%s).md"
 ```
 
-Run Codex via Bash (substitute the parsed model and effort values):
+Run Codex via Bash. **You MUST include the `-c model=` and `-c reasoning_effort=` flags — without them, Codex uses o4-mini which is deprecated.**
+
 ```bash
 codex exec \
   --sandbox read-only \
-  -c model=<MODEL> \
-  -c reasoning_effort=<EFFORT> \
+  -c model=gpt-5.4 \
+  -c reasoning_effort=high \
   -o "$REVIEW_FILE" \
   "<REVIEW_PROMPT>"
 ```
 
-Where:
-- `<MODEL>` = parsed `--model` value or `gpt-5.4`
-- `<EFFORT>` = parsed `--effort` value or `high`
-- `<REVIEW_PROMPT>` = the prompt from Step 3 (properly escaped for shell)
+If the user passed `--model` or `--effort` flags, use those values instead of the defaults above. The `<REVIEW_PROMPT>` is from Step 3 (properly escaped for shell).
 
 If Codex fails or times out, display the error and stop.
 
