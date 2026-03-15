@@ -49,7 +49,7 @@ echo ""
 for feature_dir in "$project_dir"/features/*/; do
     [[ -d "$feature_dir" ]] || continue
     feature_name=$(basename "$feature_dir")
-    sync_readme_to_status "$project_dir" "$feature_name" 2>/dev/null || true
+    sync_readme_to_status "$project_dir" "$feature_name" >/dev/null 2>&1 || true
 done
 # Re-read status after sync
 IFS='|' read -r status total done next_feat next_task <<< "$(read_project_status "$project_dir")"
@@ -116,7 +116,7 @@ with open('$feature_dir/README.md') as f:
     for line in f:
         cells = [c.strip() for c in line.split('|')[1:-1]]
         if len(cells) >= 6 and cells[1].strip() == '$task_file':
-            print(cells[4])
+            print(cells[-2])  # deps is second-to-last column
             break
 " 2>/dev/null || echo "None")
 

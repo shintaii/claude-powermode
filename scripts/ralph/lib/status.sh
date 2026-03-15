@@ -87,11 +87,14 @@ for line in content.split('\n'):
         num = int(cells[0])
     except ValueError:
         continue
+    # Support both 6-col (no TDD) and 7-col (with TDD) tables
+    # 6-col: # | File | Domain | Test Focus | Dependencies | Status
+    # 7-col: # | File | Domain | TDD | Test Focus | Dependencies | Status
     rows.append({
         'num': num,
         'file': cells[1],
-        'deps': cells[4],
-        'status': cells[5]
+        'deps': cells[-2],
+        'status': cells[-1]
     })
 
 # Filter to pending/in_progress tasks (fuzzy match — handles emoji prefixes, extra whitespace, etc.)
@@ -289,7 +292,7 @@ for line in content.split('\n'):
         continue
 
     file_name = cells[1].strip()
-    readme_status = cells[5].strip().lower()
+    readme_status = cells[-1].strip().lower()
     # Derive task key from file name (e.g., '01-project-setup.md' → '01-project-setup')
     task_key = file_name.replace('.md', '')
 
