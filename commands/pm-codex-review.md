@@ -85,47 +85,52 @@ Based on the detected mode:
 
 Store the diff content and list of changed/reviewed files.
 
-## Step 3: Build Review Prompt
+## Step 3: Write Diff to Temp File
 
-Construct this prompt (replace placeholders with actual content):
+**IMPORTANT:** Do NOT pass the diff as a CLI argument — it gets truncated and Codex ignores it. Instead, write the diff to a temp file that Codex will read.
+
+```bash
+DIFF_FILE="/tmp/codex-diff-$(date +%s).patch"
+REVIEW_FILE="/tmp/codex-review-$(date +%s).md"
+```
+
+Write the full diff content to `$DIFF_FILE` using the Write tool (or `cat <<'HEREDOC'` for large diffs).
+
+## Step 4: Build Review Prompt
+
+Construct this prompt — it tells Codex to read the diff file and ONLY review that:
 
 ```
-Review the following code changes. For each finding, provide:
+Read the file <DIFF_FILE> which contains a unified diff of code changes.
+
+IMPORTANT: ONLY review the changes shown in that diff file. Do NOT browse the repository, do NOT read other files, do NOT look for issues outside the diff. Your review scope is strictly limited to the code changes in that diff file.
+
+For each finding, provide:
 - A number
 - Severity: CRITICAL, MAJOR, or MINOR
-- File and line reference
+- File and line reference (from the diff headers)
 - Clear description of the issue
 - Suggested fix
 
 Focus on: bugs, logic errors, security vulnerabilities, race conditions, performance issues, and code quality problems. Do NOT flag style preferences or nitpicks.
 
+If the diff is clean and you find no issues, say: "No issues found."
+
 <If PR mode and PR context was fetched:>
-## PR Context
-Title: <PR title>
-Description: <PR body>
+Context — PR Title: <PR title>
+PR Description: <PR body>
 </If>
 
 <If commit mode:>
-## Commit
-<commit hash and message>
+Context — Commit: <commit hash and message>
 </If>
 
 <If free-text instructions were provided:>
-## Additional Instructions
-<free-text instructions>
+Additional review instructions: <free-text instructions>
 </If>
-
----
-
-<DIFF_CONTENT>
 ```
 
-## Step 4: Execute Codex Review
-
-Generate a unique output file path:
-```bash
-REVIEW_FILE="/tmp/codex-review-$(date +%s).md"
-```
+## Step 5: Execute Codex Review
 
 Run Codex via Bash. **You MUST include the `-c model=` and `-c reasoning_effort=` flags — without them, Codex uses o4-mini which is deprecated.**
 
@@ -138,11 +143,11 @@ codex exec \
   "<REVIEW_PROMPT>"
 ```
 
-If the user passed `--model` or `--effort` flags, use those values instead of the defaults above. The `<REVIEW_PROMPT>` is from Step 3 (properly escaped for shell).
+If the user passed `--model` or `--effort` flags, use those values instead of the defaults above. The `<REVIEW_PROMPT>` is from Step 4 (properly escaped for shell).
 
 If Codex fails or times out, display the error and stop.
 
-## Step 5: Display Findings
+## Step 6: Display Findings
 
 Read the output file content.
 
@@ -159,7 +164,13 @@ Display to the user:
 
 If the review output is empty, display: "Codex returned no findings."
 
-## Step 6: Implementer Integration
+## Step 7: Cleanup
+
+```bash
+rm -f "$DIFF_FILE"
+```
+
+## Step 8: Implementer Integration
 
 Ask the user:
 
