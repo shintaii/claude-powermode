@@ -64,7 +64,7 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    b. IMPLEMENT with pm-implementer → save the agentId
    c. CHECK for BLOCKED.md — if exists, resolve it (Phase 3.5) before continuing
    d. VERIFY with pm-verifier — MANDATORY, no exceptions
-   e. If FAIL → resume implementer via agentId → re-verify
+   e. If FAIL → resume implementer via SendMessage(to=agentId) → re-verify
    f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after verification completes. Do NOT skip.
    g. Move to next task
 ```
@@ -78,24 +78,24 @@ without running pm-verifier first will be BLOCKED.
 
 ## Session Continuity (CRITICAL)
 
-Every Task returns an `agentId`. **USE IT** for follow-ups via the `resume` parameter:
+Every Agent call returns an `agentId`. **USE IT** for follow-ups via `SendMessage`:
 
 ```
 # First call
-result = Task(subagent_type="powermode:pm-implementer", prompt="Implement auth...")
+result = Agent(subagent_type="powermode:pm-implementer", prompt="Implement auth...")
 # Returns: agentId (e.g. "a1b2c3d")
 
 # If it fails or needs follow-up, RESUME the agent:
-Task(resume="a1b2c3d", prompt="Fix: the type error on line 42")
+SendMessage(to="a1b2c3d", content="Fix: the type error on line 42")
 ```
 
 ### When to Resume
 
 | Scenario | Action |
 |----------|--------|
-| Task failed | `resume="<agentId>", prompt="Fix: {specific error}"` |
-| Need follow-up | `resume="<agentId>", prompt="Also: {additional request}"` |
-| Verification failed | `resume="<agentId>", prompt="Failed verification: {error}"` |
+| Task failed | `SendMessage(to="<agentId>", content="Fix: {specific error}")` |
+| Need follow-up | `SendMessage(to="<agentId>", content="Also: {additional request}")` |
+| Verification failed | `SendMessage(to="<agentId>", content="Failed verification: {error}")` |
 
 **Why This Matters:**
 - Agent has FULL conversation context preserved
@@ -314,19 +314,19 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 ### Verification Failure → Fix Cycle
 
 When pm-verifier returns a BLOCKER or FAIL:
-1. **RESUME** the same pm-implementer via `resume="<agentId>"` with the verifier's findings
+1. **RESUME** the same pm-implementer via `SendMessage(to="<agentId>")` with the verifier's findings
 2. Re-run pm-verifier after the fix
 3. Repeat up to 3 times total
 
 ```
 # Implementer returns agentId "a1b2c3d"
-result = Task(subagent_type="powermode:pm-implementer", prompt="Implement X...")
+result = Agent(subagent_type="powermode:pm-implementer", prompt="Implement X...")
 
 # Verifier finds issues
-Task(subagent_type="powermode:pm-verifier", prompt="Verify X...")  # → FAIL
+Agent(subagent_type="powermode:pm-verifier", prompt="Verify X...")  # → FAIL
 
 # Resume SAME implementer (preserves full context)
-Task(resume="a1b2c3d", prompt="Failed verification: {verifier findings}")
+SendMessage(to="a1b2c3d", content="Failed verification: {verifier findings}")
 ```
 
 **Do NOT spawn a new implementer** — resuming preserves context and saves 70%+ tokens.

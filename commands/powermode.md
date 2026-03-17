@@ -317,7 +317,7 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 - **PASS WITH NOTES** → Auto-fix cycle:
   1. Resume the `pm-implementer` (using its `agentId`) with the verifier's notes as fix instructions:
      ```
-     Task(resume="<implementer-agentId>", prompt="
+     SendMessage(to="<implementer-agentId>", content="
        The verifier found issues that need fixing. Address each one:
 
        <paste verifier notes/findings here>
@@ -469,18 +469,18 @@ After all tasks complete:
 
 ## Session Continuity
 
-Every Task returns an `agentId`. Use `resume` for follow-ups:
+Every Agent call returns an `agentId`. Use `SendMessage` for follow-ups:
 ```
 # First call returns agentId (e.g. "a1b2c3d")
 # If failed or needs follow-up:
-Task(resume="a1b2c3d", prompt="Fix: ...")
+SendMessage(to="a1b2c3d", content="Fix: ...")
 ```
 
 ## Key Rules
 
 - **NEVER implement without exploring first** (for non-trivial tasks)
 - **Fire explorers in parallel** - multiple angles simultaneously
-- **Use resume** - don't restart failed tasks from scratch
+- **Use SendMessage** - don't restart failed tasks from scratch
 - **Consult oracle for hard decisions** - Architecture, after 2+ failed fixes
 - **Verify with evidence** - build output, lint, tests
 - **No slop** - No `as any`, no empty catch, no deleted tests

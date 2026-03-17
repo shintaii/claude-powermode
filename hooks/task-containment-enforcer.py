@@ -11,7 +11,6 @@ Fires on: PreToolUse (Task, delegate_task)
 
 import sys
 import json
-import re
 from pathlib import Path
 
 # Compact containment reminder (agent definitions have the full rules)
@@ -128,9 +127,10 @@ def main():
         return
 
     # Block new pm-implementer if verification is pending
+    # Note: resume calls use SendMessage (separate tool), so any Agent/Task call
+    # reaching here is always a NEW agent — no need to check for resume.
     subagent_type = tool_input.get("subagent_type", "")
-    is_resume = bool(tool_input.get("resume"))
-    if "pm-implementer" in subagent_type and not is_resume:
+    if "pm-implementer" in subagent_type:
         pending_file = Path(cwd) / ".powermode" / "pending-verification.json"
         if pending_file.exists():
             deny_reason = (
