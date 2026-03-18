@@ -312,7 +312,7 @@ Task(subagent_type="powermode:pm-verifier", prompt="
 
 ### Handling Verification Results
 
-- **PASS** → Run `Skill(skill="simplify")`, then continue to next task (or stop if single-task scope).
+- **PASS** → Run Codex second-opinion (see below), then `Skill(skill="simplify")`, then continue to next task (or stop if single-task scope).
 - **FAIL** → Pause and present blockers to user. After fixes and re-verify → run `Skill(skill="simplify")`.
 - **PASS WITH NOTES** → Auto-fix cycle:
   1. Resume the `pm-implementer` (using its `agentId`) with the verifier's notes as fix instructions:
@@ -327,7 +327,23 @@ Task(subagent_type="powermode:pm-verifier", prompt="
      ```
   2. Re-verify once with `pm-verifier`.
   3. After re-verify: accept the result regardless of verdict (PASS or PASS WITH NOTES). Do NOT loop again — a second round of notes means the remaining items are minor enough to ship.
-  4. Run `Skill(skill="simplify")` — MANDATORY even after fix cycles.
+  4. Run Codex second-opinion (see below), then `Skill(skill="simplify")` — MANDATORY even after fix cycles.
+
+### Codex Second-Opinion (after verification PASS)
+
+After pm-verifier passes, run Codex as an independent reviewer to catch issues Claude may miss (especially path traversal, SSRF, and subtle logic bugs):
+
+```bash
+Skill(skill="pm-codex-review", args="staged --effort high")
+```
+
+Use `staged` mode if the task's changes are staged, or the appropriate mode for what was just committed (e.g., `commit HEAD`).
+
+**Rules:**
+- This is **advisory only** — if Codex finds CRITICAL or MAJOR issues, feed them to the implementer. MINOR issues are informational, do not act on them.
+- If Codex returns "No issues found" → proceed to simplify.
+- If Codex is not installed → skip silently, do not block the pipeline.
+- Do NOT re-run pm-verifier after Codex fixes — one Codex pass is the cap.
 
 After verification, check the **scope** (Task/Feature/Project) to decide whether to continue or stop. Only auto-continue for Feature and Project scopes. Only pause if verification fails and needs user input.
 

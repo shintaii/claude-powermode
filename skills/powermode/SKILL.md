@@ -65,11 +65,12 @@ You are now operating in **Power Mode**. You MUST use the specialized agents bel
    c. CHECK for BLOCKED.md — if exists, resolve it (Phase 3.5) before continuing
    d. VERIFY with pm-verifier — MANDATORY, no exceptions
    e. If FAIL → resume implementer via SendMessage(to=agentId) → re-verify
-   f. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after verification completes. Do NOT skip.
-   g. Move to next task
+   f. CODEX SECOND-OPINION — run /pm-codex-review on the changes (skip if codex not installed)
+   g. SIMPLIFY — run Skill(skill="simplify"). MANDATORY after verification completes. Do NOT skip.
+   h. Move to next task
 ```
 
-**Step f is NOT optional. Run simplify after PASS, after PASS WITH NOTES fix cycle, and after FAIL fix cycle. The task is incomplete until simplify has run.**
+**Step g is NOT optional. Run simplify after PASS, after PASS WITH NOTES fix cycle, and after FAIL fix cycle. The task is incomplete until simplify has run.**
 
 **The verify step is ENFORCED by a hook.** Starting a new pm-implementer
 without running pm-verifier first will be BLOCKED.
@@ -337,6 +338,22 @@ SendMessage(to="a1b2c3d", content="Failed verification: {verifier findings}")
 2. **REVERT** to last known working state
 3. **CONSULT** pm-oracle for root cause analysis
 4. **ASK** user if still stuck
+
+## Phase 4.5: Codex Second-Opinion (after verification PASS)
+
+After pm-verifier passes, run Codex (GPT-5.4 high) as an independent reviewer:
+
+```
+Skill(skill="pm-codex-review", args="commit HEAD --effort high")
+```
+
+**Rules:**
+- **Advisory only** — act on CRITICAL/MAJOR findings, ignore MINOR
+- If Codex finds issues → feed to implementer, but do NOT re-run pm-verifier after
+- If Codex is not installed → skip silently, do not block
+- One Codex pass per task — no loops
+
+This catches bugs Claude tends to miss: path traversal, SSRF, subtle logic errors.
 
 ## Phase 5: Simplify (MANDATORY after verification — do NOT skip)
 

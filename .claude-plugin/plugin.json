@@ -35,6 +35,7 @@
     "./commands/pm-tests.md",
     "./commands/pm-clean.md",
     "./commands/pm-codex-review.md",
-    "./commands/pm-worktree.md"
+    "./commands/pm-worktree.md",
+    "./commands/pm-quick.md"
   ]
 }

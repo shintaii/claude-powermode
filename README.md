@@ -134,8 +134,9 @@ a. EXPLORE with pm-explorer (if needed)
 b. IMPLEMENT with pm-implementer → auto-commits, returns agentId
 c. VERIFY with pm-verifier — MANDATORY, enforced by hook
 d. If FAIL → resume implementer via SendMessage(to=agentId) → re-verify (max 3 attempts)
-e. After verification → /simplify for code quality polish
-f. Move to next task
+e. CODEX SECOND-OPINION → /pm-codex-review on changes (skipped if codex not installed)
+f. After verification → /simplify for code quality polish
+g. Move to next task
 ```
 
 **Verification is hook-enforced:** starting a new pm-implementer without running pm-verifier first is automatically BLOCKED. SendMessage resume calls (fix cycles) bypass this check since they use a different tool.
