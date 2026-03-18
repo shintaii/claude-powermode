@@ -3,6 +3,8 @@ name: pm-test-writer
 description: Use this agent to write failing tests from a PRD's test definitions BEFORE implementation begins. Writes real, runnable test files that map to PRD Test IDs. Never writes production code.
 model: sonnet
 color: yellow
+maxTurns: 15
+disallowedTools: ["Agent"]
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"]
 ---
 

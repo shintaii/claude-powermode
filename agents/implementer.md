@@ -3,6 +3,9 @@ name: pm-implementer
 description: Use this agent for focused code implementation tasks. Delegate specific, well-defined implementation work after exploration is complete. Best for single-responsibility tasks with clear requirements.
 model: opus
 color: green
+effort: high
+maxTurns: 40
+disallowedTools: ["Agent"]
 tools: ["Read", "Write", "Edit", "Grep", "Glob", "Bash"]
 hooks:
   PostToolUse:

@@ -3,6 +3,8 @@ name: pm-oracle
 description: Use this agent for deep reasoning, architecture decisions, complex debugging, and strategic guidance. Consult oracle when facing multi-system tradeoffs, after 2+ failed fix attempts, or when designing complex features. This is the high-IQ reasoning specialist.
 model: opus
 color: magenta
+effort: high
+maxTurns: 15
 tools: ["Read", "Grep", "Glob", "WebFetch", "WebSearch"]
 ---
 

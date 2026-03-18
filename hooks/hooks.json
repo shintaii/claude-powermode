@@ -1,5 +1,5 @@
 {
-  "description": "Power Mode hooks v2.8.0 - PostCompact reset, TaskCompleted guard, TeammateIdle commit enforcement",
+  "description": "Power Mode hooks v2.9.0 - StopFailure session save, agent frontmatter (effort/maxTurns/disallowedTools)",
   "hooks": {
     "PreToolUse": [
       {
@@ -137,6 +137,17 @@
       }
     ],
     "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session-state-saver.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
       {
         "hooks": [
           {
