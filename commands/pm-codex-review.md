@@ -1,6 +1,6 @@
 ---
 name: pm-codex-review
-description: Run Codex CLI (GPT-5.4) as independent code reviewer, feed findings to implementer
+description: Run Codex CLI (GPT-5.4) as independent reviewer for code changes or plans
 allowed-tools: "*"
 ---
 
@@ -19,6 +19,7 @@ $ARGUMENTS
 Extract from `$ARGUMENTS`:
 
 **Review mode** (first positional word determines mode):
+- `plan [slug]` — Review a project plan. If slug given, review that project. If omitted, review the most recently modified project under `.powermode/projects/`.
 - `pr [number]` — Review a pull request. If number given, review that PR. If omitted, review the current branch's PR.
 - `commit <ref>` — Review a specific commit (hash, branch name, HEAD~2, etc.)
 - `branch [base]` — Review all commits on current branch since diverging from base (default: `main`)
@@ -52,6 +53,21 @@ Then configure your API key in ~/.codex/config.toml:
 ## Step 2: Gather Changes
 
 Based on the detected mode:
+
+### Mode: `plan [slug]`
+- Locate the project directory:
+  - If slug given: `.powermode/projects/<slug>/`
+  - If no slug: find the most recently modified project directory under `.powermode/projects/` (by checking `status.json` mtime)
+- If the directory doesn't exist or `.powermode/projects/` is empty, display: "No project plans found. Create one with `/pm-plan`." and stop.
+- Gather all plan content by reading (in order):
+  1. `project.md` — project scope and goals
+  2. `status.json` — current state
+  3. `decisions.md` — if it exists
+  4. `issues.md` — if it exists
+  5. All feature task PRDs: `features/*/README.md` and `features/*/*.md` (excluding NOTES.md)
+- Concatenate all content into a single document with clear `## <filename>` headers between sections.
+- Store this as the "plan content" (used instead of a diff in Step 3).
+- **Skip to Step 3** — write the concatenated plan content to the temp file (use `.md` extension instead of `.patch`).
 
 ### Mode: `pr [number]`
 - If a PR number is given: `gh pr diff <number>`
@@ -98,7 +114,35 @@ Write the full diff content to `$DIFF_FILE` using the Write tool (or `cat <<'HER
 
 ## Step 4: Build Review Prompt
 
-Construct this prompt — it tells Codex to read the diff file and ONLY review that:
+### For plan mode:
+
+```
+Read the file <DIFF_FILE> which contains a project plan with PRDs, status, and task definitions.
+
+IMPORTANT: ONLY review the plan content in that file. Do NOT browse the repository or read other files.
+
+Review the plan for:
+1. **Completeness** — Are requirements clear and unambiguous? Are acceptance criteria testable? Are there missing edge cases or implicit assumptions?
+2. **Feasibility** — Are tasks scoped correctly? Are there tasks that are too large or too vague to implement in one pass? Are dependencies between tasks identified?
+3. **Consistency** — Do task PRDs align with the project scope in project.md? Are there contradictions between tasks? Does status.json match the actual state of PRDs?
+4. **Risk** — Are there architectural decisions that could cause rework? Are there integration points that need more definition? Are there missing error/failure scenarios?
+5. **Testability** — Do test definitions (if present) cover the critical paths? Are there features without any test definitions?
+
+For each finding, provide:
+- A number
+- Severity: CRITICAL (blocks implementation), MAJOR (likely causes rework), or MINOR (improvement)
+- Which file/section it refers to
+- Clear description of the gap or issue
+- Suggested improvement
+
+If the plan is solid, say: "Plan looks solid. No significant issues found."
+
+<If free-text instructions were provided:>
+Additional review instructions: <free-text instructions>
+</If>
+```
+
+### For all other modes (code review):
 
 ```
 Read the file <DIFF_FILE> which contains a unified diff of code changes.
@@ -155,8 +199,8 @@ Display to the user:
 ```
 ## Codex Review (GPT-5.4)
 
-**Mode:** <mode used (pr #N / commit abc123 / branch main..HEAD / staged / files / uncommitted)>
-**Files reviewed:** <list of files>
+**Mode:** <mode used (plan <slug> / pr #N / commit abc123 / branch main..HEAD / staged / files / uncommitted)>
+**Files reviewed:** <list of files or plan files>
 **Model:** <model used>
 
 <contents of the review output>
@@ -170,7 +214,20 @@ If the review output is empty, display: "Codex returned no findings."
 rm -f "$DIFF_FILE"
 ```
 
-## Step 8: Implementer Integration
+## Step 8: Next Steps
+
+### For plan mode:
+
+Ask the user:
+
+> Address these findings? Options:
+> 1. Update the plan PRDs manually
+> 2. Re-run `/pm-plan` to revise
+> 3. No action needed
+
+Display: "Plan review complete. Findings displayed above."
+
+### For all other modes (code review):
 
 Ask the user:
 
